@@ -39,17 +39,31 @@ void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, doub
 				sum = 0;
 				for (l = 0; l < classes; l++) {
 					prior[l] = 0;
-					if (i - 1 >= 0)
-						if (xt[i - 1][j] != l)
+					if (i - 1 >= 0) {
+						if (j - 1 >= 0)
+							if (xt[i - 1][j - 1] != l)
+	 							(prior[l])++;
+						if (xt[i - 1][j] != l)  
 							(prior[l])++;
-					if (i + 1 <= rows - 1)
-						if (xt[i + 1][j] != l)
+						if (j + 1 < cols)
+							if (xt[i - 1][j + 1] != l) 
+								(prior[l])++;
+					}
+					if (i + 1 < rows) {
+						if (j - 1 >= 0)
+							if (xt[i + 1][j - 1] != l) 
+								(prior[l])++;
+						if (xt[i + 1][j] != l) 
 							(prior[l])++;
+						if (j + 1 < cols)
+							if (xt[i + 1][j + 1] != l) 
+								(prior[l])++;
+					}
 					if (j - 1 >= 0)
-						if (xt[i][j - 1] != l)
+						if (xt[i][j - 1] != l) 
 							(prior[l])++;
-					if (j + 1 <= cols - 1)
-						if (xt[i][j + 1] != l)
+					if (j + 1 < cols)
+						if (xt[i][j + 1] != l) 
 							(prior[l])++;
 
 					post[l] = exp(yk[l][i][j] - beta * (double)(prior[l]) - gamma[l]);
