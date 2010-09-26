@@ -3,6 +3,8 @@
 /** usage:  em beta infile outfile mpm-iter em-iter #_of_classes **/
 
 /* Modified by Joel Dumke on 9/4/06 */
+/* Modified by Khalid Tahboub on 9/13/10 */
+
 
 #include <math.h>
 #include <stdlib.h>
@@ -21,13 +23,19 @@ void blur(double **h, unsigned char **in, unsigned char **out, int rows, int col
 int main(int argc,char *argv[]) {
 	struct TIFF_img input_img, output_img;
 	FILE *fp;
-	unsigned int i, j, rows, cols;
+	unsigned int i, j, rows, cols, x11, x12, y11, y12, x21, x22, y21, y22;
 	double beta, gamma[MAX_CLASSES], ga, x, m[MAX_CLASSES], v[MAX_CLASSES], N[MAX_CLASSES];
 	int enable_blur = 0;
 	/*	m[l] - estimate of mean for class l
 		v[l] - estimate of variance for class l
 		N[l] - Used for normalization 
+		(x11,y11) & (x12,y12) specify the rectangle coodrinates to initialize the first class
+		(x21,y21) & (x22,y22) specify the rectangle coodrinates to initialize the second class
 	*/
+
+	
+	
+
 	int l, mpmiter, emiter, k, kk, classes;
 	unsigned char **y, **xt, **output;  /* output : entropy image */
 	double **probs[MAX_CLASSES];
@@ -36,8 +44,10 @@ int main(int argc,char *argv[]) {
 	double mu, sigma;
 
 	/* Verify correct number of arguments */
-	if (argc != 8) {
-		printf("usage:  %s beta gamma infile outfile mpm-iter em-iter #_of_classes\n", argv[0]);
+	if (argc != 16) {
+		printf("usage:  %s beta gamma infile outfile mpm-iter em-iter #_of_classes x11 y11 x12 y12 x21 y21 x22 y22\n", argv[0]);
+		printf("(x11,y11) & (x12,y12) specify the rectangle coodrinates to initialize the first class.\n");
+		printf("(x21,y21) & (x22,y22) specify the rectangle coodrinates to initialize the second class.\n");
 		exit(1);
 	}
 
@@ -46,6 +56,17 @@ int main(int argc,char *argv[]) {
 	mpmiter= atoi(argv[5]);
 	emiter= atoi(argv[6]);
 	classes = atoi(argv[7]);
+
+	x11	= atoi(argv[8]);
+	y11	= atoi(argv[9]);
+	x12	= atoi(argv[10]);
+	y12	= atoi(argv[11]);
+	x21	= atoi(argv[12]);
+	y21	= atoi(argv[13]);
+	x22	= atoi(argv[14]);
+	y22	= atoi(argv[15]);
+
+
 
 	max_entropy = log10(classes)/log(2);
 
@@ -91,37 +112,30 @@ int main(int argc,char *argv[]) {
 
 
 	/* Initialization of parameter estimation */
-	mu = 0;
+
 	sigma = 0;
-	for (i=0; i<rows; i++)
-		for (j=0; j<cols; j++)
+
+	mu = 0;
+	for (i=y11; i<y12; i++)
+		for (j=x11; j<x12; j++)
 			mu += y[i][j];
-	mu /= rows*cols;
+	mu /= (y12 - y11)*(x12 - x11);
+	m[1] = mu;
+	printf("m[1]=%f\n",mu);
 
-	for (i=0; i<rows; i++)
-		for (j=0; j<cols; j++)
-			sigma += (y[i][j]-mu)*(y[i][j]-mu);
-	sigma /= rows*cols;
-	sigma = sqrt((double)sigma);
-	printf("mu=%f sigma=%f\n",mu,sigma);
+	mu = 0;
+	for (i=y21; i<y22; i++)
+		for (j=x21; j<x22; j++)
+			mu += y[i][j];
+	mu /= (y22 - y21)*(x22 - x21);	
+	m[0] = mu;
+	printf("m[0]=%f\n",mu);
 
-	if (classes%2 == 0)
-	{
-		for (k=0; k<classes/2; k++)
-		{
-			m[classes/2 + k] = mu + (k+1)*sigma/2;
-			m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
-		}
-	}
-	else
-	{
-		m[classes/2] = mu;
-		for (k=0; k<classes/2; k++)
-		{
-			m[classes/2 + 1 + k] = mu + (k+1)*sigma/2;
-			m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
-		}
-	}
+
+
+
+
+	
 
 	for (l = 0; l < classes; l++) {
 		v[l] = 20;
