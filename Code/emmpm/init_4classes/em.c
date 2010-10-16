@@ -6,13 +6,14 @@
 /* Modified by Khalid Tahboub on 9/13/10 */
 
 
-#include <math.h>
 #include <stdlib.h>
-#include "tiff.h"
+#include <stdio.h>
+#include <math.h>
+
 #include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
-
 #include "emmpm/common/EMTiffIO.h"
+
 #define MAX_CLASSES 15
 
 
@@ -23,15 +24,13 @@ void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigne
 void blur(double **h, unsigned char **in, unsigned char **out, int rows, int cols, int mask_size);
 
 int main(int argc,char *argv[]) {
-  TIFF* input_img;
-  TIFF* output_img;
-	FILE *fp;
+
 	unsigned int i, j, rows, cols, x11, x12, y11, y12, x21, x22, y21, y22, x31, x32, y31, y32, x41, x42, y41, y42;
 	double beta, gamma[MAX_CLASSES], ga, x, m[MAX_CLASSES], v[MAX_CLASSES], N[MAX_CLASSES];
 	int enable_blur = 0;
 	/*	m[l] - estimate of mean for class l
 		v[l] - estimate of variance for class l
-		N[l] - Used for normalization 
+		N[l] - Used for normalization
 		(x11,y11) & (x12,y12) specify the rectangle coodrinates to initialize the first class
 		(x21,y21) & (x22,y22) specify the rectangle coodrinates to initialize the second class
 		(x31,y31) & (x32,y32) specify the rectangle coodrinates to initialize the third class
@@ -80,7 +79,7 @@ int main(int argc,char *argv[]) {
 	y41	= atoi(argv[21]);
 	x42	= atoi(argv[22]);
 	y42	= atoi(argv[23]);
-	
+
 
 
 
@@ -95,23 +94,8 @@ int main(int argc,char *argv[]) {
 
 	gamma[0] = ga;
 
-	unsigned char* raster;
-
-	raster = EM_ReadTiffAsGrayScale(argv[3], &cols, &rows);
-	uint8_t* dst = raster;
-	/* Copy input image to y[][] */
-	y = (unsigned char **)get_img(cols, rows, sizeof(char));
-  for (i = 0; i < rows; i++)
-  {
-    for (j = 0; j < cols; j++)
-    {
-      y[i][j] = *dst;
-      ++dst;
-    }
-  }
-
-  _TIFFfree( raster ); // Release the memory used to read the image
-  input_img = NULL;
+  /* Get our input data from a Tiff Formatted Image */
+  y = EM_ReadInputImage(argv[3], &cols, &rows);
 
 	xt = (unsigned char **)get_img(cols, rows, sizeof(char));
 
@@ -133,7 +117,7 @@ int main(int argc,char *argv[]) {
 		for (j=x21; j<x22; j++)
 			mu += y[i][j];
 	mu /= (y22 - y21)*(x22 - x21);
-	
+
 	m[2] = mu;
 	printf("m[2]=%f\n",mu);
 
@@ -158,7 +142,7 @@ int main(int argc,char *argv[]) {
 
 
 
-	
+
 
 	for (l = 0; l < classes; l++) {
 		v[l] = 20;
@@ -179,7 +163,7 @@ int main(int argc,char *argv[]) {
 	for (k = 0; k < emiter; k++) {
 		/* Perform MPM */
 		mpm(y, xt, probs, beta, gamma, m, v, rows, cols, mpmiter, classes);
-		
+
 		/* Reset model parameters to zero */
 		for (l = 0; l < classes; l++) {
 			m[l] = 0;
@@ -197,7 +181,7 @@ int main(int argc,char *argv[]) {
 					m[l] += y[i][j] * probs[l][i][j];  // numerator of (20)
 				}
 			}
-			if (N[l] != 0) 
+			if (N[l] != 0)
 				m[l] = m[l] / N[l];  // Eq. (20)
 		}
 
@@ -208,10 +192,10 @@ int main(int argc,char *argv[]) {
 					// numerator of (21)
 					v[l] += (y[i][j] - m[l]) * (y[i][j] - m[l]) * probs[l][i][j];
 			}
-			if (N[l] != 0) 
+			if (N[l] != 0)
 				v[l] = v[l] / N[l];
 		}
-		
+
 		/* Monitor estimates of mean and variance */
 		if (emiter < 10 || (k + 1) % (emiter / 10) == 0) {
 			for (l = 0; l < classes - 1; l++)
@@ -237,29 +221,13 @@ int main(int argc,char *argv[]) {
 	}
 
 
-	/* Allocate space for the output image, and copy a scaled xt */
-
-  raster = (unsigned char*)_TIFFmalloc(cols * rows);
-  index = 0;
-  for (i = 0; i < rows; i++)
+  /* Allocate space for the output image, and copy a scaled xt
+   * and then write the output image.*/
+  err = EM_WriteOutputImage(argv[4], cols, rows, classes, xt);
+  if (err < 0)
   {
-    for (j = 0; j < cols; j++)
-    {
-      raster[index++] = (int)xt[i][j] * 255 / (classes - 1);
-    }
+    return 0;
   }
-
-	err = EM_WriteGrayScaleTiff(raster, argv[4], cols, rows, argv[4], "Segmented with EM/MPM");
-	if (err < 0)
-	{
-	  printf("Error writing Tiff file %s\n", argv[4]);
-	  return 0;
-	}
-	else
-	{
-	  printf("Wrote output image %s\n", argv[4]);
-	}
-	_TIFFfree(raster);
 
 	free_img((void **)xt);
 	free_img((void **)y);

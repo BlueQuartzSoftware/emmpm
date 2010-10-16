@@ -9,20 +9,15 @@
 #ifndef EMTIFFIO_H_
 #define EMTIFFIO_H_
 
-#include "EMMPM/Common/EMMPMTypes.h"
-#include "EMMPM/Common/EMMPMVersion.h"
-#include "MSVCDefines.h"
-
+#include "emmpm/common/EMMPMTypes.h"
 
 #ifdef EMMPM_HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
-
-//-- TIFF Headers
-// We define _TIFF_DATA_TYPEDEFS_ here because EMMPMTypes.h has the exact type of typedefs
-#define _TIFF_DATA_TYPEDEFS_ 1
-#include <tiffio.h>
+#include "EMMPM/Common/EMMPMTypes.h"
+#include "EMMPM/Common/EMMPMVersion.h"
+#include "MSVCDefines.h"
 
 
 
@@ -32,7 +27,29 @@ extern "C"
 #endif
 
   /**
-   *
+   * @brief
+   * @param filename
+   * @param width
+   * @param height
+   * @return
+   */
+  unsigned char** EM_ReadInputImage(char* filename, unsigned int* width, unsigned int* height);
+
+  /**
+   * @brief
+   * @param filename
+   * @param width
+   * @param height
+   * @param classes
+   * @param xt
+   * @return
+   */
+  int EM_WriteOutputImage(char* filename, unsigned int width, unsigned int height,
+                          int classes, unsigned char** xt);
+
+
+  /**
+   * @brief
    * @param filename
    * @param width
    * @param height
@@ -41,7 +58,7 @@ extern "C"
   unsigned char* EM_ReadTiffAsGrayScale(char* filename, unsigned int* width, unsigned int* height);
 
   /**
-   * Writes the output from the EM/MPM into a Tiff File
+   * @brief Writes the output from the EM/MPM into a Tiff File
    * @param raster EM/MPM Output
    * @param filename The filename to write to.
    * @param width Width of the image

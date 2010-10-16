@@ -6,8 +6,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "EMTiffIO.h"
-#include "EMTime.h"
+#include "emmpm/common/EMTiffIO.h"
 
 #ifdef EMMPM_HAVE_STDLIB_H
 #include <stdlib.h>
@@ -21,6 +20,83 @@
 #include <string.h>
 #endif
 
+
+//-- TIFF Headers
+// We define _TIFF_DATA_TYPEDEFS_ here because EMMPMTypes.h has the exact type of typedefs
+#define _TIFF_DATA_TYPEDEFS_ 1
+#include <tiffio.h>
+
+#include "emmpm/common/EMTime.h"
+
+#include "emmpm/common/allocate.h"
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int EM_WriteOutputImage(char* filename, unsigned int width, unsigned int height,
+                        int classes, unsigned char** xt)
+{
+  int err = 1;
+  unsigned char* raster;
+  int index;
+  unsigned int i;
+  unsigned int j;
+
+  raster = (unsigned char*)_TIFFmalloc(width * height);
+  index = 0;
+  for (i = 0; i < height; i++)
+  {
+    for (j = 0; j < width; j++)
+    {
+      raster[index++] = (int)xt[i][j] * 255 / (classes - 1);
+    }
+  }
+
+  err = EM_WriteGrayScaleTiff(raster, filename, width, height, filename, "Segmented with EM/MPM");
+  if (err < 0)
+  {
+    printf("Error writing Tiff file %s\n", filename);
+    return -1;
+  }
+  else
+  {
+    printf("Wrote output image %s\n", filename);
+  }
+  _TIFFfree(raster);
+
+  return err;
+}
+
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+unsigned char** EM_ReadInputImage(char* filename, unsigned int* width, unsigned int* height)
+{
+  unsigned char* raster;
+  unsigned int i;
+  unsigned int j;
+  uint8_t* dst;
+  unsigned char **y;
+
+  raster = EM_ReadTiffAsGrayScale(filename, width, height);
+  dst = raster;
+  /* Copy input image to y[][] */
+  int cols = *width;
+  int rows = *height;
+
+  y = (unsigned char **)get_img(cols, rows, sizeof(char));
+  for (i = 0; i < cols; i++)
+  {
+    for (j = 0; j < rows; j++)
+    {
+      y[i][j] = *dst;
+      ++dst;
+    }
+  }
+  _TIFFfree( raster ); // Release the memory used to read the image
+  return y;
+}
 
 // -----------------------------------------------------------------------------
 //
