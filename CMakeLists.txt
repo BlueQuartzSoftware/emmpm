@@ -64,7 +64,7 @@ include_directories(${PROJECT_CODE_DIR})
 # --------------------------------------------------------------------
 # Generate a Header file with Compile Version variables
 # --------------------------------------------------------------------
-GenerateVersionString( ${PROJECT_NAME} "${emmpm_BINARY_DIR}/${PROJECT_PREFIX}/Common/${PROJECT_PREFIX}Version.h" "${PROJECT_PREFIX}" )
+GenerateVersionString( ${PROJECT_NAME} "${emmpm_BINARY_DIR}/emmpm/common/${PROJECT_PREFIX}Version.h" "${PROJECT_PREFIX}" )
 
 # --------------------------------------------------------------------
 # Generate our header files that contain the configuration information
@@ -91,6 +91,10 @@ endif()
 
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/common ${emmpm_BINARY_DIR}/commonLib)
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_2class ${emmpm_BINARY_DIR}/init_2class)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_3class ${emmpm_BINARY_DIR}/init_3class)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_3classes_write_2classes ${emmpm_BINARY_DIR}/init_3classes_write_2classes)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_4classes ${emmpm_BINARY_DIR}/init_4classes)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_4classes_write_2classes ${emmpm_BINARY_DIR}/init_4classes_write_2classes)
 
 # add_subdirectory(${PROJECT_CODE_DIR}/Example ${emmpm_BINARY_DIR}/Example)
 

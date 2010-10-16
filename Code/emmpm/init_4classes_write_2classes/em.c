@@ -11,6 +11,8 @@
 #include "tiff.h"
 #include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
+
+#include "emmpm/common/EMTiffIO.h"
 #define MAX_CLASSES 15
 
 
@@ -21,7 +23,8 @@ void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigne
 void blur(double **h, unsigned char **in, unsigned char **out, int rows, int cols, int mask_size);
 
 int main(int argc,char *argv[]) {
-	struct TIFF_img input_img, output_img;
+  TIFF* input_img;
+  TIFF* output_img;
 	FILE *fp;
 	unsigned int i, j, rows, cols, x11, x12, y11, y12, x21, x22, y21, y22, x31, x32, y31, y32, x41, x42, y41, y42;
 	double beta, gamma[MAX_CLASSES], ga, x, m[MAX_CLASSES], v[MAX_CLASSES], N[MAX_CLASSES];
@@ -36,7 +39,8 @@ int main(int argc,char *argv[]) {
 	*/
 
 	
-	
+	  size_t index;
+    int err;
 
 	int l, mpmiter, emiter, k, kk, classes;
 	unsigned char **y, **xt, **output;  /* output : entropy image */
@@ -90,36 +94,23 @@ int main(int argc,char *argv[]) {
 
 	gamma[0] = ga;
 
-	/* open image file */
-	if ((fp = fopen(argv[3], "rb")) == NULL) {
-		printf("Cannot open file %s\n", argv[3]);
-		exit(1);
-	}
+	unsigned char* raster;
 
-	/* read image */
-	if (read_TIFF(fp, &input_img)) {
-		printf("Error reading file %s\n", argv[3]);
-		exit(1);
-	}
-
-	/* close image file */
-	fclose(fp);
-
-	/* check the type of image data */
-	if (input_img.TIFF_type != 'g') {
-		printf("Error:  Image must be grayscale.\n");
-		exit(1);
-	}
-
-	cols = input_img.width;
-	rows = input_img.height;
-
+	raster = EM_ReadTiffAsGrayScale(argv[3], &cols, &rows);
+	uint8_t* dst = raster;
 	/* Copy input image to y[][] */
 	y = (unsigned char **)get_img(cols, rows, sizeof(char));
-	for (i = 0; i < rows; i++)
-		for (j = 0; j < cols; j++)
-			y[i][j] = input_img.mono[i][j];
-	free_TIFF(&input_img);
+  for (i = 0; i < rows; i++)
+  {
+    for (j = 0; j < cols; j++)
+    {
+      y[i][j] = *dst;
+      ++dst;
+    }
+  }
+
+  _TIFFfree( raster ); // Release the memory used to read the image
+  input_img = NULL;
 
 	xt = (unsigned char **)get_img(cols, rows, sizeof(char));
 
@@ -246,33 +237,28 @@ int main(int argc,char *argv[]) {
 
 
 	/* Allocate space for the output image, and copy a scaled xt */
-	get_TIFF(&output_img, rows, cols, 'g');
 
-	for (i=0; i<rows; i++)
-		for (j=0; j<cols; j++){
-			if (xt[i][j] == 3)  
-					output_img.mono[i][j] = (int)xt[i][j] * 255 / (classes - 1);
-			if (xt[i][j] != 3)  
-					output_img.mono[i][j] = 0;
-		}
+  raster = (unsigned char*)_TIFFmalloc(cols * rows);
+  index = 0;
+  for (i = 0; i < rows; i++)
+  {
+    for (j = 0; j < cols; j++)
+    {
+      raster[index++] = (int)xt[i][j] * 255 / (classes - 1);
+    }
+  }
 
-	/* open image file */
-	if ((fp = fopen(argv[4], "wb")) == NULL ) {
-		printf("Cannot open file %s\n", argv[4]);
-		exit(1);
+	err = EM_WriteGrayScaleTiff(raster, argv[4], cols, rows, argv[4], "Segmented with EM/MPM");
+	if (err < 0)
+	{
+	  printf("Error writing Tiff file %s\n", argv[4]);
+	  return 0;
 	}
-
-	/* write image */
-	if (write_TIFF(fp, &output_img)) {
-		printf("Error writing TIFF file %s\n", argv[4]);
-		exit(1);
+	else
+	{
+	  printf("Wrote output image %s\n", argv[4]);
 	}
-
-	/* close image file */
-	fclose(fp);
-
-	/* Clean up */
-	free_TIFF(&output_img);
+	_TIFFfree(raster);
 
 	free_img((void **)xt);
 	free_img((void **)y);
