@@ -9,8 +9,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include "tiff.h"
-#include "allocate.h"
-#include "random.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
 #define MAX_CLASSES 15
 
 

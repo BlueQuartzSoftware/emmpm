@@ -22,11 +22,11 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   "Single Directory for all static libraries."
   )
 
-SET (emmpm_PROJECT_DIR ${emmpm_SOURCE_DIR})
-SET (PROJECT_RESOURCES_DIR ${emmpm_SOURCE_DIR}/Resources)
-SET (emmpm_CMAKE_DIR  ${PROJECT_RESOURCES_DIR}/CMake)
-SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Source)
-SET (OSX_TOOLS_DIR ${PROJECT_RESOURCES_DIR}/OSX_Tools)
+SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
+SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
+SET (OSX_TOOLS_DIR ${PROJECT_RESOURCES_DIR}/CMake/OSX_Tools)
+
+
 SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
 SET (EXE_DEBUG_EXTENSION "_debug")
 
@@ -59,7 +59,7 @@ ENDIF()
 
 # Include some directories for the compiler
 include_directories(${PROJECT_BINARY_DIR})
-include_directories(${emmpm_SOURCE_DIR}/Source)
+include_directories(${PROJECT_CODE_DIR})
 
 # --------------------------------------------------------------------
 # Generate a Header file with Compile Version variables
@@ -71,9 +71,9 @@ GenerateVersionString( ${PROJECT_NAME} "${emmpm_BINARY_DIR}/${PROJECT_PREFIX}/Co
 # and things like standard int typedefs.
 # --------------------------------------------------------------------
 configure_file(${PROJECT_RESOURCES_DIR}/CMake/Configuration.h.in
-               ${emmpm_BINARY_DIR}/${PROJECT_PREFIX}/Common/${PROJECT_PREFIX}Configuration.h )
+               ${emmpm_BINARY_DIR}/emmpm/common/${PROJECT_PREFIX}Configuration.h )
 configure_file(${PROJECT_RESOURCES_DIR}/CMake/PrimitiveTypes.h.in
-               ${emmpm_BINARY_DIR}/${PROJECT_PREFIX}/Common/${PROJECT_PREFIX}Types.h )
+               ${emmpm_BINARY_DIR}/emmpm/common/${PROJECT_PREFIX}Types.h )
 
 # Prepend our own "FindTiff" code in front of what CMake itself provides
 set(CMAKE_MODULE_PATH ${PROJECT_RESOURCES_DIR}/CMake ${CMAKE_MODULE_PATH} )
@@ -83,40 +83,14 @@ IF (NOT TIFF_FOUND)
 ENDIF (NOT TIFF_FOUND)
 INCLUDE_DIRECTORIES(${TIFF_INCLUDE_DIRS})
     
-    
-set(emmpm_SRCS
-    ${PROJECT_CODE_DIR}/allocate.c
-    ${PROJECT_CODE_DIR}/em.c
-    ${PROJECT_CODE_DIR}/entropy.c
-    ${PROJECT_CODE_DIR}/mpm.c
-    ${PROJECT_CODE_DIR}/random.c
-    ${PROJECT_CODE_DIR}/EMTiffIO.c
-	${PROJECT_CODE_DIR}/EMTime.c
-)
-set (emmpm_HDRS
-    ${PROJECT_CODE_DIR}/allocate.h
-    ${PROJECT_CODE_DIR}/random.h
-    ${PROJECT_CODE_DIR}/EMTiffIO.h
-    ${PROJECT_CODE_DIR}/EMTime.h
-	${PROJECT_CODE_DIR}/MSVCDefines.h
-)
-# --------------------------------------------------------------------
-# This is a macro to help the Visual Studio Project be a bit more organized
-IDE_SOURCE_PROPERTIES( Code "${emmpm_HDRS}" "${emmpm_SRCS}")
-
-
-# --------------------------------------------------------------------
-# Create an Executable using the sources listed
-add_executable(emmpm ${emmpm_SRCS} ${emmpm_HDRS} )
-
 # --------------------------------------------------------------------
 # Add a link stage to link the executable to the tiff library
 if (UNIX AND NOT APPLE)
 set (MATH_LIBRARY "m")
 endif()
 
-target_link_libraries(emmpm ${TIFF_LIBRARY} ${MATH_LIBRARY})
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/common ${emmpm_BINARY_DIR}/commonLib)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_2class ${emmpm_BINARY_DIR}/init_2class)
 
-
-add_subdirectory(${emmpm_SOURCE_DIR}/Example ${emmpm_BINARY_DIR}/Example)
+# add_subdirectory(${PROJECT_CODE_DIR}/Example ${emmpm_BINARY_DIR}/Example)
 

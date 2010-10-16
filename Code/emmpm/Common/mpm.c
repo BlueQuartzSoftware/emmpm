@@ -3,8 +3,8 @@
 /* Modified by Joel Dumke on 9/4/06 */
 
 #include <math.h>
-#include "allocate.h"
-#include "random.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
 #define PI  3.14159265358979323846
 #define MAX_CLASSES 15
 

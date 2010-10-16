@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "allocate.h"
+#include "emmpm/common/allocate.h"
 
 void *get_spc(int num, size_t size)
 {
