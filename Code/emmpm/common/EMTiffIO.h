@@ -30,48 +30,6 @@
 extern "C"
 {
 #endif
-  enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
-
-  /**
-  * @struct TIFFReaderInternal
-  */
-  typedef struct
-  {
-    TIFF *tiff;
-    char IsOpen;
-    uint32_t Width;
-    uint32_t Height;
-    uint16_t NumberOfPages;
-    uint16_t CurrentPage;
-    uint16_t SamplesPerPixel;
-    uint16_t Compression;
-    uint16_t BitsPerSample;
-    uint16_t Photometrics;
-    char HasValidPhotometricInterpretation;
-    uint16_t PlanarConfig;
-    uint16_t Orientation;
-    uint32_t TileDepth;
-    uint32_t TileRows;
-    uint32_t TileColumns;
-    uint32_t TileWidth;
-    uint32_t TileHeight;
-    uint16_t NumberOfTiles;
-    uint32_t SubFiles;
-    uint32_t ResolutionUnit;
-    float XResolution;
-    float YResolution;
-    int16_t SampleFormat;
-    uint8_t* image;
-    int OutputExtent[6];
-    int OutputIncrements[3];
-  } TIFFReader;
-
-
-  TIFFReader* EM_ReadTiffImage(char* filename);
-
-  void EM_FreeTIFFReader(TIFFReader* reader);
-
-
 
   /**
    *
