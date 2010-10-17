@@ -3,12 +3,16 @@
 /* Modified by Joel Dumke on 9/4/06 */
 
 #include <math.h>
+
+#include "mpm.h"
+
 #include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
-#define PI  3.14159265358979323846
-#define MAX_CLASSES 15
 
-void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, double *gamma, double *m, double *v, int rows, int cols, int n, int classes) {
+
+void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta,
+         double *gamma, double *m, double *v, int rows, int cols, int n, int classes)
+{
 	double **yk[MAX_CLASSES], sqrt2pi, current, con[MAX_CLASSES], d[MAX_CLASSES];
 	double x, post[MAX_CLASSES], sum;
 	int i, j, k, l, mm, prior[MAX_CLASSES];
@@ -43,27 +47,27 @@ void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, doub
 						if (j - 1 >= 0)
 							if (xt[i - 1][j - 1] != l)
 	 							(prior[l])++;
-						if (xt[i - 1][j] != l)  
+						if (xt[i - 1][j] != l)
 							(prior[l])++;
 						if (j + 1 < cols)
-							if (xt[i - 1][j + 1] != l) 
+							if (xt[i - 1][j + 1] != l)
 								(prior[l])++;
 					}
 					if (i + 1 < rows) {
 						if (j - 1 >= 0)
-							if (xt[i + 1][j - 1] != l) 
+							if (xt[i + 1][j - 1] != l)
 								(prior[l])++;
-						if (xt[i + 1][j] != l) 
+						if (xt[i + 1][j] != l)
 							(prior[l])++;
 						if (j + 1 < cols)
-							if (xt[i + 1][j + 1] != l) 
+							if (xt[i + 1][j + 1] != l)
 								(prior[l])++;
 					}
 					if (j - 1 >= 0)
-						if (xt[i][j - 1] != l) 
+						if (xt[i][j - 1] != l)
 							(prior[l])++;
 					if (j + 1 < cols)
-						if (xt[i][j + 1] != l) 
+						if (xt[i][j + 1] != l)
 							(prior[l])++;
 
 					post[l] = exp(yk[l][i][j] - beta * (double)(prior[l]) - gamma[l]);
@@ -71,7 +75,7 @@ void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, doub
 				}
 				x = random2();
 				current = 0;
-				
+
 				for (l = 0; l < classes; l++) {
 					if ((x >= current) && (x <= (current + post[l] / sum))) {
 						xt[i][j] = l;

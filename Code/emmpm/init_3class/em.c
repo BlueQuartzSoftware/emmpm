@@ -121,11 +121,6 @@ int main(int argc,char *argv[]) {
 	printf("m[0]=%f\n",mu);
 
 
-
-
-
-
-
 	for (l = 0; l < classes; l++) {
 		v[l] = 20;
 		probs[l] = (double **)get_img(cols, rows, sizeof(double));

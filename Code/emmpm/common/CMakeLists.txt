@@ -7,17 +7,22 @@ set (EMMPMCommon_SRCS
   ${EMMPMCommon_SOURCE_DIR}/EMTime.c
   ${EMMPMCommon_SOURCE_DIR}/entropy.c
   ${EMMPMCommon_SOURCE_DIR}/mpm.c
+  ${EMMPMCommon_SOURCE_DIR}/em.c
   ${EMMPMCommon_SOURCE_DIR}/random.c
+  ${EMMPMCommon_SOURCE_DIR}/EMMPM.c
 )
 
 set (EMMPMCommon_HDRS
   ${EMMPMCommon_SOURCE_DIR}/allocate.h
   ${EMMPMCommon_SOURCE_DIR}/EMTiffIO.h
   ${EMMPMCommon_SOURCE_DIR}/EMTime.h
-#  ${EMMPMCommon_SOURCE_DIR}/entropy.h
-#  ${EMMPMCommon_SOURCE_DIR}/mpm.h
+  ${EMMPMCommon_SOURCE_DIR}/entropy.h
+  ${EMMPMCommon_SOURCE_DIR}/EMMPM_Constants.h
+  ${EMMPMCommon_SOURCE_DIR}/mpm.h
+  ${EMMPMCommon_SOURCE_DIR}/em.h
   ${EMMPMCommon_SOURCE_DIR}/random.h
   ${EMMPMCommon_SOURCE_DIR}/MSVCDefines.h
+  ${EMMPMCommon_SOURCE_DIR}/EMMPM.h
 )
 
 IDE_SOURCE_PROPERTIES( Code "emmpm/Common/${EMMPMCommon_HDRS}" "emmpm/Common/${EMMPMCommon_SRCS}")

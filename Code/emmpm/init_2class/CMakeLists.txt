@@ -1,7 +1,7 @@
 project(Init2Class)
 
 set(Init2Class_SRCS
-${Init2Class_SOURCE_DIR}/em.c
+${Init2Class_SOURCE_DIR}/main.c
 )
 
 add_executable(Init2Class ${Init2Class_SRCS})
