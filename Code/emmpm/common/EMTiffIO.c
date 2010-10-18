@@ -26,8 +26,8 @@
 #define _TIFF_DATA_TYPEDEFS_ 1
 #include <tiffio.h>
 
+#include "emmpm/common/EMMPMVersion.h"
 #include "emmpm/common/EMTime.h"
-
 #include "emmpm/common/allocate.h"
 
 // -----------------------------------------------------------------------------

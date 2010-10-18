@@ -9,7 +9,7 @@
 #ifndef _EMTime_h_
 #define _EMTime_h_
 
-#include <EMMPM/Common/EMMPMConfiguration.h>
+#include <emmpm/common/EMMPMConfiguration.h>
 #if EMMPM_HAVE_TIME_H
 #include <time.h>
 #endif
