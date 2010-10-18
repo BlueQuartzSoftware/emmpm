@@ -15,8 +15,8 @@
 #include <stdint.h>
 #endif
 
-#include "EMMPM/Common/EMMPMTypes.h"
-#include "EMMPM/Common/EMMPMVersion.h"
+#include "emmpm/common/EMMPMTypes.h"
+#include "emmpm/common/EMMPMVersion.h"
 #include "MSVCDefines.h"
 
 
