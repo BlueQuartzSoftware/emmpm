@@ -90,6 +90,7 @@ set (MATH_LIBRARY "m")
 endif()
 
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/common ${emmpm_BINARY_DIR}/commonLib)
+add_subdirectory(${PROJECT_CODE_DIR}/emmpm/basic ${emmpm_BINARY_DIR}/basic)
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_2class ${emmpm_BINARY_DIR}/init_2class)
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_3class ${emmpm_BINARY_DIR}/init_3class)
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm/init_3classes_write_2classes ${emmpm_BINARY_DIR}/init_3classes_write_2classes)
