@@ -133,8 +133,10 @@ if(emmpm_BUILD_API_DOCS)
   add_custom_target(docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile)
 endif()
 
+
 add_subdirectory(${PROJECT_CODE_DIR}/emmpm ${emmpm_BINARY_DIR}/EMMPMLib)
 add_subdirectory(${PROJECT_CODE_DIR}/apps ${emmpm_BINARY_DIR}/apps)
+
 
 include(${PROJECT_RESOURCES_DIR}/CPack/PackageProject.cmake)
 
