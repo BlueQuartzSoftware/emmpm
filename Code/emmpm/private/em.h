@@ -27,32 +27,32 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _MSVCDEFINES_H_
-#define _MSVCDEFINES_H_
 
-#ifdef _MSC_VER
+#ifndef EM_H_
+#define EM_H_
 
-  #include <stdio.h>
-/*
-"It's a known, long-standing bug in the compiler system's headers.  For
-some reason the manufacturer, in its infinite wisdom, chose to #define
-macros min() and max() in violation of the upper-case convention and so
-break any legitimate functions with those names, including those in the
-standard C++ library."
-*/
+#include "emmpm/common/EMMPMTypes.h"
+#include "emmpm/public/EMMPM_Constants.h"
+#include "emmpm/public/EMMPM.h"
 
-  #ifndef NOMINMAX
-    #define NOMINMAX
-  #endif
 
-  #define WINDOWS_LARGE_FILE_SUPPORT
-	#if _MSC_VER < 1400
-		#define snprintf _snprintf
-	#else
-		#define snprintf sprintf_s
-	#endif
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
 
-#endif /* _MSVCDEFINES_H_ */
+  /**
+   * @brief
+   * @param files a non NULL EMMPM_Files pointer
+   * @param inputs A non NULL EMMPM_Inputs pointer
+   * @param vars A non NULL EMMPM_WorkingVars pointer
+   */
+  void EMMPM_PerformEMLoops(EMMPM_Files* files, EMMPM_Inputs* inputs, EMMPM_WorkingVars* vars);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif /* EM_H_ */

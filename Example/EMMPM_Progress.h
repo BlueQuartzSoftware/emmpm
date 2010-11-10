@@ -11,7 +11,7 @@
 * @param message A message to pass back to the calling program
 * @param progress A value between 0 and 1 that represents the percentage completed
 */
-void ProgressCallBack(char* text, float message);
+void ProgressCallBack(char* message, float progress);
 
 #ifdef __cplusplus
   }

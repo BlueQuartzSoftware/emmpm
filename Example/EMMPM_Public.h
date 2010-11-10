@@ -30,7 +30,7 @@ enum EMMPM_ErrorCodes {
 };
 
 /**
-* @struct EMMPM_Parameters 
+* @struct EMMPM_Parameters
 */
 typedef struct
 {
@@ -62,13 +62,13 @@ void Free_EMMPM_Parameters(EMMPM_Parameters* parameters);
 * @brief Sets a function to be used to provide progress information in the form
 * of a text variable and a percent variable which should range between zero and
 * one
-* @param *pt2func The function to be called for progress feedback
+* @param pt2Func The function to be called for progress feedback
 */
 void EMMPM_setProgressFunction(void (*pt2Func)(char*, float));
 
 /**
 * @brief
-* @param
+* @param pt2Func The function to be called for Initialization feedback
 * @return
 */
 void EMMPM_setInitialzationFunction(void (*pt2Func)(void*));
@@ -76,7 +76,7 @@ void EMMPM_setInitialzationFunction(void (*pt2Func)(void*));
 /**
 * @brief Executes the EM/MPM algorithm using the given parameters.
 * @param parameters The EM/MPM Input/Output Parameters
-* @return Error code 
+* @return Error code
 */
 int EMMPM_execute(EMMPM_Parameters* parameters);
 

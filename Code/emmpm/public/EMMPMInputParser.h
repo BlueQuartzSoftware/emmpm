@@ -27,32 +27,53 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _MSVCDEFINES_H_
-#define _MSVCDEFINES_H_
+#ifndef _EMMPMINPUTPARSER_H_
+#define _EMMPMINPUTPARSER_H_
 
-#ifdef _MSC_VER
+#include <string>
 
-  #include <stdio.h>
-/*
-"It's a known, long-standing bug in the compiler system's headers.  For
-some reason the manufacturer, in its infinite wisdom, chose to #define
-macros min() and max() in violation of the upper-case convention and so
-break any legitimate functions with those names, including those in the
-standard C++ library."
-*/
+#include "EMMPM.h"
 
-  #ifndef NOMINMAX
-    #define NOMINMAX
-  #endif
+/** @brief
+ *
+ */
+class EMMPMInputParser
+{
+  public:
+    EMMPMInputParser();
+    virtual ~EMMPMInputParser();
 
-  #define WINDOWS_LARGE_FILE_SUPPORT
-	#if _MSC_VER < 1400
-		#define snprintf _snprintf
-	#else
-		#define snprintf sprintf_s
-	#endif
-#endif
+    /**
+     * @brief
+     * @param argc
+     * @param argv
+     * @param files
+     * @param inputs
+     * @return
+     */
+    int parseCLIArguments(int argc,char *argv[], EMMPM_Files* files, EMMPM_Inputs* inputs);
 
+    /**
+     * @brief This will parse the pixel coordinates for each class that is to be initialized
+     * @param coords
+     * @param inputs
+     * @return
+     */
+    int parseInitCoords(const std::string &coords, EMMPM_Inputs* inputs);
 
+    /**
+     * @brief
+     * @param values
+     * @param inputs
+     * @return
+     */
+    int parseGrayTable(const std::string &values, EMMPM_Inputs* inputs);
 
-#endif /* _MSVCDEFINES_H_ */
+    char* setFileName( const std::string &fname);
+
+  private:
+    EMMPMInputParser(const EMMPMInputParser&); // Copy Constructor Not Implemented
+    void operator=(const EMMPMInputParser&); // Operator '=' Not Implemented
+};
+
+#endif /* _EMMPMINPUTPARSER_H_ */

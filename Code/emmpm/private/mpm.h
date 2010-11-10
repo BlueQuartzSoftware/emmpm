@@ -27,32 +27,30 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _MSVCDEFINES_H_
-#define _MSVCDEFINES_H_
 
-#ifdef _MSC_VER
+#ifndef MPM_H_
+#define MPM_H_
 
-  #include <stdio.h>
-/*
-"It's a known, long-standing bug in the compiler system's headers.  For
-some reason the manufacturer, in its infinite wisdom, chose to #define
-macros min() and max() in violation of the upper-case convention and so
-break any legitimate functions with those names, including those in the
-standard C++ library."
-*/
+#include "emmpm/public/EMMPM_Constants.h"
+#include "emmpm/public/EMMPM.h"
 
-  #ifndef NOMINMAX
-    #define NOMINMAX
-  #endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-  #define WINDOWS_LARGE_FILE_SUPPORT
-	#if _MSC_VER < 1400
-		#define snprintf _snprintf
-	#else
-		#define snprintf sprintf_s
-	#endif
+  /**
+   * @brief This is the Maximumization of Posterior Marginals (MPM) portion of
+   * the EM/MPM Algorithm.
+   * @param inputs A non NULL EMMPM_Inputs pointer
+   * @param vars A non NULL EMMPM_WorkingVars pointer
+   */
+void mpm(EMMPM_Inputs* inputs,
+         EMMPM_WorkingVars* vars);
+
+#ifdef __cplusplus
+}
 #endif
 
 
 
-#endif /* _MSVCDEFINES_H_ */
+#endif /* MPM_H_ */

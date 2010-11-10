@@ -27,32 +27,82 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _MSVCDEFINES_H_
-#define _MSVCDEFINES_H_
+#ifndef EMTIFFIO_H_
+#define EMTIFFIO_H_
 
-#ifdef _MSC_VER
+#include "emmpm/common/EMMPMTypes.h"
 
-  #include <stdio.h>
-/*
-"It's a known, long-standing bug in the compiler system's headers.  For
-some reason the manufacturer, in its infinite wisdom, chose to #define
-macros min() and max() in violation of the upper-case convention and so
-break any legitimate functions with those names, including those in the
-standard C++ library."
-*/
-
-  #ifndef NOMINMAX
-    #define NOMINMAX
-  #endif
-
-  #define WINDOWS_LARGE_FILE_SUPPORT
-	#if _MSC_VER < 1400
-		#define snprintf _snprintf
-	#else
-		#define snprintf sprintf_s
-	#endif
+#ifdef CMP_HAVE_STDINT_H
+#include <stdint.h>
 #endif
 
 
+#include "emmpm/common/EMMPMVersion.h"
+#include "emmpm/common/MSVCDefines.h"
+#include "emmpm/public/EMMPM.h"
 
-#endif /* _MSVCDEFINES_H_ */
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+  /**
+   * @brief
+   * @param files
+   * @param inputs
+   * @return
+   */
+  int EMMPM_ReadInputImage(EMMPM_Files* files, EMMPM_Inputs* inputs);
+
+  /**
+   * @brief
+   * @param files
+   * @param inputs
+   * @return
+   */
+  int EMMPM_WriteOutputImage(EMMPM_Files* files, EMMPM_Inputs* inputs);
+
+
+  /**
+   * @brief
+   * @param files
+   * @return
+   */
+  unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files);
+
+  /**
+   * @brief Writes the output from the EM/MPM into a Tiff File
+   * @param files
+   * @param inputs
+   * @param imageDescription
+   * @return Zero Value or Negative on Error. Anything else is considered a success;
+   */
+  int EMMPM_WriteGrayScaleTiff(EMMPM_Files* files,
+                            EMMPM_Inputs* inputs,
+                            char* imageDescription);
+
+  /**
+   * @brief Deallocates memory that is used to store image data. Typically allocated
+   * with the _TIFFmalloc() function from libTif.
+   * @param buffer A memory buffer that was allocated with _TIFFmalloc
+   */
+  void EMMPM_FreeTiffImageBuffer(unsigned char* buffer);
+
+/**
+ *
+ * @param width
+ * @param height
+ * @param samplesPerPixel
+ * @return
+ */
+  unsigned char* EMMPM_AllocateTiffImageBuffer(int width, int height, int samplesPerPixel);
+
+  int writeGrayScaleImage(const char* filename, int rows, int columns,
+                          const char* imageDescription, unsigned char* image);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* EMTIFFIO_H_ */

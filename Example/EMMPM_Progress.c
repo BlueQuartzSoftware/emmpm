@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "EMMPM_Progress.h"
 
-void ProgressCallBack(char* text, float progress)
+void ProgressCallBack(char* message, float progress)
 {
-  printf("%s - %2.2f%% \n", text, progress);
+  printf("%s - %2.2f%% \n", message, progress);
 }

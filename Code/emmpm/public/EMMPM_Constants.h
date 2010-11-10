@@ -27,32 +27,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _MSVCDEFINES_H_
-#define _MSVCDEFINES_H_
 
-#ifdef _MSC_VER
+#ifndef EMMPM_CONSTANTS_H_
+#define EMMPM_CONSTANTS_H_
 
-  #include <stdio.h>
-/*
-"It's a known, long-standing bug in the compiler system's headers.  For
-some reason the manufacturer, in its infinite wisdom, chose to #define
-macros min() and max() in violation of the upper-case convention and so
-break any legitimate functions with those names, including those in the
-standard C++ library."
-*/
+#define PI  3.14159265358979323846
+#define MAX_CLASSES 15
 
-  #ifndef NOMINMAX
-    #define NOMINMAX
-  #endif
+#define EMMPM_BASIC_INITIALIZATION 0
+#define EMMPM_PIXEL_AREA_INITIALIZATION 1
 
-  #define WINDOWS_LARGE_FILE_SUPPORT
-	#if _MSC_VER < 1400
-		#define snprintf _snprintf
-	#else
-		#define snprintf sprintf_s
-	#endif
-#endif
-
-
-
-#endif /* _MSVCDEFINES_H_ */
+#endif /* EMMPM_CONSTANTS_H_ */
