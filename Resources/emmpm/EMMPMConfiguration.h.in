@@ -22,6 +22,6 @@
 
 
 /* The Following include MUST appear AFTER EMMPM_BUILT_AS_DYNAMIC_LIB has been defined */
-#include "emmpm/Common/DLLExport.h"
+#include "emmpm/common/DLLExport.h"
 
 #endif /* _EMMPM_CONFIGURATION_H_ */
