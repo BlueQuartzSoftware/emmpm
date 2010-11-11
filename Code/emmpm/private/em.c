@@ -147,9 +147,8 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 #endif
 
       EMMPM_ConvertXtToOutputImage(data, callbacks);
-      data->outputImage = data->outputImage;
 
-#if 0
+#if 1
       /* Eliminate any classes that have zero probability */
       for (kk = 0; kk < classes; kk++)
       {
