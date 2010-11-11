@@ -172,18 +172,23 @@ void UpdateStats(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 int main(int argc,char *argv[])
 {
-  std::cout << "emmpm Starting.... " << std::endl;
-  EMMPMInputParser parser;
+
 
   EMMPM_Data* data = EMMPM_AllocateDataStructure();
   EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 
+  /* Parse the comand line arguments */
+  EMMPMInputParser parser;
   int err = parser.parseCLIArguments(argc, argv, data);
   if (err < 0)
   {
     printf("Error trying to parse the arguments.\n");
     return 0;
   }
+
+  /* Set the Callback functions to provide feedback */
+  callbacks->EMMPM_ProgressFunc = &EMMPM_PrintfProgress;
+  callbacks->EMMPM_ProgressStatsFunc = &UpdateStats;
 
   // Get our input image from the Image IO functions
   err = EMMPM_ReadInputImage(data, callbacks);
@@ -193,7 +198,7 @@ int main(int argc,char *argv[])
     return 0;
   }
 
-  // Set the initialization function to the Basic
+  // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
     case EMMPM_PIXEL_AREA_INITIALIZATION:
@@ -206,7 +211,8 @@ int main(int argc,char *argv[])
       break;
   }
 
-  callbacks->EMMPM_ProgressStatsFunc = &UpdateStats;
+
+  std::cout << "emmpm Starting.... " << std::endl;
 
   // Run the EM/MPM algorithm on the input image
   EMMPM_Execute(data, callbacks);
@@ -216,7 +222,6 @@ int main(int argc,char *argv[])
   {
     return 0;
   }
-
 
   EMMPM_FreeDataStructure(data);
   EMMPM_FreeCallbackFunctionStructure(callbacks);

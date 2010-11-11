@@ -151,9 +151,9 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
 
   TCLAP::CmdLine cmd("EM/MPM", ' ', EMMPM::Version::Complete);
 
-  TCLAP::ValueArg<std::string> in_inputFile("i", "inputfile", "MXA File to be used as input", false, "", "");
+  TCLAP::ValueArg<std::string> in_inputFile("i", "inputfile", "Image File to be used as input", false, "", "");
   cmd.add(in_inputFile);
-  TCLAP::ValueArg<std::string> in_outputFile("o", "outputfile", "The New MXA Output File", false, "", "");
+  TCLAP::ValueArg<std::string> in_outputFile("o", "outputfile", "The Image Output File", false, "", "");
   cmd.add(in_outputFile);
 
   TCLAP::ValueArg<float> in_beta("b", "beta", "Beta Value", false, 1.0, "");
