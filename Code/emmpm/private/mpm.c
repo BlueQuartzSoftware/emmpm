@@ -37,6 +37,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #include "mpm.h"
@@ -54,14 +56,16 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   double local_beta;
   int classes = data->classes;
+  char msgbuff[256];
+  memset(msgbuff, 0, 256);
   data->progress++;
-  if (callbacks->EMMPM_ProgressFunc != NULL) {
-    callbacks->EMMPM_ProgressFunc("-MPM Loops", data->progress);
-  }
+
 
 	double **yk[MAX_CLASSES], sqrt2pi, current, con[MAX_CLASSES], d[MAX_CLASSES];
 	double x, post[MAX_CLASSES], sum;
 	int i, j, k, l, mm, prior[MAX_CLASSES];
+  float totalLoops = data->emIterations * data->mpmIterations;
+  float currentLoopCount = 0.0;
 
   local_beta = data->workingBeta;
 
@@ -86,7 +90,13 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 		}
 
 	for (k = 0; k < data->mpmIterations; k++)
-		for (i=0; i<data->rows; i++)
+	{
+	  if (callbacks->EMMPM_ProgressFunc != NULL) {
+	    data->currentMPMLoop = k;
+      snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
+	    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+	  }
+		for (i=0; i<data->rows; i++) {
 			for (j=0; j<data->columns; j++) {
 				sum = 0;
 				for (l = 0; l < classes; l++) {
@@ -132,7 +142,14 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 					current += post[l] / sum;
 				}
 			}
-
+		}
+    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+    {
+      currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
+      data->progress = currentLoopCount/totalLoops * 100.0;
+      callbacks->EMMPM_ProgressStatsFunc(data);
+    }
+	}
 	/* Normalize probabilities */
 	for (i=0; i<data->rows; i++)
 		for (j=0; j<data->columns; j++)

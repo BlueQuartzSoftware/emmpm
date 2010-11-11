@@ -55,7 +55,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   char msgbuff[256];
   memset(msgbuff, 0, 256);
 
-  float totalLoops = data->emIterations + 2;
+  float totalLoops = data->emIterations * data->mpmIterations;
   float currentLoopCount = 0.0;
 
   data->classes = data->classes;
@@ -81,12 +81,15 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
-    data->progress = currentLoopCount/totalLoops * 100.0 + 10.0;
-    if (callbacks->EMMPM_ProgressFunc != NULL) {
-      callbacks->EMMPM_ProgressFunc("EM Loop", data->progress);
-    }
+    data->currentEMLoop = k;
+    data->currentMPMLoop = 0;
+    currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
 
-    currentLoopCount++;
+    data->progress = currentLoopCount/totalLoops * 100.0;
+    if (callbacks->EMMPM_ProgressFunc != NULL) {
+      snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
+      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    }
 
     // Possibly update the beta value due to simulation Annealing
     if (data->simulatedAnnealing)  {
@@ -103,6 +106,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       data->v[l] = 0;
       data->N[l] = 0;
     }
+
     /*** Some efficiency was sacrificed for readability below ***/
     /* Update estimates for mean of each class */
     for (l = 0; l < classes; l++)
@@ -170,14 +174,10 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       }
 #endif
 
-
-    //TODO: Add in update functions
     if (NULL != callbacks->EMMPM_ProgressStatsFunc)
     {
       callbacks->EMMPM_ProgressStatsFunc(data);
     }
-
-    data->currentEMLoop++;
 
   }
 

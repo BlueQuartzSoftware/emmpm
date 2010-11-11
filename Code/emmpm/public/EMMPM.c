@@ -101,6 +101,8 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
   data->currentEMLoop = 0;
   data->currentMPMLoop = 0;
   data->progress = 0.0;
+  data->userData = NULL;
+
   return data;
 }
 
@@ -109,8 +111,11 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
 // -----------------------------------------------------------------------------
 EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure()
 {
-  EMMPM_CallbackFunctions* update = (EMMPM_CallbackFunctions*)(malloc(sizeof(EMMPM_CallbackFunctions)));
-  return update;
+  EMMPM_CallbackFunctions* callbacks = (EMMPM_CallbackFunctions*)(malloc(sizeof(EMMPM_CallbackFunctions)));
+  callbacks->EMMPM_InitializationFunc = NULL;
+  callbacks->EMMPM_ProgressFunc = NULL;
+  callbacks->EMMPM_ProgressStatsFunc = NULL;
+  return callbacks;
 }
 
 // -----------------------------------------------------------------------------
@@ -246,13 +251,6 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   unsigned int i;
   int l;
-
-  /* Check for a progress call back function. If it is NULL then set it to the standard
-  * printf progress callback */
-  if (NULL == callbacks->EMMPM_ProgressFunc)
-  {
-    callbacks->EMMPM_ProgressFunc = ( &EMMPM_PrintfProgress );
-  }
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);

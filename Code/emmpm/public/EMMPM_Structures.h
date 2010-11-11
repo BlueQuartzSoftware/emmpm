@@ -90,7 +90,12 @@ typedef struct
     // -----------------------------------------------------------------------------
     int           currentEMLoop; /**< The current EM Loop  */
     int           currentMPMLoop; /**< The current MPM Loop  */
-    float progress; /**< A Percentage to indicate how far along the algorthm is.*/
+    float         progress; /**< A Percentage to indicate how far along the algorthm is.*/
+
+    // -----------------------------------------------------------------------------
+    //  User defined Pointer that can point to anything
+    // -----------------------------------------------------------------------------
+    void*    userData; /**< User defined Pointer that can point to anything */
 } EMMPM_Data;
 
 /**

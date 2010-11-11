@@ -114,6 +114,80 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     l++;
     xt[i][j] = l;
   }
-
-
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
+{
+ // char startMsg[] = "InitNClassInitialization Starting";
+//  EMMPM_ShowProgress(startMsg, 1.0f);
+
+  unsigned int i, j;
+  int c, l;
+  double mu, sigma;
+  unsigned int rows = data->rows;
+  unsigned int cols = data->columns;
+
+  unsigned char** y = data->y;
+  unsigned char** xt = data->xt;
+  rows = data->rows;
+  cols = data->columns;
+
+  sigma = 0;
+  mu = 0;
+
+  char msgbuff[256];
+  memset(msgbuff, 0, 256);
+
+  for(c = 0; c < data->classes; c++)
+  {
+ //   printf("####################################################################\n");
+    int x1 = data->initCoords[c][0];
+    int y1 = data->initCoords[c][1];
+    int x2 = data->initCoords[c][2];
+    int y2 = data->initCoords[c][3];
+    mu = 0;
+    snprintf(msgbuff, 256, "m[%d] Coords: %d %d %d %d", c, x1, y1, x2, y2);
+ //   EMMPM_ShowProgress(msgbuff, 1.0);
+    for (i=data->initCoords[c][1]; i<data->initCoords[c][3]; i++) {
+      for (j=data->initCoords[c][0]; j<data->initCoords[c][2]; j++) {
+        mu += y[i][j];
+   //     printf ("%03d ", y[i][j]);
+      }
+   //   printf("\n");
+    }
+
+    mu /= (y2 - y1)*(x2 - x1);
+    data->m[c] = mu;
+    snprintf(msgbuff, 256, "m[%d]=%f", c, mu);
+ //   EMMPM_ShowProgress(msgbuff, 1.0);
+  }
+
+  for (l = 0; l < MAX_CLASSES; l++) {
+    if (l < data->classes) {
+      data->v[l] = 20;
+      data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+    }
+    else
+    {
+      data->v[l] = -1;
+      data->probs[l] = NULL;
+    }
+  }
+
+  /* Initialize classification of each pixel randomly with a uniform disribution */
+  for (i = 0; i < data->rows; i++) {
+    for (j = 0; j < data->columns; j++) {
+      data->x = random2();
+      l = 0;
+      while ((double)(l + 1) / data->classes <= data->x)  // may incur l = classes when x = 1
+        l++;
+      xt[i][j] = l;
+    }
+  }
+ // char endMsg[] = "InitNClassInitialization Complete";
+ // EMMPM_ShowProgress(endMsg , 4.0f);
+}
+

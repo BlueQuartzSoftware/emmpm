@@ -71,10 +71,6 @@ int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     printf("Error writing Tiff file %s\n", data->output_file_name);
     return -1;
   }
-  else
-  {
-    printf("Wrote output image %s\n", data->output_file_name);
-  }
 
   return err;
 }
@@ -183,12 +179,17 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
 int writeGrayScaleImage(const char* filename, int rows, int columns,
                         const char* imageDescription, unsigned char* image)
 {
+
   int err;
    TIFF *out;
    char* dateTime;
    char software[1024];
    tsize_t area;
 
+   if (NULL == image)
+   {
+     return -1;
+   }
    out = TIFFOpen(filename, "w");
    if (out == NULL)
    {

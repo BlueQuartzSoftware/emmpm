@@ -31,10 +31,13 @@
 #ifndef EMMPM_CONSTANTS_H_
 #define EMMPM_CONSTANTS_H_
 
+#include <math.h>
+
+#ifndef PI
 #define PI  3.14159265358979323846
+#endif
+
 #define MAX_CLASSES 15
 
-#define EMMPM_BASIC_INITIALIZATION 0
-#define EMMPM_PIXEL_AREA_INITIALIZATION 1
 
 #endif /* EMMPM_CONSTANTS_H_ */
