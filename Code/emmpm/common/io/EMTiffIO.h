@@ -53,7 +53,7 @@ extern "C"
    * @param inputs
    * @return
    */
-  int EMMPM_ReadInputImage(EMMPM_Files* files, EMMPM_Inputs* inputs);
+  int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
   /**
    * @brief
@@ -61,7 +61,7 @@ extern "C"
    * @param inputs
    * @return
    */
-  int EMMPM_WriteOutputImage(EMMPM_Files* files, EMMPM_Inputs* inputs);
+  int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 
   /**
@@ -69,7 +69,7 @@ extern "C"
    * @param files
    * @return
    */
-  unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files);
+  unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
   /**
    * @brief Writes the output from the EM/MPM into a Tiff File
@@ -78,8 +78,8 @@ extern "C"
    * @param imageDescription
    * @return Zero Value or Negative on Error. Anything else is considered a success;
    */
-  int EMMPM_WriteGrayScaleTiff(EMMPM_Files* files,
-                            EMMPM_Inputs* inputs,
+  int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
+                               EMMPM_CallbackFunctions* callbacks,
                             char* imageDescription);
 
   /**

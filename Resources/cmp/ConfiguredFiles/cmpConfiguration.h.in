@@ -7,9 +7,6 @@
 #ifndef _@CMP_CONFIGURATION_HEADER_GUARD@_H_
 #define _@CMP_CONFIGURATION_HEADER_GUARD@_H_
 
-#if !defined(_@CMP_TYPES_HEADER_GUARD@_H_)
-<<<<<<<<<<<<< Please include @CMP_TYPES_FILE_NAME@ instead of this file in your code
-#endif
 
 /* Define if you are running on a Microsoft Windows Platform */
 #cmakedefine CMP_HAVE_WINDOWS @CMP_HAVE_WINDOWS@

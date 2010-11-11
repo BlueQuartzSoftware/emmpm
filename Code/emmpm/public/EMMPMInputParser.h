@@ -51,7 +51,7 @@ class EMMPMInputParser
      * @param inputs
      * @return
      */
-    int parseCLIArguments(int argc,char *argv[], EMMPM_Files* files, EMMPM_Inputs* inputs);
+    int parseCLIArguments(int argc,char *argv[], EMMPM_Data* inputs);
 
     /**
      * @brief This will parse the pixel coordinates for each class that is to be initialized
@@ -59,7 +59,7 @@ class EMMPMInputParser
      * @param inputs
      * @return
      */
-    int parseInitCoords(const std::string &coords, EMMPM_Inputs* inputs);
+    int parseInitCoords(const std::string &coords, EMMPM_Data* inputs);
 
     /**
      * @brief
@@ -67,7 +67,7 @@ class EMMPMInputParser
      * @param inputs
      * @return
      */
-    int parseGrayTable(const std::string &values, EMMPM_Inputs* inputs);
+    int parseGrayTable(const std::string &values, EMMPM_Data* inputs);
 
     char* setFileName( const std::string &fname);
 

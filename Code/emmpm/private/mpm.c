@@ -49,75 +49,76 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void mpm(EMMPM_Inputs* inputs,
-         EMMPM_WorkingVars* vars)
+void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
 {
   double local_beta;
-  int classes = inputs->classes;
-  vars->progress++;
-  EMMPM_ShowProgress("-MPM Loops", vars->progress);
+  int classes = data->classes;
+  data->progress++;
+  if (callbacks->EMMPM_ProgressFunc != NULL) {
+    callbacks->EMMPM_ProgressFunc("-MPM Loops", data->progress);
+  }
 
 	double **yk[MAX_CLASSES], sqrt2pi, current, con[MAX_CLASSES], d[MAX_CLASSES];
 	double x, post[MAX_CLASSES], sum;
 	int i, j, k, l, mm, prior[MAX_CLASSES];
 
-  local_beta = vars->workingBeta;
+  local_beta = data->workingBeta;
 
 	/* Allocate space for yk[][][] */
 	for (l = 0; l < classes; l++)
-		yk[l] = (double **)get_img(inputs->columns, inputs->rows, sizeof(double));
+		yk[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
 
 	sqrt2pi = sqrt(2.0 * PI);
 
 	for (l = 0; l < classes; l++) {
-		con[l] = -log(sqrt2pi * sqrt(vars->v[l]));
-		d[l] = -2.0 * vars->v[l];
+		con[l] = -log(sqrt2pi * sqrt(data->v[l]));
+		d[l] = -2.0 * data->v[l];
 	}
 
-	for (i = 0; i < inputs->rows; i++)
-		for (j = 0; j < inputs->columns; j++) {
-			mm = vars->y[i][j];
+	for (i = 0; i < data->rows; i++)
+		for (j = 0; j < data->columns; j++) {
+			mm = data->y[i][j];
 			for (l = 0; l < classes; l++) {
-				vars->probs[l][i][j] = 0;  // reset content of (16)
-				yk[l][i][j] = con[l] + ((mm - vars->m[l]) * (mm - vars->m[l]) / d[l]);
+				data->probs[l][i][j] = 0;  // reset content of (16)
+				yk[l][i][j] = con[l] + ((mm - data->m[l]) * (mm - data->m[l]) / d[l]);
 			}
 		}
 
-	for (k = 0; k < inputs->mpmIterations; k++)
-		for (i=0; i<inputs->rows; i++)
-			for (j=0; j<inputs->columns; j++) {
+	for (k = 0; k < data->mpmIterations; k++)
+		for (i=0; i<data->rows; i++)
+			for (j=0; j<data->columns; j++) {
 				sum = 0;
 				for (l = 0; l < classes; l++) {
 					prior[l] = 0;
 					if (i - 1 >= 0) {
 						if (j - 1 >= 0)
-							if (vars->xt[i - 1][j - 1] != l)
+							if (data->xt[i - 1][j - 1] != l)
 	 							(prior[l])++;
-						if (vars->xt[i - 1][j] != l)
+						if (data->xt[i - 1][j] != l)
 							(prior[l])++;
-						if (j + 1 < inputs->columns)
-							if (vars->xt[i - 1][j + 1] != l)
+						if (j + 1 < data->columns)
+							if (data->xt[i - 1][j + 1] != l)
 								(prior[l])++;
 					}
-					if (i + 1 < inputs->rows) {
+					if (i + 1 < data->rows) {
 						if (j - 1 >= 0)
-							if (vars->xt[i + 1][j - 1] != l)
+							if (data->xt[i + 1][j - 1] != l)
 								(prior[l])++;
-						if (vars->xt[i + 1][j] != l)
+						if (data->xt[i + 1][j] != l)
 							(prior[l])++;
-						if (j + 1 < inputs->columns)
-							if (vars->xt[i + 1][j + 1] != l)
+						if (j + 1 < data->columns)
+							if (data->xt[i + 1][j + 1] != l)
 								(prior[l])++;
 					}
 					if (j - 1 >= 0)
-						if (vars->xt[i][j - 1] != l)
+						if (data->xt[i][j - 1] != l)
 							(prior[l])++;
-					if (j + 1 < inputs->columns)
-						if (vars->xt[i][j + 1] != l)
+					if (j + 1 < data->columns)
+						if (data->xt[i][j + 1] != l)
 							(prior[l])++;
 
-					post[l] = exp(yk[l][i][j] - local_beta * (double)(prior[l]) - vars->gamma[l]);
+					post[l] = exp(yk[l][i][j] - local_beta * (double)(prior[l]) - data->w_gamma[l]);
 					sum += post[l];
 				}
 				x = random2();
@@ -125,18 +126,18 @@ void mpm(EMMPM_Inputs* inputs,
 
 				for (l = 0; l < classes; l++) {
 					if ((x >= current) && (x <= (current + post[l] / sum))) {
-						vars->xt[i][j] = l;
-						vars->probs[l][i][j] += 1.0;
+						data->xt[i][j] = l;
+						data->probs[l][i][j] += 1.0;
 					}
 					current += post[l] / sum;
 				}
 			}
 
 	/* Normalize probabilities */
-	for (i=0; i<inputs->rows; i++)
-		for (j=0; j<inputs->columns; j++)
+	for (i=0; i<data->rows; i++)
+		for (j=0; j<data->columns; j++)
 			for (l = 0; l < classes; l++)
-				vars->probs[l][i][j] = vars->probs[l][i][j] / (double)inputs->mpmIterations;
+				data->probs[l][i][j] = data->probs[l][i][j] / (double)data->mpmIterations;
 
 	/* Clean Up */
 	for (l = 0; l < classes; l++)

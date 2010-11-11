@@ -55,25 +55,25 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPM_WriteOutputImage(EMMPM_Files* files, EMMPM_Inputs* inputs)
+int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   int err = 1;
 
-  if (files->outputImage == NULL)
+  if (data->outputImage == NULL)
   {
     printf("Error: inputs->output_image was NULL. Can not write output image\n");
     return -1;
   }
 
-  err = EMMPM_WriteGrayScaleTiff(files, inputs, "Segmented with EM/MPM");
+  err = EMMPM_WriteGrayScaleTiff(data, callbacks, "Segmented with EM/MPM");
   if (err < 0)
   {
-    printf("Error writing Tiff file %s\n", files->output_file_name);
+    printf("Error writing Tiff file %s\n", data->output_file_name);
     return -1;
   }
   else
   {
-    printf("Wrote output image %s\n", files->output_file_name);
+    printf("Wrote output image %s\n", data->output_file_name);
   }
 
   return err;
@@ -83,18 +83,18 @@ int EMMPM_WriteOutputImage(EMMPM_Files* files, EMMPM_Inputs* inputs)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPM_ReadInputImage(EMMPM_Files* files, EMMPM_Inputs* inputs)
+int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   int err = 0;
 
-  files->inputImage = EMMPM_ReadTiffAsGrayScale(files);
-  inputs->columns = files->width;
-  inputs->rows = files->height;
-  files->channels = 1;
+  data->inputImage = EMMPM_ReadTiffAsGrayScale(data, callbacks);
+  data->channels = 1;
 
-  if (NULL ==  files->inputImage)
+  if (NULL ==  data->inputImage)
   {
-    EMMPM_ShowProgress("Error reading Tiff File", 0.0f);
+    if (callbacks->EMMPM_ProgressFunc != NULL) {
+      callbacks->EMMPM_ProgressFunc("Error reading Tiff File", 0.0f);
+    }
     return -1;
   }
   return err;
@@ -103,7 +103,7 @@ int EMMPM_ReadInputImage(EMMPM_Files* files, EMMPM_Inputs* inputs)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files)
+unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   TIFF* in;
   unsigned char* raster; /* retrieve RGBA image */
@@ -123,24 +123,24 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files)
   orientation = 0;
   totalBytes = 0;
 
-  in = TIFFOpen(files->input_file_name, "r");
+  in = TIFFOpen(data->input_file_name, "r");
   if (in == NULL)
   {
-    printf("Error Opening Tiff file with Absolute Path:\n %s\n", files->input_file_name);
+    printf("Error Opening Tiff file with Absolute Path:\n %s\n", data->input_file_name);
     exit(1);
   }
 
 
   err = TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &width);
-  files->width = width;
+  data->columns = width;
   err = TIFFGetField(in, TIFFTAG_IMAGELENGTH, &height);
-  files->height = height;
+  data->rows = height;
   err = TIFFGetField(in, TIFFTAG_SAMPLESPERPIXEL, &samplesperpixel);
   err = TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
   err = TIFFGetField(in, TIFFTAG_PHOTOMETRIC, &photometric);
   err = TIFFGetField(in, TIFFTAG_ORIENTATION, &orientation);
 
-  totalBytes = files->width * files->height * 4;
+  totalBytes = data->columns * data->rows * 4;
   raster = (unsigned char*)_TIFFmalloc( totalBytes );
   if (raster == NULL)
   {
@@ -153,7 +153,7 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files)
   //  samples
 
   /* Read the image in one chunk into an RGBA array */
-  if (!TIFFReadRGBAImageOriented(in, (files->width), (files->height), (unsigned int*)(raster), ORIENTATION_TOPLEFT, 0))
+  if (!TIFFReadRGBAImageOriented(in, (data->columns), (data->rows), (unsigned int*)(raster), ORIENTATION_TOPLEFT, 0))
   {
     _TIFFfree(raster);
     return NULL;
@@ -161,7 +161,7 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files)
 
   // Collapse the data down to a single channel, that will end up
   //  being the grayscale values
-  pixel_count = (files->height) * (files->width);
+  pixel_count = (data->rows) * (data->columns);
 
   // The collapse is done IN PLACE
   src = raster;
@@ -180,7 +180,8 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Files* files)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int writeGrayScaleImage(const char* filename, int rows, int columns, const char* imageDescription, unsigned char* image)
+int writeGrayScaleImage(const char* filename, int rows, int columns,
+                        const char* imageDescription, unsigned char* image)
 {
   int err;
    TIFF *out;
@@ -256,13 +257,13 @@ int writeGrayScaleImage(const char* filename, int rows, int columns, const char*
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPM_WriteGrayScaleTiff(EMMPM_Files* files,
-                             EMMPM_Inputs* inputs,
+int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
+                             EMMPM_CallbackFunctions* callbacks,
                              char* imageDescription)
 {
-  return  writeGrayScaleImage(files->output_file_name,
-                              files->height, files->width,
-                              imageDescription, files->outputImage);
+  return  writeGrayScaleImage(data->output_file_name,
+                              data->rows, data->columns,
+                              imageDescription, data->outputImage);
 }
 
 // -----------------------------------------------------------------------------

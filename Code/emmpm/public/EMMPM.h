@@ -31,7 +31,11 @@
 #ifndef EMMPM_H_
 #define EMMPM_H_
 
+#include "emmpm/common/CMPConfiguration.h"
+
+#if CMP_HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Structures.h"
@@ -45,52 +49,29 @@ extern "C" {
  *
  * @return
  */
-EMMPM_Files* EMMPM_AllocateFilesStructure();
+EMMPM_Data* EMMPM_AllocateDataStructure();
 
 /**
  *
  * @return
  */
-EMMPM_Inputs* EMMPM_AllocateInputsStructure();
-
-/**
- *
- * @return
- */
-EMMPM_WorkingVars* EMMPM_AllocatedWorkingVarsStructure();
-
-/**
- *
- * @return
- */
-EMMPM_Update* EMMPM_AllocateUpdateStructure();
+EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure();
 
 /**
  *
  * @param ptr
  */
-void EMMPM_FreeFilesStructure(EMMPM_Files* ptr);
+void EMMPM_FreeDataStructure(EMMPM_Data* ptr);
 
 /**
  *
  * @param ptr
  */
-void EMMPM_FreeInputsStructure(EMMPM_Inputs* ptr);
-
-/**
- *
- * @param ptr
- */
-void EMMPM_FreedWorkingVarsStructure(EMMPM_WorkingVars* ptr);
-
-/**
- *
- * @param update
- */
-void EMMPM_FreeUpdateStructure(EMMPM_Update* update);
+void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* ptr);
 
 
 
+#if 0
 /**
  * @brief Shows a message and a percentage progress using the current EMMPM_ProgressFunction
  * that has been set using the @see EMMPM_SetProgressFunction callback function.
@@ -103,38 +84,14 @@ void EMMPM_FreeUpdateStructure(EMMPM_Update* update);
 void EMMPM_ShowProgress(char* message, float progress);
 
 /**
-* @brief Sets a function to be used to provide progress information in the form
-* of a text variable and a percent variable which should range between zero and
-* one
-* @param pt2Func The function to be called for progress feedback
-*/
-void EMMPM_SetProgressFunction(void (*pt2Func)(char*, float));
-
-
-/**
-* @brief This will set a Custom Initialization function for use by the EM/MPM
-* algorithm. If this is NOT set then the basic random distribution
-* is used instead.
-* @param pt2Func
-* @return
-*/
-void EMMPM_SetInitializationFunction(void (*pt2Func)(EMMPM_Inputs*, EMMPM_WorkingVars*));
-
-
-/**
- * @brief This sets the UpdateStats callback function where an updated semented
- * image and the updaed mean and variance for all the classes can be calculated.
- * @param pt2Func
- */
-void EMMPM_SetProgressStatsFunction(void (*pt2Func)(EMMPM_Update*));
-
-/**
  * @brief This function is called at the bottom of each EM loop with an updated
  * segmented image. This can be useful to show the evolution of the segmentation
  * during the EM/MPM algorithm.
  * @param update
  */
-void EMMPM_ProgressStats(EMMPM_Update* update);
+void EMMPM_ProgressStats(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+#endif
+
 
 /**
  * @brief This function will copy the input image into an internal data structure
@@ -143,9 +100,7 @@ void EMMPM_ProgressStats(EMMPM_Update* update);
  * @param inputs
  * @param vars
  */
-void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Files* files,
-                                           EMMPM_Inputs* inputs,
-                                           EMMPM_WorkingVars* vars);
+void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 /**
  * @brief This function will copy the internal data structure that represents an
  * segmented image into a possibly newly allocated array. If the outputImage pointer
@@ -157,9 +112,7 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Files* files,
  * @param inputs
  * @param vars
  */
-void EMMPM_ConvertXtToOutputImage(EMMPM_Files* files,
-                                           EMMPM_Inputs* inputs,
-                                           EMMPM_WorkingVars* vars);
+void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 
 /**
  * @brief Main entry point for running the EMMPM algorithm. The EMMPM_Inputs and
@@ -170,7 +123,7 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Files* files,
  * @param files The input filenames and/or raw image array
  * @param inputs The main input parameters to the emmpm algorithm
  */
-void EMMPM_Execute(EMMPM_Files* files, EMMPM_Inputs* inputs);
+void EMMPM_Execute(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 
 
 #ifdef __cplusplus

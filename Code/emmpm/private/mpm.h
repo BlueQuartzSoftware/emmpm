@@ -41,11 +41,10 @@ extern "C" {
   /**
    * @brief This is the Maximumization of Posterior Marginals (MPM) portion of
    * the EM/MPM Algorithm.
-   * @param inputs A non NULL EMMPM_Inputs pointer
-   * @param vars A non NULL EMMPM_WorkingVars pointer
+   * @param data A non NULL EMMPM_Data pointer
+   * @param callbacks A non NULL EMMPM_CallbackFunctions pointer
    */
-void mpm(EMMPM_Inputs* inputs,
-         EMMPM_WorkingVars* vars);
+void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }

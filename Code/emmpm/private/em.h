@@ -44,11 +44,10 @@ extern "C" {
 
   /**
    * @brief
-   * @param files a non NULL EMMPM_Files pointer
-   * @param inputs A non NULL EMMPM_Inputs pointer
-   * @param vars A non NULL EMMPM_WorkingVars pointer
+   * @param data a non NULL EMMPM_Data pointer
+   * @param callbacks a non NULL EMMPM_CallbackFunctions
    */
-  void EMMPM_PerformEMLoops(EMMPM_Files* files, EMMPM_Inputs* inputs, EMMPM_WorkingVars* vars);
+  void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }

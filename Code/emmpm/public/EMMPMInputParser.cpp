@@ -52,7 +52,7 @@ EMMPMInputParser::~EMMPMInputParser()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPMInputParser::parseGrayTable(const std::string &values, EMMPM_Inputs* inputs)
+int EMMPMInputParser::parseGrayTable(const std::string &values, EMMPM_Data* inputs)
 {
   std::string::size_type pos = values.find(",", 0);
 
@@ -89,7 +89,7 @@ int EMMPMInputParser::parseGrayTable(const std::string &values, EMMPM_Inputs* in
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPMInputParser::parseInitCoords(const std::string &coords, EMMPM_Inputs* inputs)
+int EMMPMInputParser::parseInitCoords(const std::string &coords, EMMPM_Data* inputs)
 {
   std::string::size_type pos = coords.find(":", 0);
 
@@ -141,9 +141,9 @@ char* EMMPMInputParser::setFileName(const std::string &fname)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Files* files, EMMPM_Inputs* inputs)
+int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inputs)
 {
-  if (NULL == files || NULL == inputs)
+  if ( NULL == inputs)
   {
     printf("Either the EMMPM_Files pointer or the EMMPM_Inputs pointer was null. Returning early.\n");
     return -1;
@@ -185,23 +185,23 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Files* fil
     int error = 0;
     cmd.parse(argc, argv);
 
-    inputs->beta = in_beta.getValue();
-    inputs->gamma = in_gamma.getValue();
+    inputs->in_beta = in_beta.getValue();
+    inputs->in_gamma = in_gamma.getValue();
     inputs->mpmIterations = in_mpmIter.getValue();
     inputs->emIterations = in_emIter.getValue();
     inputs->classes = in_numClasses.getValue();
     inputs->verbose = in_verbose.getValue();
     inputs->simulatedAnnealing = simAnneal.getValue();
 
-    files->input_file_name = setFileName(in_inputFile.getValue() );
-    if (files->input_file_name == NULL)
+    inputs->input_file_name = setFileName(in_inputFile.getValue() );
+    if (inputs->input_file_name == NULL)
     {
       std::cout << "There was an error parsing the input file name. Did you use the '-i' argument to set an input file?" << std::endl;
       return -1;
     }
 
-    files->output_file_name = setFileName(in_outputFile.getValue() );
-    if (files->output_file_name == NULL)
+    inputs->output_file_name = setFileName(in_outputFile.getValue() );
+    if (inputs->output_file_name == NULL)
     {
       std::cout << "There was an error parsing the output file name. Did you use the '-o' argument to set an input file?" << std::endl;
       return -1;

@@ -31,6 +31,9 @@
 #ifndef INITIALIZATIONFUNCTIONS_H_
 #define INITIALIZATIONFUNCTIONS_H_
 
+#include "emmpm/public/EMMPM_Constants.h"
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -38,11 +41,11 @@ extern "C" {
 
 
 /**
- * @brief
- * @param inputs
- * @param vars
+ * @brief The standard EM/MPM initialization functions
+ * @param data
+ * @param callbacks
  */
-void EMMPM_BasicInitialization(EMMPM_Inputs* inputs, EMMPM_WorkingVars* vars);
+void EMMPM_BasicInitialization(EMMPM_Data* data);
 
 
 #ifdef __cplusplus

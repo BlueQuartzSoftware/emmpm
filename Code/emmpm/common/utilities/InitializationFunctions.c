@@ -41,22 +41,24 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_BasicInitialization(EMMPM_Inputs* inputs, EMMPM_WorkingVars* vars)
+void EMMPM_BasicInitialization(EMMPM_Data* data)
 {
   unsigned int i, j, k, l;
   double mu, sigma;
-  unsigned int rows = inputs->rows;
-  unsigned int cols = inputs->columns;
-  unsigned int classes = inputs->classes;
+  unsigned int rows = data->rows;
+  unsigned int cols = data->columns;
+  unsigned int classes = data->classes;
 
-  unsigned char** y = vars->y;
-  unsigned char** xt = vars->xt;
-  rows = inputs->rows;
-  cols = inputs->columns;
+  unsigned char** y = data->y;
+  unsigned char** xt = data->xt;
+  rows = data->rows;
+  cols = data->columns;
   char msgbuff[256];
   memset(msgbuff, 0, 256);
 
-  EMMPM_ShowProgress("EMMPM_BasicInitialization Starting", vars->progress);
+//  if (callbacks->EMMPM_ProgressFunc != NULL) {
+//    callbacks->EMMPM_ProgressFunc("EMMPM_BasicInitialization Starting", data->progress);
+//  }
   /* Initialization of parameter estimation */
   mu = 0;
   sigma = 0;
@@ -73,39 +75,42 @@ void EMMPM_BasicInitialization(EMMPM_Inputs* inputs, EMMPM_WorkingVars* vars)
   sigma = sqrt((double)sigma);
   //printf("mu=%f sigma=%f\n",mu,sigma);
   snprintf(msgbuff, 256, "mu=%f sigma=%f\n", mu, sigma);
-  EMMPM_ShowProgress(msgbuff, vars->progress);
+//  if (callbacks->EMMPM_ProgressFunc != NULL) {
+//    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+//  }
+
 
   if (classes%2 == 0)
   {
     for (k=0; k<classes/2; k++)
     {
-      vars->m[classes/2 + k] = mu + (k+1)*sigma/2;
-      vars->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
+      data->m[classes/2 + k] = mu + (k+1)*sigma/2;
+      data->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
     }
   }
   else
   {
-    vars->m[classes/2] = mu;
+    data->m[classes/2] = mu;
     for (k=0; k<classes/2; k++)
     {
-      vars->m[classes/2 + 1 + k] = mu + (k+1)*sigma/2;
-      vars->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
+      data->m[classes/2 + 1 + k] = mu + (k+1)*sigma/2;
+      data->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
     }
   }
 
   for (l = 0; l < classes; l++)
   {
-    vars->v[l] = 20;
-    vars->probs[l] = (double **)get_img(cols, rows, sizeof(double));
+    data->v[l] = 20;
+    data->probs[l] = (double **)get_img(cols, rows, sizeof(double));
   }
 
   /* Initialize classification of each pixel randomly with a uniform disribution */
   for (i = 0; i < rows; i++)
   for (j = 0; j < cols; j++)
   {
-    vars->x = random2();
+    data->x = random2();
     l = 0;
-    while ((double)(l + 1) / classes <= vars->x) // may incur l = classes when x = 1
+    while ((double)(l + 1) / classes <= data->x) // may incur l = classes when x = 1
     l++;
     xt[i][j] = l;
   }

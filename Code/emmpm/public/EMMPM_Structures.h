@@ -35,58 +35,6 @@
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/common/EMMPMTypes.h"
 
-/**
- * A structure to hold values that are useful to a callback function that would
- * like to display an image or indicate mu or sigma values
- */
-typedef struct
-{
-    unsigned char* outputImage; /**<   */
-    size_t        width; /**< The width of the image. Applicable for both input and output images */
-    size_t        height; /**< The height of the image.  Applicable for both input and output images */
-    size_t        channels; /**< The number of color channels in the images. This should always be 1 */
-    int           classes; /**< The number of classes passed to the EM/MPM algorithm */
-    double        m[MAX_CLASSES]; /**< The "mean" values for all the classes  */
-    double        v[MAX_CLASSES]; /**< The "variance" values for all the classes  */
-    int           currentEMLoop; /**< The current EM Loop  */
-    int           currentMPMLoop; /**< The current MPM Loop  */
-} EMMPM_Update;
-
-
-/**
- * A Structure to hold the input and output file names and/or raw image data
- */
-typedef struct
-{
-
-    char* input_file_name;/**< The input file name */
-    unsigned char* inputImage; /**< The raw image data that is used as input to the algorithm */
-    size_t        width; /**< The width of the image. Applicable for both input and output images */
-    size_t        height; /**< The height of the image.  Applicable for both input and output images */
-    size_t        channels; /**< The number of color channels in the images. This should always be 1 */
-    char* output_file_name; /**< The name of the output file */
-    unsigned char* outputImage; /**< The raw output image data which can be allocated by the library or the calling function. */
-} EMMPM_Files;
-
-
-/**
- * A Structure to hold all the inputs into the EM/MPM algorithm
- */
-typedef struct
-{
-    int emIterations; /**<  */
-    int mpmIterations; /**<  */
-    double beta; /**<  */
-    double gamma; /**<  */
-    int classes; /**<  */
-    unsigned int rows; /**<  */
-    unsigned int columns; /**<  */
-    unsigned int initType;  /**< The type of initialization algorithm to use  */
-    unsigned int initCoords[MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
-    char simulatedAnnealing; /**<  */
-    unsigned int grayTable[MAX_CLASSES];
-    char verbose; /**<  */
-} EMMPM_Inputs;
 
 /**
  * Holds variables that are needed by the various functions through out
@@ -95,9 +43,39 @@ typedef struct
  */
 typedef struct
 {
+
+    // -----------------------------------------------------------------------------
+    //  Inputs from Command line or GUI program
+    // -----------------------------------------------------------------------------
+    int emIterations; /**<  */
+    int mpmIterations; /**<  */
+    double in_beta; /**<  */
+    double in_gamma; /**<  */
+    int classes; /**<  */
+    unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
+    unsigned int columns; /**< The width of the image. Applicable for both input and output images */
+    size_t        channels; /**< The number of color channels in the images. This should always be 1 */
+    unsigned int initType;  /**< The type of initialization algorithm to use  */
+    unsigned int initCoords[MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
+    char simulatedAnnealing; /**<  */
+    unsigned int grayTable[MAX_CLASSES];
+    char verbose; /**<  */
+
+    // -----------------------------------------------------------------------------
+    //  Input/output File names and raw storage
+    // -----------------------------------------------------------------------------
+    char* input_file_name;/**< The input file name */
+    unsigned char* inputImage; /**< The raw image data that is used as input to the algorithm */
+    char* output_file_name; /**< The name of the output file */
+    unsigned char* outputImage; /**< The raw output image data which can be allocated by the library or the calling function. */
+
+
+    // -----------------------------------------------------------------------------
+    //  Working Vars section - Internal Variables to the algorithm
+    // -----------------------------------------------------------------------------
     unsigned char** y; /**<  */
     unsigned char** xt; /**<  */
-    double gamma[MAX_CLASSES]; /**<  */
+    double w_gamma[MAX_CLASSES]; /**<  */
     double ga; /**<  */
     double x; /**<  */
     double m[MAX_CLASSES]; /**<  */
@@ -105,7 +83,25 @@ typedef struct
     double N[MAX_CLASSES]; /**<  */
     double **probs[MAX_CLASSES]; /**<  */
     double workingBeta; /**<  */
-    float progress; /**<  */
-} EMMPM_WorkingVars;
+
+
+    // -----------------------------------------------------------------------------
+    //  Variables that Functions may need to present progress information to the user
+    // -----------------------------------------------------------------------------
+    int           currentEMLoop; /**< The current EM Loop  */
+    int           currentMPMLoop; /**< The current MPM Loop  */
+    float progress; /**< A Percentage to indicate how far along the algorthm is.*/
+} EMMPM_Data;
+
+/**
+ *  A structure that holds the various callback functions that will be used
+ *  throughout the code
+ */
+typedef struct
+{
+    void (*EMMPM_ProgressFunc)(char*, float); /**<  */
+    void (*EMMPM_InitializationFunc)(EMMPM_Data*); /**<  */
+    void (*EMMPM_ProgressStatsFunc)(EMMPM_Data*); /**<  */
+} EMMPM_CallbackFunctions;
 
 #endif /* EMMPM_STRUCTURES_H_ */

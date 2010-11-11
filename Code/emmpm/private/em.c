@@ -44,41 +44,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_PerformEMLoops(EMMPM_Files* files,
-                          EMMPM_Inputs* inputs,
-                          EMMPM_WorkingVars* vars)
+void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
 
   int i, j, k, l, kk;
-  int emiter = inputs->emIterations;
-  int rows = inputs->rows;
-  int cols = inputs->columns;
-  int classes = inputs->classes;
+  int emiter = data->emIterations;
+  int rows = data->rows;
+  int cols = data->columns;
+  int classes = data->classes;
   char msgbuff[256];
   memset(msgbuff, 0, 256);
 
-  float totalLoops = inputs->emIterations + 2;
+  float totalLoops = data->emIterations + 2;
   float currentLoopCount = 0.0;
 
-  EMMPM_Update* update = EMMPM_AllocateUpdateStructure();
-  update->classes = inputs->classes;
-  update->width = files->width;
-  update->height = files->height;
-  update->channels = files->channels;
-  update->currentEMLoop = 0;
-  update->currentMPMLoop = 0;
+  data->classes = data->classes;
+  data->channels = data->channels;
+  data->currentEMLoop = 0;
+  data->currentMPMLoop = 0;
 
-  vars->workingBeta = inputs->beta;
+  data->workingBeta = data->in_beta;
 
   double* simAnnealBetas = NULL;
-  if (inputs->simulatedAnnealing != 0)
+  if (data->simulatedAnnealing != 0)
   {
-    simAnnealBetas=(double*)(malloc(sizeof(double)*inputs->emIterations));
-    for (i = 0; i < inputs->emIterations; ++i)
+    simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));
+    for (i = 0; i < data->emIterations; ++i)
     {
-      simAnnealBetas[i] = inputs->beta + pow(i/(inputs->emIterations-1.0), 8) * (10.0*inputs->beta - inputs->beta);
+      simAnnealBetas[i] = data->in_beta + pow(i/(data->emIterations-1.0), 8) * (10.0*data->in_beta - data->in_beta);
     }
-    vars->workingBeta = simAnnealBetas[0];
+    data->workingBeta = simAnnealBetas[0];
   }
 
 
@@ -86,24 +81,27 @@ void EMMPM_PerformEMLoops(EMMPM_Files* files,
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
-    vars->progress = currentLoopCount/totalLoops * 100.0 + 10.0;
-    EMMPM_ShowProgress("EM Loop", vars->progress);
+    data->progress = currentLoopCount/totalLoops * 100.0 + 10.0;
+    if (callbacks->EMMPM_ProgressFunc != NULL) {
+      callbacks->EMMPM_ProgressFunc("EM Loop", data->progress);
+    }
+
     currentLoopCount++;
 
     // Possibly update the beta value due to simulation Annealing
-    if (inputs->simulatedAnnealing)  {
-      vars->workingBeta = simAnnealBetas[k];
+    if (data->simulatedAnnealing)  {
+      data->workingBeta = simAnnealBetas[k];
     }
 
     /* Perform MPM */
-    mpm(inputs, vars);
+    mpm(data, callbacks);
 
     /* Reset model parameters to zero */
     for (l = 0; l < classes; l++)
     {
-      vars->m[l] = 0;
-      vars->v[l] = 0;
-      vars->N[l] = 0;
+      data->m[l] = 0;
+      data->v[l] = 0;
+      data->N[l] = 0;
     }
     /*** Some efficiency was sacrificed for readability below ***/
     /* Update estimates for mean of each class */
@@ -113,11 +111,11 @@ void EMMPM_PerformEMLoops(EMMPM_Files* files,
       {
         for (j = 0; j < cols; j++)
         {
-          vars->N[l] += vars->probs[l][i][j]; // denominator of (20)
-          vars->m[l] += vars->y[i][j] * vars->probs[l][i][j]; // numerator of (20)
+          data->N[l] += data->probs[l][i][j]; // denominator of (20)
+          data->m[l] += data->y[i][j] * data->probs[l][i][j]; // numerator of (20)
         }
       }
-      if (vars->N[l] != 0) vars->m[l] = vars->m[l] / vars->N[l];
+      if (data->N[l] != 0) data->m[l] = data->m[l] / data->N[l];
     }
 
       // Eq. (20)}
@@ -128,10 +126,10 @@ void EMMPM_PerformEMLoops(EMMPM_Files* files,
         {
           for (j = 0; j < cols; j++)
             // numerator of (21)
-            vars->v[l] += (vars->y[i][j] - vars->m[l]) * (vars->y[i][j] - vars->m[l]) * vars->probs[l][i][j];
+            data->v[l] += (data->y[i][j] - data->m[l]) * (data->y[i][j] - data->m[l]) * data->probs[l][i][j];
 
         }
-        if (vars->N[l] != 0) vars->v[l] = vars->v[l] / vars->N[l];
+        if (data->N[l] != 0) data->v[l] = data->v[l] / data->N[l];
       }
 
 #if 0
@@ -140,36 +138,32 @@ void EMMPM_PerformEMLoops(EMMPM_Files* files,
       {
         for (l = 0; l < classes - 1; l++)
         {
-          snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, vars->m[l], vars->v[l]);
-          EMMPM_ShowProgress(msgbuff, vars->progress);
+          snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
+          EMMPM_ShowProgress(msgbuff, data->progress);
         }
-        snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", (classes-1), vars->m[classes - 1], vars->v[classes - 1]);
-        EMMPM_ShowProgress(msgbuff, vars->progress);
+        snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", (classes-1), data->m[classes - 1], data->v[classes - 1]);
+        EMMPM_ShowProgress(msgbuff, data->progress);
       }
 #endif
 
-
-      // Copy the mean and variance into the update structure;
-      memcpy(update->m, vars->m, MAX_CLASSES * sizeof(double));
-      memcpy(update->v, vars->v, MAX_CLASSES * sizeof(double));
-      EMMPM_ConvertXtToOutputImage(files, inputs, vars);
-      update->outputImage = files->outputImage;
+      EMMPM_ConvertXtToOutputImage(data, callbacks);
+      data->outputImage = data->outputImage;
 
 #if 0
       /* Eliminate any classes that have zero probability */
       for (kk = 0; kk < classes; kk++)
       {
-        if (vars->N[kk] == 0)
+        if (data->N[kk] == 0)
         {
           for (l = kk; l < classes - 1; l++)
           {
             /* Move other classes to fill the gap */
-            vars->N[l] = vars->N[l + 1];
-            vars->m[l] = vars->m[l + 1];
-            vars->v[l] = vars->v[l + 1];
+            data->N[l] = data->N[l + 1];
+            data->m[l] = data->m[l + 1];
+            data->v[l] = data->v[l + 1];
             for (i = 0; i < rows; i++)
             for (j = 0; j < cols; j++)
-            if (vars->xt[i][j] == l + 1) vars->xt[i][j] = l;
+            if (data->xt[i][j] == l + 1) data->xt[i][j] = l;
 
           }
           classes = classes - 1; // push the eliminated class into the last class
@@ -179,10 +173,14 @@ void EMMPM_PerformEMLoops(EMMPM_Files* files,
 
 
     //TODO: Add in update functions
-    EMMPM_ProgressStats(update);
-    update->currentEMLoop++;
+    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+    {
+      callbacks->EMMPM_ProgressStatsFunc(data);
+    }
+
+    data->currentEMLoop++;
 
   }
-  EMMPM_FreeUpdateStructure(update);
+
   free(simAnnealBetas);
 }
