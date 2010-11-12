@@ -58,8 +58,6 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   float totalLoops = data->emIterations * data->mpmIterations;
   float currentLoopCount = 0.0;
 
-  data->classes = data->classes;
-  data->channels = data->channels;
   data->currentEMLoop = 0;
   data->currentMPMLoop = 0;
 
@@ -76,8 +74,6 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     data->workingBeta = simAnnealBetas[0];
   }
 
-
-
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
@@ -91,7 +87,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
     }
 
-    // Possibly update the beta value due to simulation Annealing
+    // Possibly update the beta value due to simulated Annealing
     if (data->simulatedAnnealing)  {
       data->workingBeta = simAnnealBetas[k];
     }
@@ -152,7 +148,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
       EMMPM_ConvertXtToOutputImage(data, callbacks);
 
-#if 1
+#if 0
       /* Eliminate any classes that have zero probability */
       for (kk = 0; kk < classes; kk++)
       {

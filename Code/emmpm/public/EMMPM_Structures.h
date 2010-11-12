@@ -76,7 +76,7 @@ typedef struct
     unsigned char** y; /**<  */
     unsigned char** xt; /**<  */
     double w_gamma[MAX_CLASSES]; /**<  */
-    double ga; /**<  */
+ //   double ga; /**<  */
     double x; /**<  */
     double m[MAX_CLASSES]; /**<  */
     double v[MAX_CLASSES]; /**<  */

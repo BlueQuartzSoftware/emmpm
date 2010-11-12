@@ -93,7 +93,7 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
 
   data->y = NULL;
   data->xt = NULL;
-  data->ga = 0;
+//  data->ga = 0;
   data->x = 0;
 
   data->workingBeta = 0.0;
@@ -239,6 +239,10 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   {
     for (j = 0; j < data->columns; j++)
     {
+      if (data->xt[i][j] == 1)
+      {
+        printf("data->xt[i][j] == 1\n");
+      }
       raster[index++] = data->grayTable[data->xt[i][j]];
     }
   }
