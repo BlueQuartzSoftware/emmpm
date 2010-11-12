@@ -54,7 +54,7 @@ typedef struct
     int classes; /**<  */
     unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
-    size_t        channels; /**< The number of color channels in the images. This should always be 1 */
+    unsigned int channels; /**< The number of color channels in the images. This should always be 1 */
     unsigned int initType;  /**< The type of initialization algorithm to use  */
     unsigned int initCoords[MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */

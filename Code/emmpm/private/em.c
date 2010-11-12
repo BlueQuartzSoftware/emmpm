@@ -52,18 +52,19 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int rows = data->rows;
   int cols = data->columns;
   int classes = data->classes;
-  char msgbuff[256];
-  memset(msgbuff, 0, 256);
+ double* simAnnealBetas = NULL;
 
   float totalLoops = data->emIterations * data->mpmIterations;
   float currentLoopCount = 0.0;
 
+  char msgbuff[256];
+  memset(msgbuff, 0, 256);
   data->currentEMLoop = 0;
   data->currentMPMLoop = 0;
 
   data->workingBeta = data->in_beta;
 
-  double* simAnnealBetas = NULL;
+ 
   if (data->simulatedAnnealing != 0)
   {
     simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));

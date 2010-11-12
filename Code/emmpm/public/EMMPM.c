@@ -203,14 +203,12 @@ void EMMPM_ProgressStats(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks)
 void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   uint8_t* dst;
-  unsigned int i;
-  unsigned int j;
-
-  dst = data->inputImage;
+  int i;
+  int j;
   /* Copy input image to y[][] */
   int cols = data->columns;
   int rows = data->rows;
-
+  dst = data->inputImage;
   data->y = (unsigned char **)get_img(cols, rows, sizeof(char));
   for (i = 0; i < rows; i++)
   {

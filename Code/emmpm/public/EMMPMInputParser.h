@@ -37,7 +37,7 @@
 /** @brief
  *
  */
-class EMMPMInputParser
+class EMMPM_EXPORT EMMPMInputParser
 {
   public:
     EMMPMInputParser();

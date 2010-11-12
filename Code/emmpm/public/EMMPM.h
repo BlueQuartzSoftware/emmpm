@@ -31,14 +31,10 @@
 #ifndef EMMPM_H_
 #define EMMPM_H_
 
-#include "emmpm/common/CMPConfiguration.h"
-
-#if CMP_HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Structures.h"
+
 
 
 #ifdef __cplusplus
@@ -49,49 +45,25 @@ extern "C" {
  *
  * @return
  */
-EMMPM_Data* EMMPM_AllocateDataStructure();
+EMMPM_EXPORT EMMPM_Data* EMMPM_AllocateDataStructure();
 
 /**
  *
  * @return
  */
-EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure();
+EMMPM_EXPORT EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure();
 
 /**
  *
  * @param ptr
  */
-void EMMPM_FreeDataStructure(EMMPM_Data* ptr);
+EMMPM_EXPORT void EMMPM_FreeDataStructure(EMMPM_Data* ptr);
 
 /**
  *
  * @param ptr
  */
-void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* ptr);
-
-
-
-#if 0
-/**
- * @brief Shows a message and a percentage progress using the current EMMPM_ProgressFunction
- * that has been set using the @see EMMPM_SetProgressFunction callback function.
- * This API should be used instead of directly calling the ProgressFunction itself
- * as this will guard against bad memory access as a check to make sure there is
- * a non-null function assigned to the EMMPM_ProgressFunction function.
- * @param message The message to be displayed
- * @param progress The amount of progress that has taken place between 0 and 100.
- */
-void EMMPM_ShowProgress(char* message, float progress);
-
-/**
- * @brief This function is called at the bottom of each EM loop with an updated
- * segmented image. This can be useful to show the evolution of the segmentation
- * during the EM/MPM algorithm.
- * @param update
- */
-void EMMPM_ProgressStats(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
-#endif
-
+EMMPM_EXPORT void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* ptr);
 
 /**
  * @brief This function will copy the input image into an internal data structure
@@ -100,7 +72,7 @@ void EMMPM_ProgressStats(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks)
  * @param inputs
  * @param vars
  */
-void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 /**
  * @brief This function will copy the internal data structure that represents an
  * segmented image into a possibly newly allocated array. If the outputImage pointer
@@ -112,7 +84,7 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMPM_CallbackFun
  * @param inputs
  * @param vars
  */
-void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 
 /**
  * @brief Main entry point for running the EMMPM algorithm. The EMMPM_Inputs and
@@ -123,7 +95,7 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_CallbackFunctions* c
  * @param files The input filenames and/or raw image array
  * @param inputs The main input parameters to the emmpm algorithm
  */
-void EMMPM_Execute(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_Execute(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
 
 
 #ifdef __cplusplus

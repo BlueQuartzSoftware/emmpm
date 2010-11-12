@@ -30,15 +30,6 @@
 #ifndef EMTIFFIO_H_
 #define EMTIFFIO_H_
 
-#include "emmpm/common/EMMPMTypes.h"
-
-#ifdef CMP_HAVE_STDINT_H
-#include <stdint.h>
-#endif
-
-
-#include "emmpm/common/EMMPMVersion.h"
-#include "emmpm/common/MSVCDefines.h"
 #include "emmpm/public/EMMPM.h"
 
 
@@ -47,47 +38,47 @@ extern "C"
 {
 #endif
 
-  /**
-   * @brief
-   * @param files
-   * @param inputs
-   * @return
-   */
-  int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+/**
+ * @brief
+ * @param files
+ * @param inputs
+ * @return
+ */
+EMMPM_EXPORT int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
-  /**
-   * @brief
-   * @param files
-   * @param inputs
-   * @return
-   */
-  int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+/**
+ * @brief
+ * @param files
+ * @param inputs
+ * @return
+ */
+EMMPM_EXPORT int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 
-  /**
-   * @brief
-   * @param files
-   * @return
-   */
-  unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+/**
+ * @brief
+ * @param files
+ * @return
+ */
+EMMPM_EXPORT unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
-  /**
-   * @brief Writes the output from the EM/MPM into a Tiff File
-   * @param files
-   * @param inputs
-   * @param imageDescription
-   * @return Zero Value or Negative on Error. Anything else is considered a success;
-   */
-  int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
-                               EMMPM_CallbackFunctions* callbacks,
-                            char* imageDescription);
+/**
+ * @brief Writes the output from the EM/MPM into a Tiff File
+ * @param files
+ * @param inputs
+ * @param imageDescription
+ * @return Zero Value or Negative on Error. Anything else is considered a success;
+ */
+EMMPM_EXPORT int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
+                             EMMPM_CallbackFunctions* callbacks,
+                          char* imageDescription);
 
-  /**
-   * @brief Deallocates memory that is used to store image data. Typically allocated
-   * with the _TIFFmalloc() function from libTif.
-   * @param buffer A memory buffer that was allocated with _TIFFmalloc
-   */
-  void EMMPM_FreeTiffImageBuffer(unsigned char* buffer);
+/**
+ * @brief Deallocates memory that is used to store image data. Typically allocated
+ * with the _TIFFmalloc() function from libTif.
+ * @param buffer A memory buffer that was allocated with _TIFFmalloc
+ */
+EMMPM_EXPORT void EMMPM_FreeTiffImageBuffer(unsigned char* buffer);
 
 /**
  *
@@ -96,9 +87,19 @@ extern "C"
  * @param samplesPerPixel
  * @return
  */
-  unsigned char* EMMPM_AllocateTiffImageBuffer(int width, int height, int samplesPerPixel);
+EMMPM_EXPORT unsigned char* EMMPM_AllocateTiffImageBuffer(int width, int height, int samplesPerPixel);
 
-  int writeGrayScaleImage(const char* filename, int rows, int columns,
+
+/**
+* @brief
+* @param filename
+* @param rows
+* @param columns
+* @param imageDescription
+* @param image
+* @return error code
+*/
+EMMPM_EXPORT int EMMPM_WriteGrayScaleImage(const char* filename, int rows, int columns,
                           const char* imageDescription, unsigned char* image);
 
 #ifdef __cplusplus

@@ -14,14 +14,14 @@
 #include <string>
 
 #include "emmpm/common/EMMPMTypes.h"
-#include "emmpm/common/utilities/allocate.h"
-#include "emmpm/common/utilities/random.h"
+#include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/public/EMMPMInputParser.h"
 #include "emmpm/common/io/EMTiffIO.h"
 #include "emmpm/common/utilities/ProgressFunctions.h"
 #include "emmpm/common/utilities/InitializationFunctions.h"
-
+//#include "emmpm/common/utilities/allocate.h"
+//#include "emmpm/common/utilities/random.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -34,7 +34,7 @@ void UpdateStats(EMMPM_Data* data)
     char buff[256];
     memset(buff, 0, 256);
     snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
-    int err = writeGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
+    int err = EMMPM_WriteGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
     if (err < 0)
     {
       std::cout << "Error writing intermediate tiff image." << std::endl;
@@ -55,7 +55,7 @@ void UpdateStats(EMMPM_Data* data)
       float mu = data->m[c];
       float sig = data->v[c];
       float twoSigSqrd = sig * sig * 2.0f;
-      float constant = 1.0 / (sig * sqrtf(2.0f * M_PI));
+      float constant = 1.0f / (sig * sqrtf(2.0f * PI));
       for (size_t x = 0; x < 256; ++x)
       {
         hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));

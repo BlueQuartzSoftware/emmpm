@@ -29,6 +29,8 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include <stdio.h>
+#include "ProgressFunctions.h"
+
 
 /* --------------------------------------------------------------------------- */
 void EMMPM_PrintfProgress(char* message, float progress)

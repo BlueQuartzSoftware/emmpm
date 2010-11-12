@@ -158,7 +158,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
 
   TCLAP::ValueArg<float> in_beta("b", "beta", "Beta Value", false, 1.0, "");
   cmd.add(in_beta);
-  TCLAP::ValueArg<float> in_gamma("g", "gamma", "Gamma Value", false, 0.1, "");
+  TCLAP::ValueArg<float> in_gamma("g", "gamma", "Gamma Value", false, 0.1f, "");
   cmd.add(in_gamma);
   TCLAP::ValueArg<int> in_emIter("e", "emIter", "Number of EM Iterations", false, 10, "");
   cmd.add(in_emIter);

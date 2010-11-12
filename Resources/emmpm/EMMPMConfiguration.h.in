@@ -23,5 +23,6 @@
 
 /* The Following include MUST appear AFTER EMMPM_BUILT_AS_DYNAMIC_LIB has been defined */
 #include "emmpm/common/DLLExport.h"
+#include "emmpm/common/MSVCDefines.h"
 
 #endif /* _EMMPM_CONFIGURATION_H_ */

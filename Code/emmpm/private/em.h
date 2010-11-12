@@ -42,12 +42,12 @@ extern "C" {
 
 
 
-  /**
-   * @brief
-   * @param data a non NULL EMMPM_Data pointer
-   * @param callbacks a non NULL EMMPM_CallbackFunctions
-   */
-  void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+/**
+ * @brief
+ * @param data a non NULL EMMPM_Data pointer
+ * @param callbacks a non NULL EMMPM_CallbackFunctions
+ */
+EMMPM_EXPORT void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }

@@ -126,7 +126,6 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
     exit(1);
   }
 
-
   err = TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &width);
   data->columns = width;
   err = TIFFGetField(in, TIFFTAG_IMAGELENGTH, &height);
@@ -176,7 +175,7 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int writeGrayScaleImage(const char* filename, int rows, int columns,
+int EMMPM_WriteGrayScaleImage(const char* filename, int rows, int columns,
                         const char* imageDescription, unsigned char* image)
 {
 
@@ -206,7 +205,7 @@ int writeGrayScaleImage(const char* filename, int rows, int columns,
    err = TIFFSetField(out, TIFFTAG_ROWSPERSTRIP, (int)rows); // 1 strip
 
 
-   dateTime = EM_TiffDateTime();
+   dateTime = EMMPM_TiffDateTime();
    err = TIFFSetField(out, TIFFTAG_DATETIME, dateTime);
    // String based tags
    if (NULL != filename)
@@ -262,7 +261,7 @@ int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
                              EMMPM_CallbackFunctions* callbacks,
                              char* imageDescription)
 {
-  return  writeGrayScaleImage(data->output_file_name,
+  return  EMMPM_WriteGrayScaleImage(data->output_file_name,
                               data->rows, data->columns,
                               imageDescription, data->outputImage);
 }

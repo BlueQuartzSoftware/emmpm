@@ -32,11 +32,12 @@
 #include <math.h>
 #include <string.h>
 
+#include "InitializationFunctions.h"
 
-#include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/common/utilities/allocate.h"
 #include "emmpm/common/utilities/random.h"
+
 
 // -----------------------------------------------------------------------------
 //
@@ -45,15 +46,17 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
 {
   unsigned int i, j, k, l;
   double mu, sigma;
+  char msgbuff[256];
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
   unsigned int classes = data->classes;
 
   unsigned char** y = data->y;
   unsigned char** xt = data->xt;
+
   rows = data->rows;
   cols = data->columns;
-  char msgbuff[256];
+  
   memset(msgbuff, 0, 256);
 
 //  printf("EMMPM_BasicInitialization Starting\n");
@@ -130,7 +133,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   double mu, sigma;
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
-
+  char msgbuff[256];
   unsigned char** y = data->y;
   unsigned char** xt = data->xt;
   rows = data->rows;
@@ -139,7 +142,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   sigma = 0;
   mu = 0;
 
-  char msgbuff[256];
+
   memset(msgbuff, 0, 256);
 
   for(c = 0; c < data->classes; c++)

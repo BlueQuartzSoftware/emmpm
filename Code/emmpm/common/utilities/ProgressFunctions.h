@@ -31,13 +31,11 @@
 #ifndef PROGRESSFUNCTIONS_H_
 #define PROGRESSFUNCTIONS_H_
 
+#include "emmpm/common/DLLExport.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-
 
 /**
 * @brief This is a progress callback function that simply prints out to the
@@ -45,7 +43,7 @@ extern "C" {
 * @param message
 * @param progress Value between 0 and 100
 */
-void EMMPM_PrintfProgress(char* message, float progress);
+EMMPM_EXPORT void EMMPM_PrintfProgress(char* message, float progress);
 
 
 #ifdef __cplusplus

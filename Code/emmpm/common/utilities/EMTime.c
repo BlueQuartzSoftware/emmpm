@@ -51,7 +51,7 @@ char* formattedTime(char* formatting, char* output)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-char* EM_LogTime()
+char* EMMPM_LogTime()
 {
   return formattedTime("[%04d:%02d:%02d:%02d:%02d:%02d]", em_log_time);
 }
@@ -59,7 +59,7 @@ char* EM_LogTime()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-char* EM_TiffDateTime()
+char* EMMPM_TiffDateTime()
 {
   return formattedTime("%04d:%02d:%02d %02d:%02d:%02d", em_tif_time);
 }
@@ -67,7 +67,7 @@ char* EM_TiffDateTime()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-unsigned long long int getMilliSeconds()
+unsigned long long int EMMPM_getMilliSeconds()
 {
 #ifdef _MSC_VER
   return (unsigned long long int)(clock());

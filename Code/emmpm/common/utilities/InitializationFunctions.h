@@ -31,6 +31,8 @@
 #ifndef INITIALIZATIONFUNCTIONS_H_
 #define INITIALIZATIONFUNCTIONS_H_
 
+#include "emmpm/common/DLLExport.h"
+#include "emmpm/public/EMMPM_Structures.h"
 
 #define EMMPM_BASIC_INITIALIZATION 0
 #define EMMPM_USER_DEFINED_AREA_INITIALIZATION 1
@@ -45,14 +47,14 @@ extern "C" {
  * @brief The standard EM/MPM initialization functions
  * @param data
  */
-void EMMPM_BasicInitialization(EMMPM_Data* data);
+EMMPM_EXPORT void EMMPM_BasicInitialization(EMMPM_Data* data);
 
 
 /**
  * @brief Initialization using user defined areas of the input image
  * @param data
  */
-void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data);
+EMMPM_EXPORT void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }

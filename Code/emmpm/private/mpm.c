@@ -55,17 +55,19 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
 {
   double local_beta;
-  int classes = data->classes;
+  int classes;
   char msgbuff[256];
-  memset(msgbuff, 0, 256);
-  data->progress++;
-
 
 	double **yk[MAX_CLASSES], sqrt2pi, current, con[MAX_CLASSES], d[MAX_CLASSES];
 	double x, post[MAX_CLASSES], sum;
 	int i, j, k, l, mm, prior[MAX_CLASSES];
-  float totalLoops = data->emIterations * data->mpmIterations;
+  float totalLoops;
   float currentLoopCount = 0.0;
+
+  classes = data->classes;
+  totalLoops = data->emIterations * data->mpmIterations;
+  memset(msgbuff, 0, 256);
+  data->progress++;
 
   local_beta = data->workingBeta;
 
