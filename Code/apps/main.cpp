@@ -20,8 +20,6 @@
 #include "emmpm/common/io/EMTiffIO.h"
 #include "emmpm/common/utilities/ProgressFunctions.h"
 #include "emmpm/common/utilities/InitializationFunctions.h"
-//#include "emmpm/common/utilities/allocate.h"
-//#include "emmpm/common/utilities/random.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -48,14 +46,14 @@ void UpdateStats(EMMPM_Data* data)
       std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
     }
 
-    float hist[MAX_CLASSES][256];
+    double hist[MAX_CLASSES][256];
     // Generate a gaussian curve for each class based off the mu and sigma for that class
     for (int c = 0; c < data->classes; ++c)
     {
-      float mu = data->m[c];
-      float sig = data->v[c];
-      float twoSigSqrd = sig * sig * 2.0f;
-      float constant = 1.0f / (sig * sqrtf(2.0f * PI));
+      double mu = data->m[c];
+      double sig = data->v[c];
+      double twoSigSqrd = sig * sig * 2.0f;
+      double constant = 1.0f / (sig * sqrtf(2.0f * PI));
       for (size_t x = 0; x < 256; ++x)
       {
         hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
