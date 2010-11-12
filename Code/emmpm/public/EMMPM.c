@@ -102,6 +102,8 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
   data->currentMPMLoop = 0;
   data->progress = 0.0;
   data->userData = NULL;
+  data->inside_em_loop = 0;
+  data->inside_mpm_loop = 0;
 
   return data;
 }
@@ -241,12 +243,91 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
     {
       if (data->xt[i][j] == 1)
       {
-        printf("data->xt[i][j] == 1\n");
+    //    printf("data->xt[i][j] == 1\n");
       }
       raster[index++] = data->grayTable[data->xt[i][j]];
     }
   }
 }
+
+
+#define PRINT_DATA(var)\
+  printf("%s: %d\n", #var, data->var);
+
+#define PRINT_DATA_DOUBLE(var)\
+  printf("%s: %f\n", #var, data->var);
+
+#define PRINT_DATA_CHAR(var)\
+  printf("%s: %s\n", #var, data->var);
+
+
+#define PRINT_CHAR_ARRAY(var)\
+    printf("%s[MAX_CLASSES]; ", #var);\
+    for (i = 0; i < MAX_CLASSES; i++) {\
+      printf("%d  ", data->var[i]);}\
+      printf("\n");
+
+
+#define PRINT_DOUBLE_ARRAY(var)\
+    printf("%s[MAX_CLASSES]; ", #var);\
+    for (i = 0; i < MAX_CLASSES; i++){ \
+      printf("%f  ", data->var[i]);}\
+    printf("\n");
+
+#define PRINT_INT_ARRAY(var)\
+    printf("%s[MAX_CLASSES]; ", #var);\
+    for (i = 0; i < MAX_CLASSES; i++){ \
+      printf("%d  ", data->var[i]);}\
+      printf("\n");
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+#if 0
+void printData(EMMPM_Data* data)
+{
+  int i = 0;
+
+  PRINT_DATA(emIterations)
+  PRINT_DATA( mpmIterations); /**<  */
+  PRINT_DATA_DOUBLE( in_beta); /**<  */
+  PRINT_DATA_DOUBLE( in_gamma); /**<  */
+  PRINT_DATA( classes); /**<  */
+  PRINT_DATA( rows); /**< The height of the image.  Applicable for both input and output images */
+  PRINT_DATA( columns); /**< The width of the image. Applicable for both input and output images */
+  PRINT_DATA( channels); /**< The number of color channels in the images. This should always be 1 */
+  PRINT_DATA( initType); /**< The type of initialization algorithm to use  */
+  PRINT_INT_ARRAY( initCoords); /**<  MAX_CLASSES rows x 4 Columns  */
+  PRINT_DATA( simulatedAnnealing); /**<  */
+
+  PRINT_INT_ARRAY( grayTable);
+  PRINT_DATA( verbose); /**<  */
+
+  PRINT_DATA_CHAR( input_file_name);/**< The input file name */
+  PRINT_DATA( inputImage); /**< The raw image data that is used as input to the algorithm */
+  PRINT_DATA_CHAR( output_file_name); /**< The name of the output file */
+  PRINT_DATA( outputImage); /**< The raw output image data which can be allocated by the library or the calling function. */
+
+  PRINT_DATA_DOUBLE( y); /**<  */
+  PRINT_DATA_DOUBLE( xt); /**<  */
+  PRINT_DOUBLE_ARRAY( w_gamma); /**<  */
+
+  PRINT_DATA_DOUBLE( x); /**<  */
+  PRINT_DOUBLE_ARRAY( m); /**<  */
+  PRINT_DOUBLE_ARRAY( v); /**<  */
+  PRINT_DOUBLE_ARRAY( N); /**<  */
+  PRINT_DOUBLE_ARRAY( probs); /**<  */
+  PRINT_DATA_DOUBLE( workingBeta); /**<  */
+
+  PRINT_DATA( currentEMLoop); /**< The current EM Loop  */
+  PRINT_DATA( currentMPMLoop); /**< The current MPM Loop  */
+  PRINT_DATA_DOUBLE( progress); /**< A Percentage to indicate how far along the algorthm is.*/
+
+  PRINT_DATA(userData); /**< User defined Pointer that can point to anything */
+}
+#endif
+
+
 
 // -----------------------------------------------------------------------------
 //
@@ -256,6 +337,7 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   unsigned int i;
   int l;
 
+  // printData(data);
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
 

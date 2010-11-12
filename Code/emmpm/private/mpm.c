@@ -89,6 +89,7 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 			}
 		}
 
+	data->inside_mpm_loop = 1;
 	for (k = 0; k < data->mpmIterations; k++)
 	{
 	  if (callbacks->EMMPM_ProgressFunc != NULL) {
@@ -150,6 +151,8 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       callbacks->EMMPM_ProgressStatsFunc(data);
     }
 	}
+  data->inside_mpm_loop = 0;
+
 	/* Normalize probabilities */
 	for (i=0; i<data->rows; i++)
 		for (j=0; j<data->columns; j++)

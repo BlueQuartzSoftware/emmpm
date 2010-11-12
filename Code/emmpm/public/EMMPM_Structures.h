@@ -60,6 +60,8 @@ typedef struct
     char simulatedAnnealing; /**<  */
     unsigned int grayTable[MAX_CLASSES];
     char verbose; /**<  */
+    char inside_em_loop;
+    char inside_mpm_loop;
 
     // -----------------------------------------------------------------------------
     //  Input/output File names and raw storage

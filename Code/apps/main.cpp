@@ -29,7 +29,7 @@
 void UpdateStats(EMMPM_Data* data)
 {
   // Check to make sure we are at the end of an em loop
-  if (data->currentMPMLoop == data->mpmIterations - 1 && NULL != data->outputImage)
+  if ( data->inside_mpm_loop == 0 && NULL != data->outputImage)
   {
     char buff[256];
     memset(buff, 0, 256);
@@ -125,7 +125,6 @@ int main(int argc,char *argv[])
     default:
       break;
   }
-
 
   std::cout << "emmpm Starting.... " << std::endl;
 

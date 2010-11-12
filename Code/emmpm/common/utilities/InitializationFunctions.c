@@ -56,7 +56,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   char msgbuff[256];
   memset(msgbuff, 0, 256);
 
-  printf("EMMPM_BasicInitialization Starting\n");
+//  printf("EMMPM_BasicInitialization Starting\n");
 //  if (callbacks->EMMPM_ProgressFunc != NULL) {
 //    callbacks->EMMPM_ProgressFunc("EMMPM_BasicInitialization Starting", data->progress);
 //  }
@@ -124,7 +124,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
 {
  // char startMsg[] = "InitNClassInitialization Starting";
 //  EMMPM_ShowProgress(startMsg, 1.0f);
-  printf("EMMPM_UserDefinedAreasInitialization Starting\n");
+//  printf("EMMPM_UserDefinedAreasInitialization Starting\n");
   unsigned int i, j;
   int c, l;
   double mu, sigma;

@@ -77,6 +77,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
+    data->inside_em_loop = 1;
     data->currentEMLoop = k;
     data->currentMPMLoop = 0;
     currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
@@ -176,6 +177,6 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     }
 
   }
-
+  data->inside_em_loop = 0;
   free(simAnnealBetas);
 }
