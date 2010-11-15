@@ -33,6 +33,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -64,7 +65,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   data->workingBeta = data->in_beta;
 
- 
+
   if (data->simulatedAnnealing != 0)
   {
     simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));
