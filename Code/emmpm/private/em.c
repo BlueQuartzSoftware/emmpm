@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "em.h"
 #include "mpm.h"
@@ -64,7 +65,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   data->workingBeta = data->in_beta;
 
- 
+
   if (data->simulatedAnnealing != 0)
   {
     simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));

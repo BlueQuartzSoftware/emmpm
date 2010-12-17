@@ -7,6 +7,9 @@
 #ifndef _@CMP_CONFIGURATION_HEADER_GUARD@_H_
 #define _@CMP_CONFIGURATION_HEADER_GUARD@_H_
 
+#if !defined(_@CMP_TYPES_HEADER_GUARD@_H_)
+<<<<<<<<<<<<< Please include @CMP_TYPES_FILE_NAME@ instead of this file in your code
+#endif
 
 /* Define if you are running on a Microsoft Windows Platform */
 #cmakedefine CMP_HAVE_WINDOWS @CMP_HAVE_WINDOWS@
@@ -70,6 +73,9 @@
 
 /* Define to 1 if you have the <errno.h> header file. */
 #cmakedefine CMP_HAVE_ERRNO_H @CMP_HAVE_ERRNO_H@
+
+/* Define to 1 if the 'char' type is signed. */
+#cmakedefine CMP_TYPE_CHAR_IS_SIGNED @CMP_TYPE_CHAR_IS_SIGNED@
 
 /* The size of `char', as computed by sizeof. */
 #define CMP_SIZEOF_CHAR @CMP_SIZEOF_CHAR@
@@ -227,3 +233,4 @@
 #endif
   
 #endif /* _@CMP_CONFIGURATION_HEADER_GUARD@_H_ */
+

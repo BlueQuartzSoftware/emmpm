@@ -28,6 +28,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -39,19 +40,6 @@
 #include "emmpm/common/io/EMTiffIO.h"
 #include "emmpm/common/utilities/ProgressFunctions.h"
 #include "emmpm/common/utilities/InitializationFunctions.h"
-
-
-#if 0
-/**
- * @brief Declare a global variable to hold a Callback function to show progress
- * during the EM/MPM procedure. This allows GUI applications to hook into the
- * engine in order to display progress information back to its users. We default
- * set the value to NULL in case NO progress function is ever defined.
- */
-void (*EMMPM_ProgressFunc)(char*, float) = NULL;
-void (*EMMPM_InitializationFunc)(EMMPM_Inputs*, EMMPM_WorkingVars*) = NULL;
-void (*EMMPM_ProgressStatsFunc)(EMMPM_Update*) = NULL;
-#endif
 
 
 // -----------------------------------------------------------------------------
