@@ -56,9 +56,9 @@ typedef struct
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
     unsigned int channels; /**< The number of color channels in the images. This should always be 1 */
     unsigned int initType;  /**< The type of initialization algorithm to use  */
-    unsigned int initCoords[MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
+    unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */
-    unsigned int grayTable[MAX_CLASSES];
+    unsigned int grayTable[EMMPM_MAX_CLASSES];
     char verbose; /**<  */
     char inside_em_loop;
     char inside_mpm_loop;
@@ -77,13 +77,13 @@ typedef struct
     // -----------------------------------------------------------------------------
     unsigned char** y; /**<  */
     unsigned char** xt; /**<  */
-    double w_gamma[MAX_CLASSES]; /**<  */
+    double w_gamma[EMMPM_MAX_CLASSES]; /**<  */
  //   double ga; /**<  */
     double x; /**<  */
-    double m[MAX_CLASSES]; /**<  */
-    double v[MAX_CLASSES]; /**<  */
-    double N[MAX_CLASSES]; /**<  */
-    double **probs[MAX_CLASSES]; /**<  */
+    double m[EMMPM_MAX_CLASSES]; /**<  */
+    double v[EMMPM_MAX_CLASSES]; /**<  */
+    double N[EMMPM_MAX_CLASSES]; /**<  */
+    double **probs[EMMPM_MAX_CLASSES]; /**<  */
     double workingBeta; /**<  */
 
 

@@ -58,7 +58,7 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
    data->columns = 0;
    data->channels = 0;
    data->initType = 0;
-   for(c = 0; c < MAX_CLASSES; c++)
+   for(c = 0; c < EMMPM_MAX_CLASSES; c++)
    {
      data->initCoords[c][0] = 0;
      data->initCoords[c][1] = 0;
@@ -249,20 +249,20 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
 
 #define PRINT_CHAR_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++) {\
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++) {\
       printf("%d  ", data->var[i]);}\
       printf("\n");
 
 
 #define PRINT_DOUBLE_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++){ \
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++){ \
       printf("%f  ", data->var[i]);}\
     printf("\n");
 
 #define PRINT_INT_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++){ \
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++){ \
       printf("%d  ", data->var[i]);}\
       printf("\n");
 
@@ -329,7 +329,7 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   readseed();
 
-  for(i = 0; i < MAX_CLASSES; i++) {
+  for(i = 0; i < EMMPM_MAX_CLASSES; i++) {
     data->w_gamma[i] = data->in_gamma;
   }
 

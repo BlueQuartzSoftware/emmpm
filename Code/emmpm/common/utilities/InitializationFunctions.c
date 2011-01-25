@@ -169,7 +169,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
  //   EMMPM_ShowProgress(msgbuff, 1.0);
   }
 
-  for (l = 0; l < MAX_CLASSES; l++) {
+  for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
     if (l < data->classes) {
       data->v[l] = 20;
       data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
