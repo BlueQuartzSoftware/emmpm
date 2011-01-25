@@ -50,7 +50,7 @@ typedef struct
     int emIterations; /**<  */
     int mpmIterations; /**<  */
     double in_beta; /**<  */
-    double in_gamma; /**<  */
+ //   double in_gamma; /**<  */
     int classes; /**<  */
     unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
