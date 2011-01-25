@@ -6,12 +6,12 @@
 #include "allocate.h"
 #include "random.h"
 #define PI  3.14159265358979323846
-#define MAX_CLASSES 15
+#define EMMPM_MAX_CLASSES 15
 
 void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, double *gamma, double *m, double *v, int rows, int cols, int n, int classes) {
-	double **yk[MAX_CLASSES], sqrt2pi, current, con[MAX_CLASSES], d[MAX_CLASSES];
-	double x, post[MAX_CLASSES], sum;
-	int i, j, k, l, mm, prior[MAX_CLASSES];
+	double **yk[EMMPM_MAX_CLASSES], sqrt2pi, current, con[EMMPM_MAX_CLASSES], d[EMMPM_MAX_CLASSES];
+	double x, post[EMMPM_MAX_CLASSES], sum;
+	int i, j, k, l, mm, prior[EMMPM_MAX_CLASSES];
 
 	/* Allocate space for yk[][][] */
 	for (l = 0; l < classes; l++)

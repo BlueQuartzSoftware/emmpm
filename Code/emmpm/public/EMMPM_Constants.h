@@ -37,7 +37,7 @@
 #define PI  3.14159265358979323846
 #endif
 
-#define MAX_CLASSES 15
+#define EMMPM_MAX_CLASSES 15
 
 
 #endif /* EMMPM_CONSTANTS_H_ */

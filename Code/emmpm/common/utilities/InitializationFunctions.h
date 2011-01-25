@@ -36,6 +36,7 @@
 
 #define EMMPM_BASIC_INITIALIZATION 0
 #define EMMPM_USER_DEFINED_AREA_INITIALIZATION 1
+#define EMMPM_MANUAL_INITIALIZATION 2
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,16 +46,23 @@ extern "C" {
 
 /**
  * @brief The standard EM/MPM initialization functions
- * @param data
+ * @param data The EMMPM_Data Pointer
  */
 EMMPM_EXPORT void EMMPM_BasicInitialization(EMMPM_Data* data);
 
 
 /**
  * @brief Initialization using user defined areas of the input image
- * @param data
+ * @param data The EMMPM_Data Pointer
  */
 EMMPM_EXPORT void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data);
+
+
+/**
+ * @brief Initialization was already performed for each of the classes
+ * @param data The EMMPM_Data Pointer
+ */
+EMMPM_EXPORT void EMMPM_ManualInitialization(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }

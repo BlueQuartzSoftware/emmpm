@@ -52,20 +52,20 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
    data->emIterations = 0;
    data->mpmIterations = 0;
    data->in_beta = 0.0;
-   data->in_gamma = 0.0;
+ //  data->in_gamma = 0.0;
    data->classes = 0;
    data->rows = 0;
    data->columns = 0;
    data->channels = 0;
    data->initType = 0;
-   for(c = 0; c < MAX_CLASSES; c++)
+   for(c = 0; c < EMMPM_MAX_CLASSES; c++)
    {
      data->initCoords[c][0] = 0;
      data->initCoords[c][1] = 0;
      data->initCoords[c][2] = 0;
      data->initCoords[c][3] = 0;
      data->grayTable[c] = 0;
-     data->w_gamma[c] = 0;
+     data->w_gamma[c] = 0.0;
      data->m[c] = 0.0;
      data->v[c] = 0.0;
      data->N[c] = 0.0;
@@ -249,20 +249,20 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
 
 #define PRINT_CHAR_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++) {\
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++) {\
       printf("%d  ", data->var[i]);}\
       printf("\n");
 
 
 #define PRINT_DOUBLE_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++){ \
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++){ \
       printf("%f  ", data->var[i]);}\
     printf("\n");
 
 #define PRINT_INT_ARRAY(var)\
     printf("%s[MAX_CLASSES]; ", #var);\
-    for (i = 0; i < MAX_CLASSES; i++){ \
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++){ \
       printf("%d  ", data->var[i]);}\
       printf("\n");
 
@@ -320,7 +320,7 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  unsigned int i;
+ // unsigned int i;
   int l;
 
   // printData(data);
@@ -329,9 +329,9 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   readseed();
 
-  for(i = 0; i < MAX_CLASSES; i++) {
-    data->w_gamma[i] = data->in_gamma;
-  }
+//  for(i = 0; i < EMMPM_MAX_CLASSES; i++) {
+//    data->w_gamma[i] = data->in_gamma;
+//  }
 
   /* Allocate memory for the xt arrays */
   data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));

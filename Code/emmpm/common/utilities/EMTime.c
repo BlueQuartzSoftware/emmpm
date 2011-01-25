@@ -41,7 +41,7 @@ char* formattedTime(char* formatting, char* output)
   t = localtime(&long_time);
 #endif
   memset(output, 0, 128);
-  snprintf(output, 128, "[%04d:%02d:%02d:%02d:%02d:%02d]", t->tm_year + 1900, t->tm_mon + 1,
+  snprintf(output, 128, formatting, t->tm_year + 1900, t->tm_mon + 1,
     t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec  );
   return output;
 }

@@ -14,7 +14,7 @@
 #include "emmpm/common/utilities/random.h"
 #include "emmpm/common/io/EMTiffIO.h"
 
-#define MAX_CLASSES 15
+#define EMMPM_MAX_CLASSES 15
 
 
 void mpm(unsigned char **, unsigned char **, double ***, double, double *, double *, double *, int, int, int, int);
@@ -26,7 +26,7 @@ void blur(double **h, unsigned char **in, unsigned char **out, int rows, int col
 int main(int argc,char *argv[]) {
 
 	unsigned int i, j, rows, cols, x11, x12, y11, y12, x21, x22, y21, y22, x31, x32, y31, y32, x41, x42, y41, y42;
-	double beta, gamma[MAX_CLASSES], ga, x, m[MAX_CLASSES], v[MAX_CLASSES], N[MAX_CLASSES];
+	double beta, gamma[EMMPM_MAX_CLASSES], ga, x, m[EMMPM_MAX_CLASSES], v[EMMPM_MAX_CLASSES], N[EMMPM_MAX_CLASSES];
 	int enable_blur = 0;
 	/*	m[l] - estimate of mean for class l
 		v[l] - estimate of variance for class l
@@ -43,7 +43,7 @@ int main(int argc,char *argv[]) {
 
 	int l, mpmiter, emiter, k, kk, classes;
 	unsigned char **y, **xt, **output;  /* output : entropy image */
-	double **probs[MAX_CLASSES];
+	double **probs[EMMPM_MAX_CLASSES];
 
 	double max_entropy = 0;
 	double mu, sigma;
@@ -88,7 +88,7 @@ int main(int argc,char *argv[]) {
 
 	readseed();
 
-	for(i = 0; i < MAX_CLASSES; i++)
+	for(i = 0; i < EMMPM_MAX_CLASSES; i++)
 		gamma[i] = 0;
 
 	gamma[0] = ga;

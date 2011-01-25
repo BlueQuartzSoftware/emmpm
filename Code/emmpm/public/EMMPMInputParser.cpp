@@ -186,7 +186,11 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
     cmd.parse(argc, argv);
 
     inputs->in_beta = in_beta.getValue();
-    inputs->in_gamma = in_gamma.getValue();
+  //  inputs->in_gamma = in_gamma.getValue();
+
+    for(int i = 0; i < EMMPM_MAX_CLASSES; i++) {
+      inputs->w_gamma[i] = in_gamma.getValue();
+    }
     inputs->mpmIterations = in_mpmIter.getValue();
     inputs->emIterations = in_emIter.getValue();
     inputs->classes = in_numClasses.getValue();

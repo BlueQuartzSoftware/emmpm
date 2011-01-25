@@ -56,7 +56,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
 
   rows = data->rows;
   cols = data->columns;
-  
+
   memset(msgbuff, 0, 256);
 
 //  printf("EMMPM_BasicInitialization Starting\n");
@@ -70,12 +70,12 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     for (j = 0; j < cols; j++)
       mu += y[i][j];
 
-  mu /= rows * cols;
+  mu /= (rows * cols);
 
   for (i = 0; i < rows; i++)
     for (j = 0; j < cols; j++)
       sigma += (y[i][j] - mu) * (y[i][j] - mu);
-  sigma /= rows * cols;
+  sigma /= (rows * cols);
   sigma = sqrt((double)sigma);
   //printf("mu=%f sigma=%f\n",mu,sigma);
   snprintf(msgbuff, 256, "mu=%f sigma=%f\n", mu, sigma);
@@ -169,7 +169,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
  //   EMMPM_ShowProgress(msgbuff, 1.0);
   }
 
-  for (l = 0; l < MAX_CLASSES; l++) {
+  for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
     if (l < data->classes) {
       data->v[l] = 20;
       data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
@@ -195,3 +195,35 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
  // EMMPM_ShowProgress(endMsg , 4.0f);
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_ManualInitialization(EMMPM_Data* data)
+{
+  unsigned int i, j;
+  int l;
+  unsigned char** xt = data->xt;
+
+  for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
+    if (l < data->classes) {
+      //data->v[l] = 20;
+      data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+    }
+    else
+    {
+      data->v[l] = -1;
+      data->probs[l] = NULL;
+    }
+  }
+
+  /* Initialize classification of each pixel randomly with a uniform disribution */
+  for (i = 0; i < data->rows; i++) {
+    for (j = 0; j < data->columns; j++) {
+      data->x = random2();
+      l = 0;
+      while ((double)(l + 1) / data->classes <= data->x)  // may incur l = classes when x = 1
+        l++;
+      xt[i][j] = l;
+    }
+  }
+}
