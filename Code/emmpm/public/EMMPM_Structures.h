@@ -50,7 +50,6 @@ typedef struct
     int emIterations; /**<  */
     int mpmIterations; /**<  */
     double in_beta; /**<  */
- //   double in_gamma; /**<  */
     int classes; /**<  */
     unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
@@ -71,15 +70,12 @@ typedef struct
     char* output_file_name; /**< The name of the output file */
     unsigned char* outputImage; /**< The raw output image data which can be allocated by the library or the calling function. */
 
-
     // -----------------------------------------------------------------------------
     //  Working Vars section - Internal Variables to the algorithm
     // -----------------------------------------------------------------------------
     unsigned char** y; /**<  */
     unsigned char** xt; /**<  */
     double w_gamma[EMMPM_MAX_CLASSES]; /**<  */
- //   double ga; /**<  */
- //   double x; /**<  */
     double m[EMMPM_MAX_CLASSES]; /**<  */
     double v[EMMPM_MAX_CLASSES]; /**<  */
     double N[EMMPM_MAX_CLASSES]; /**<  */

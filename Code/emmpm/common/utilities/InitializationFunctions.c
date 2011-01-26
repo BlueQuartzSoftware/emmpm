@@ -51,14 +51,7 @@ void EMMPM_InitializeXtArray(EMMPM_Data* data)
   {
     for (j = 0; j < data->columns; j++)
     {
-#if 0
-      rndNum = genrand_real2();
-      l = 0;
-      while ((double)(l + 1) / data->classes <= rndNum) // may incur l = classes when x = 1
-      { l++; }
-#else
       l = genrand_real2() * data->classes;
-#endif
       data->xt[i][j] = l;
     }
   }
@@ -136,9 +129,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     data->v[l] = 20;
     data->probs[l] = (double **)get_img(cols, rows, sizeof(double));
   }
-
   EMMPM_InitializeXtArray(data);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -226,6 +217,5 @@ void EMMPM_ManualInitialization(EMMPM_Data* data)
       data->probs[l] = NULL;
     }
   }
-
   EMMPM_InitializeXtArray(data);
 }

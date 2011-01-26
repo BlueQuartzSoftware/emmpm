@@ -346,17 +346,11 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-//  unsigned int i;
   int l;
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
   init_genrand(143542612ul);
-//  readseed();
-
-//  for(i = 0; i < EMMPM_MAX_CLASSES; i++) {
-//    data->w_gamma[i] = data->in_gamma;
-//  }
 
   /* Allocate memory for the xt arrays */
   data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));
