@@ -45,7 +45,7 @@
 void EMMPM_InitializeXtArray(EMMPM_Data* data)
 {
   int i, j, l;
-  double rndNum;
+  
   /* Initialize classification of each pixel randomly with a uniform disribution */
   for (i = 0; i < data->rows; i++)
   {
