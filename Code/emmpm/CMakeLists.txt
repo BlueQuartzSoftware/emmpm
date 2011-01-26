@@ -1,6 +1,7 @@
 project (EMMPMLib)
 
 set (EMMPMLib_PROJECT_FILES "")
+option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
 
 # --------------------------------------------------------------------
 Macro(Add_EMMPMLib_Dir DirName Path)
@@ -16,15 +17,18 @@ Add_EMMPMLib_Dir(Common_io common/io)
 Add_EMMPMLib_Dir(Common_utilities common/utilities)
 Add_EMMPMLib_Dir(Private private)
 Add_EMMPMLib_Dir(Public public)
-
+if (EMMPM_USE_MT_RNG)
+    Add_EMMPMLib_Dir(mt mt)
+    add_definitions(-DUSE_MERSENNE_TWISTER)
+endif()
 # --------------------------------------------------------------------
 # Add in the configured headers
 
 set (EMMPMLib_CONFIGURED_HDRS
-"${CMP_HEADER_DIR}/${CMP_CONFIGURATION_FILE_NAME}" 
-"${CMP_HEADER_DIR}/${CMP_TYPES_FILE_NAME}" 
-"${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME}"
-"${CMP_HEADER_DIR}/${CMP_EXTRA_CONFIGURATION_FILE}"
+    "${CMP_HEADER_DIR}/${CMP_CONFIGURATION_FILE_NAME}" 
+    "${CMP_HEADER_DIR}/${CMP_TYPES_FILE_NAME}" 
+    "${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME}"
+    "${CMP_HEADER_DIR}/${CMP_EXTRA_CONFIGURATION_FILE}"
 )
 set (EMMPMLib_CONFIGURED_SRCS
 )

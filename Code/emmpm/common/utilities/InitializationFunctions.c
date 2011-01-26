@@ -42,6 +42,32 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void EMMPM_InitializeXtArray(EMMPM_Data* data)
+{
+  int i, j, l;
+  double rndNum;
+  /* Initialize classification of each pixel randomly with a uniform disribution */
+  for (i = 0; i < data->rows; i++)
+  {
+    for (j = 0; j < data->columns; j++)
+    {
+#if 0
+      rndNum = genrand_real2();
+      l = 0;
+      while ((double)(l + 1) / data->classes <= rndNum) // may incur l = classes when x = 1
+      { l++; }
+#else
+      l = genrand_real2() * data->classes;
+#endif
+      data->xt[i][j] = l;
+    }
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void EMMPM_BasicInitialization(EMMPM_Data* data)
 {
   unsigned int i, j, k, l;
@@ -50,19 +76,21 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
   unsigned int classes = data->classes;
-
+//  double rndNum = 0.0;
   unsigned char** y = data->y;
-  unsigned char** xt = data->xt;
+//  unsigned char** xt = data->xt;
+
+  printf("- EMMPM_BasicInitialization()\n");
 
   rows = data->rows;
   cols = data->columns;
-  
+
   memset(msgbuff, 0, 256);
 
-//  printf("EMMPM_BasicInitialization Starting\n");
-//  if (callbacks->EMMPM_ProgressFunc != NULL) {
-//    callbacks->EMMPM_ProgressFunc("EMMPM_BasicInitialization Starting", data->progress);
-//  }
+  //  printf("EMMPM_BasicInitialization Starting\n");
+  //  if (callbacks->EMMPM_ProgressFunc != NULL) {
+  //    callbacks->EMMPM_ProgressFunc("EMMPM_BasicInitialization Starting", data->progress);
+  //  }
   /* Initialization of parameter estimation */
   mu = 0;
   sigma = 0;
@@ -70,35 +98,36 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     for (j = 0; j < cols; j++)
       mu += y[i][j];
 
-  mu /= rows * cols;
+  mu /= (rows * cols);
 
   for (i = 0; i < rows; i++)
     for (j = 0; j < cols; j++)
       sigma += (y[i][j] - mu) * (y[i][j] - mu);
-  sigma /= rows * cols;
+  sigma /= (rows * cols);
   sigma = sqrt((double)sigma);
   //printf("mu=%f sigma=%f\n",mu,sigma);
-  snprintf(msgbuff, 256, "mu=%f sigma=%f\n", mu, sigma);
-//  if (callbacks->EMMPM_ProgressFunc != NULL) {
-//    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
-//  }
+  printf("- mu=%f sigma=%f\n", mu, sigma);
+
+  //  if (callbacks->EMMPM_ProgressFunc != NULL) {
+  //    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+  //  }
 
 
-  if (classes%2 == 0)
+  if (classes % 2 == 0)
   {
-    for (k=0; k<classes/2; k++)
+    for (k = 0; k < classes / 2; k++)
     {
-      data->m[classes/2 + k] = mu + (k+1)*sigma/2;
-      data->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
+      data->m[classes / 2 + k] = mu + (k + 1) * sigma / 2;
+      data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
     }
   }
   else
   {
-    data->m[classes/2] = mu;
-    for (k=0; k<classes/2; k++)
+    data->m[classes / 2] = mu;
+    for (k = 0; k < classes / 2; k++)
     {
-      data->m[classes/2 + 1 + k] = mu + (k+1)*sigma/2;
-      data->m[classes/2 - 1 - k] = mu - (k+1)*sigma/2;
+      data->m[classes / 2 + 1 + k] = mu + (k + 1) * sigma / 2;
+      data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
     }
   }
 
@@ -108,16 +137,8 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     data->probs[l] = (double **)get_img(cols, rows, sizeof(double));
   }
 
-  /* Initialize classification of each pixel randomly with a uniform disribution */
-  for (i = 0; i < rows; i++)
-  for (j = 0; j < cols; j++)
-  {
-    data->x = random2();
-    l = 0;
-    while ((double)(l + 1) / classes <= data->x) // may incur l = classes when x = 1
-    l++;
-    xt[i][j] = l;
-  }
+  EMMPM_InitializeXtArray(data);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -135,7 +156,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   unsigned int cols = data->columns;
   char msgbuff[256];
   unsigned char** y = data->y;
-  unsigned char** xt = data->xt;
+//  unsigned char** xt = data->xt;
   rows = data->rows;
   cols = data->columns;
 
@@ -181,17 +202,30 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
     }
   }
 
-  /* Initialize classification of each pixel randomly with a uniform disribution */
-  for (i = 0; i < data->rows; i++) {
-    for (j = 0; j < data->columns; j++) {
-      data->x = random2();
-      l = 0;
-      while ((double)(l + 1) / data->classes <= data->x)  // may incur l = classes when x = 1
-        l++;
-      xt[i][j] = l;
-    }
-  }
- // char endMsg[] = "InitNClassInitialization Complete";
- // EMMPM_ShowProgress(endMsg , 4.0f);
+  EMMPM_InitializeXtArray(data);
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_ManualInitialization(EMMPM_Data* data)
+{
+//  unsigned int i, j;
+  int l;
+//  unsigned char** xt = data->xt;
+ // double rndNum;
+
+  for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
+    if (l < data->classes) {
+      //data->v[l] = 20;
+      data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+    }
+    else
+    {
+      data->v[l] = -1;
+      data->probs[l] = NULL;
+    }
+  }
+
+  EMMPM_InitializeXtArray(data);
+}

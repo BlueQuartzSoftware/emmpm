@@ -134,7 +134,7 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 					post[l] = exp(yk[l][i][j] - local_beta * (double)(prior[l]) - data->w_gamma[l]);
 					sum += post[l];
 				}
-				x = random2();
+				x = genrand_real2();
 				current = 0;
 
 				for (l = 0; l < classes; l++) {

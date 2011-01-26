@@ -79,7 +79,7 @@ typedef struct
     unsigned char** xt; /**<  */
     double w_gamma[EMMPM_MAX_CLASSES]; /**<  */
  //   double ga; /**<  */
-    double x; /**<  */
+ //   double x; /**<  */
     double m[EMMPM_MAX_CLASSES]; /**<  */
     double v[EMMPM_MAX_CLASSES]; /**<  */
     double N[EMMPM_MAX_CLASSES]; /**<  */

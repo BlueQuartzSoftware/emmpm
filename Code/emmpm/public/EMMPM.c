@@ -61,9 +61,9 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
    for(c = 0; c < EMMPM_MAX_CLASSES; c++)
    {
      data->initCoords[c][0] = 0;
-     data->initCoords[c][1] = 0;
-     data->initCoords[c][2] = 0;
-     data->initCoords[c][3] = 0;
+     data->initCoords[c][1] = 1;
+     data->initCoords[c][2] = 2;
+     data->initCoords[c][3] = 3;
      data->grayTable[c] = 0;
      data->w_gamma[c] = 0.0;
      data->m[c] = 0.0;
@@ -82,7 +82,7 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
   data->y = NULL;
   data->xt = NULL;
 //  data->ga = 0;
-  data->x = 0;
+//  data->x = 0;
 
   data->workingBeta = 0.0;
 
@@ -217,6 +217,8 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   unsigned int i;
   unsigned int j;
   unsigned char* raster;
+  size_t gtindex = 0;
+
   if (data->outputImage == NULL)
   {
     data->outputImage = EMMPM_AllocateTiffImageBuffer(data->columns, data->rows, data->channels);
@@ -231,6 +233,7 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
       {
     //    printf("data->xt[i][j] == 1\n");
       }
+      gtindex = data->xt[i][j];
       raster[index++] = data->grayTable[data->xt[i][j]];
     }
   }
@@ -266,39 +269,61 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
       printf("%d  ", data->var[i]);}\
       printf("\n");
 
+#define PRINT_UINT_ARRAY(var)\
+    {printf("%s[MAX_CLASSES]; ", #var);\
+    unsigned int ui;\
+    for (i = 0; i < EMMPM_MAX_CLASSES; i++){ \
+      ui = data->var[i];\
+      printf("%u  ", ui);}\
+      printf("\n");}
+
+#define PRINT_2D_UINT_ARRAY(var, r, c)\
+    {printf("%s[%s][%s];\n  ", #var, #r, #c);\
+    for (i = 0; i < r; i++){ \
+      for (j = 0; j < c; j++) {\
+      ui = data->var[i][j];\
+      printf("%u  ", ui);}\
+      printf("\n  ");} }
+
+#define PRINT_POINTER(var)\
+    printf("%p\n", data->var);
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-#if 0
+
 void printData(EMMPM_Data* data)
 {
+#if 0
   int i = 0;
-
+  int j = 0;
+  unsigned int ui;
   PRINT_DATA(emIterations)
   PRINT_DATA( mpmIterations); /**<  */
   PRINT_DATA_DOUBLE( in_beta); /**<  */
-  PRINT_DATA_DOUBLE( in_gamma); /**<  */
+ // PRINT_DATA_DOUBLE( in_gamma); /**<  */
   PRINT_DATA( classes); /**<  */
   PRINT_DATA( rows); /**< The height of the image.  Applicable for both input and output images */
   PRINT_DATA( columns); /**< The width of the image. Applicable for both input and output images */
   PRINT_DATA( channels); /**< The number of color channels in the images. This should always be 1 */
   PRINT_DATA( initType); /**< The type of initialization algorithm to use  */
-  PRINT_INT_ARRAY( initCoords); /**<  MAX_CLASSES rows x 4 Columns  */
+  PRINT_2D_UINT_ARRAY( initCoords, EMMPM_MAX_CLASSES, 4); /**<  MAX_CLASSES rows x 4 Columns  */
+
   PRINT_DATA( simulatedAnnealing); /**<  */
 
   PRINT_INT_ARRAY( grayTable);
   PRINT_DATA( verbose); /**<  */
 
   PRINT_DATA_CHAR( input_file_name);/**< The input file name */
-  PRINT_DATA( inputImage); /**< The raw image data that is used as input to the algorithm */
+  PRINT_POINTER( inputImage); /**< The raw image data that is used as input to the algorithm */
   PRINT_DATA_CHAR( output_file_name); /**< The name of the output file */
-  PRINT_DATA( outputImage); /**< The raw output image data which can be allocated by the library or the calling function. */
+  PRINT_POINTER( outputImage); /**< The raw output image data which can be allocated by the library or the calling function. */
 
   PRINT_DATA_DOUBLE( y); /**<  */
   PRINT_DATA_DOUBLE( xt); /**<  */
   PRINT_DOUBLE_ARRAY( w_gamma); /**<  */
 
-  PRINT_DATA_DOUBLE( x); /**<  */
+//  PRINT_DATA_DOUBLE( x); /**<  */
   PRINT_DOUBLE_ARRAY( m); /**<  */
   PRINT_DOUBLE_ARRAY( v); /**<  */
   PRINT_DOUBLE_ARRAY( N); /**<  */
@@ -310,8 +335,9 @@ void printData(EMMPM_Data* data)
   PRINT_DATA_DOUBLE( progress); /**< A Percentage to indicate how far along the algorthm is.*/
 
   PRINT_DATA(userData); /**< User defined Pointer that can point to anything */
-}
 #endif
+}
+
 
 
 
@@ -320,14 +346,13 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  unsigned int i;
+//  unsigned int i;
   int l;
 
-  // printData(data);
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
-
-  readseed();
+  init_genrand(143542612ul);
+//  readseed();
 
 //  for(i = 0; i < EMMPM_MAX_CLASSES; i++) {
 //    data->w_gamma[i] = data->in_gamma;
@@ -345,6 +370,17 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
 
+#if 0
+  /* Allocate space for the output image, and copy a scaled xt
+   * and then write the output image.*/
+  EMMPM_ConvertXtToOutputImage(data, callbacks);
+  char* oimagefname = data->output_file_name;
+  data->output_file_name = "/tmp/Initial_Random_Image.tif";
+  EMMPM_WriteGrayScaleTiff(data, callbacks, "Initial Random Image");
+  data->output_file_name = oimagefname;
+#endif
+
+  printData(data);
 
   /* Run the EM Loops */
   EMMPM_PerformEMLoops(data, callbacks);
@@ -362,5 +398,5 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   EMMPM_free_img((void **)data->xt);
   EMMPM_free_img((void **)data->y);
 
-  writeseed();
+//  writeseed();
 }

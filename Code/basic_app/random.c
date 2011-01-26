@@ -84,7 +84,7 @@ main()
 }
 */
 
-double random2()
+double genrand_real2()
 /* Uniform random number generator on (0,1] */
 /*  Algorithm:  newseed = (16807 * oldseed) MOD [(2^31) - 1]  ;
                 returned value = newseed / ( (2^31)-1 )  ;
@@ -108,7 +108,7 @@ double random2()
  return(((double)tmp)/MAXPRIME);   
 }
 
-int random3()
+int genrand_real3()
 /* random3(): modified on 10/23/89 from random2() to generate positive ints*/
 /* Uniform random number generator on (0,1] */
 /*  Algorithm:  newseed = (16807 * oldseed) MOD [(2^31) - 1]  ;
@@ -133,7 +133,7 @@ int random3()
  return((int)tmp);   
 }
 
-srandom2(unsigned int num)
+init_genrand(unsigned int num)
 /* Set a new seed for random # generator  */
 {
  tmp=num;
@@ -152,10 +152,10 @@ void readseed()
      fprintf(stderr,"readseed: creating file randomseedmlc\n");
      tmp=143542612;
      writeseed();
-     srandom2(tmp);
+     init_genrand(tmp);
    } else {
      fscanf(fp1,"%d",&tmp);
-     srandom2(tmp);
+     init_genrand(tmp);
      fclose(fp1);
    }
 }

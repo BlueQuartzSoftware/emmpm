@@ -69,7 +69,7 @@ void mpm(unsigned char **y, unsigned char **xt, double **pr[], double beta, doub
 					post[l] = exp(yk[l][i][j] - beta * (double)(prior[l]) - gamma[l]);
 					sum += post[l];
 				}
-				x = random2();
+				x = genrand_real2();
 				current = 0;
 				
 				for (l = 0; l < classes; l++) {

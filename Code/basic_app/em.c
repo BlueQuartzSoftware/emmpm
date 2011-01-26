@@ -131,7 +131,7 @@ int main(int argc,char *argv[]) {
 	/* Initialize classification of each pixel randomly with a uniform disribution */
 	for (i = 0; i < rows; i++)
 		for (j = 0; j < cols; j++) {
-			x = random2();
+			x = genrand_real2();
 			l = 0;
 			while ((double)(l + 1) / classes <= x)  // may incur l = classes when x = 1
 				l++;

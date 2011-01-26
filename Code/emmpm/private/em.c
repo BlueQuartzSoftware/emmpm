@@ -49,7 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
 
-  int i, j, k, l, kk;
+  int i, j, k, l;
   int emiter = data->emIterations;
   int rows = data->rows;
   int cols = data->columns;

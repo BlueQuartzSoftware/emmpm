@@ -8,12 +8,12 @@
 #define	_RANDOM_
 
 
-double random2();
-int random3();
+double genrand_real2();
+int genrand_real3();
 void readseed();
 void writeseed();
 double normal();
 double dexprand();
-void srandom2(unsigned int num);
+void init_genrand(unsigned int num);
 
 #endif
