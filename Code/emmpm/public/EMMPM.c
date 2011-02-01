@@ -38,8 +38,8 @@
 #include "emmpm/common/utilities/allocate.h"
 #include "emmpm/common/utilities/random.h"
 #include "emmpm/common/io/EMTiffIO.h"
-#include "emmpm/common/utilities/ProgressFunctions.h"
-#include "emmpm/common/utilities/InitializationFunctions.h"
+#include "emmpm/public/ProgressFunctions.h"
+#include "emmpm/public/InitializationFunctions.h"
 
 
 // -----------------------------------------------------------------------------

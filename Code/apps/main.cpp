@@ -18,8 +18,8 @@
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/public/EMMPMInputParser.h"
 #include "emmpm/common/io/EMTiffIO.h"
-#include "emmpm/common/utilities/ProgressFunctions.h"
-#include "emmpm/common/utilities/InitializationFunctions.h"
+#include "emmpm/public/ProgressFunctions.h"
+#include "emmpm/public/InitializationFunctions.h"
 
 // -----------------------------------------------------------------------------
 //
