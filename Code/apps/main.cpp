@@ -5,6 +5,7 @@
 /* Modified by Joel Dumke on 9/4/06 */
 /* Modified by Khalid Tahboub on 9/13/10 */
 
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
