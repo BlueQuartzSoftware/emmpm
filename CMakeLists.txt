@@ -34,7 +34,8 @@ SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
 SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
 SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
 SET (EXE_DEBUG_EXTENSION "_debug")
-
+SET (PROJECT_INSTALL_HEADERS "1")
+SET (PROJECT_INSTALL_EXECUTABLES "1")
 
 #-------------------------------------------------------------------------------
 # Include the cmp project to perform all the basic configuration tests for the 
@@ -48,7 +49,7 @@ set (CMP_EXTRA_CONFIGURATION_FILE "EMMPMConfiguration.h")
 set (CMP_PROJECT_NAMESPACE "EMMPM")
 set (CMP_PROJECT_NAME "EMMPM")
 SET (CMP_INSTALL_FILES "1")
-set (CMP_ENABLE_PLUGINS "1")
+set (CMP_ENABLE_PLUGINS "0")
 INCLUDE (${PROJECT_RESOURCES_DIR}/cmp/cmpProject.cmake)
                
 # --------------------------------------------------------------------
@@ -99,14 +100,13 @@ IF (MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 ENDIF()
 
-# Include some directories for the compiler
-include_directories(${PROJECT_BINARY_DIR})
-include_directories(${PROJECT_CODE_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/Utilities)
-
+# --------------------------------------------------------------------
+# Add in the math library on non-Apple and non-Windows platforms
+if (UNIX AND NOT APPLE)
+    set (MATH_LIBRARY "m")
+endif()
 
 # Prepend our own "FindTiff" code in front of what CMake itself provides
-set(CMAKE_MODULE_PATH ${PROJECT_RESOURCES_DIR}/CMake ${CMAKE_MODULE_PATH} )
 set (EMMPM_TIFF_SUPPORT)
 FIND_PACKAGE(Tiff)
 IF (NOT TIFF_FOUND)
@@ -114,12 +114,11 @@ IF (NOT TIFF_FOUND)
 ENDIF (NOT TIFF_FOUND)
 set (EMMPM_TIFF_SUPPORT "1")
 INCLUDE_DIRECTORIES(${TIFF_INCLUDE_DIRS})
-    
-# --------------------------------------------------------------------
-# Add in the math library on non-Apple and non-Windows platforms
-if (UNIX AND NOT APPLE)
-    set (MATH_LIBRARY "m")
-endif()
+
+# Include some directories for the compiler
+include_directories(${PROJECT_BINARY_DIR})
+include_directories(${PROJECT_CODE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/Utilities)
 
 # Should we build the HTML documentation
 option(emmpm_BUILD_API_DOCS "Use Doxygen to create the HTML based API documentation" OFF)

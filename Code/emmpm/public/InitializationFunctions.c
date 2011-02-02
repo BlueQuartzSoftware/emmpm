@@ -45,7 +45,7 @@
 void EMMPM_InitializeXtArray(EMMPM_Data* data)
 {
   int i, j, l;
-  
+
   /* Initialize classification of each pixel randomly with a uniform disribution */
   for (i = 0; i < data->rows; i++)
   {
@@ -73,7 +73,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   unsigned char** y = data->y;
 //  unsigned char** xt = data->xt;
 
-  printf("- EMMPM_BasicInitialization()\n");
+//  printf("- EMMPM_BasicInitialization()\n");
 
   rows = data->rows;
   cols = data->columns;
@@ -98,8 +98,8 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
       sigma += (y[i][j] - mu) * (y[i][j] - mu);
   sigma /= (rows * cols);
   sigma = sqrt((double)sigma);
-  //printf("mu=%f sigma=%f\n",mu,sigma);
-  printf("- mu=%f sigma=%f\n", mu, sigma);
+  // printf("mu=%f sigma=%f\n",mu,sigma);
+  // printf("- mu=%f sigma=%f\n", mu, sigma);
 
   //  if (callbacks->EMMPM_ProgressFunc != NULL) {
   //    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
