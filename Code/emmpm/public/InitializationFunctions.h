@@ -37,6 +37,8 @@
 #define EMMPM_BASIC_INITIALIZATION 0
 #define EMMPM_USER_DEFINED_AREA_INITIALIZATION 1
 #define EMMPM_MANUAL_INITIALIZATION 2
+#define EMMPM_CURVATURE_INITIALIZATION 3
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,6 +65,13 @@ EMMPM_EXPORT void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data);
  * @param data The EMMPM_Data Pointer
  */
 EMMPM_EXPORT void EMMPM_ManualInitialization(EMMPM_Data* data);
+
+
+/**
+ * @brief Initialization using the curvature penatly functions
+ * @param data The EMMPM_Data Pointer
+ */
+EMMPM_EXPORT void EMMPM_CurvatureInitialization(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }

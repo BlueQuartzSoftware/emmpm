@@ -49,18 +49,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
 
-  int i, j, k, l;
+  int i, j, k, l, d, kk;
+  size_t lij, ijd, ld, ld1, ij;
   int emiter = data->emIterations;
   int rows = data->rows;
-  int cols = data->columns;
+  int columns = data->columns;
   int classes = data->classes;
- double* simAnnealBetas = NULL;
+  int dims = data->dims;
+  double* simAnnealBetas = NULL;
 
   float totalLoops = data->emIterations * data->mpmIterations;
   float currentLoopCount = 0.0;
 
-  char msgbuff[256];
-  memset(msgbuff, 0, 256);
+  char msgbuff[1024];
+  memset(msgbuff, 0, 1024);
+
+  //FIXME: This needs to be updated to work on Vector Images
+  if (data->dims != 1)
+  {
+    snprintf(msgbuff, 1024, "EMMPM_PerformEMLoops ONLY works on Grayscale or Scalar images. Vector images are not allowed.");
+    data->progress = 100.0;
+    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    return;
+  }
+
+
   data->currentEMLoop = 0;
   data->currentMPMLoop = 0;
 
@@ -87,7 +100,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
     data->progress = currentLoopCount/totalLoops * 100.0;
     if (callbacks->EMMPM_ProgressFunc != NULL) {
-      snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
+      snprintf(msgbuff, 1024, "EM Loop %d", data->currentEMLoop);
       callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
     }
 
@@ -102,39 +115,90 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     /* Reset model parameters to zero */
     for (l = 0; l < classes; l++)
     {
-      data->m[l] = 0;
-      data->v[l] = 0;
+      for (d = 0; d < data->dims; d++)
+      {
+        ld = (dims*l) + d;
+        data->m[ld] = 0;
+        data->v[ld] = 0;
+      }
       data->N[l] = 0;
     }
 
     /*** Some efficiency was sacrificed for readability below ***/
-    /* Update estimates for mean of each class */
+
+    /* Update estimates for mean of each class - (Maximization) */
     for (l = 0; l < classes; l++)
     {
       for (i = 0; i < rows; i++)
       {
-        for (j = 0; j < cols; j++)
+        for (j = 0; j < columns; j++)
         {
-          data->N[l] += data->probs[l][i][j]; // denominator of (20)
-          data->m[l] += data->y[i][j] * data->probs[l][i][j]; // numerator of (20)
+          lij = (columns*rows*l)+(columns*i) + j;
+          data->N[l] += data->probs[lij];
+          for (d = 0; d < data->dims; d++) {
+            ijd = (dims*columns*i)+(dims*j)+d;
+            ld = (dims*l)+d;
+            data->m[ld] += data->y[ijd] * data->probs[lij];
+          }
         }
       }
-      if (data->N[l] != 0) data->m[l] = data->m[l] / data->N[l];
+      if (data->N[l] != 0) {
+        for (d = 0; d < data->dims; d++)
+        {
+          ld = (dims*l)+d;
+          data->m[ld] = data->m[ld] / data->N[l];
+        }
+      }
     }
 
-      // Eq. (20)}
-      /* Update estimates of variance of each class */
+    /* Update estimates of variance of each class */
+    for (l = 0; l < classes; l++)
+    {
+      for (i = 0; i < rows; i++)
+      {
+        for (j = 0; j < columns; j++)
+        {
+          for (d = 0; d < data->dims; d++)
+          {
+            ijd = (dims*columns*i)+(dims*j)+d;
+            ld = (dims*l)+d;
+            lij = (columns*rows*l)+(columns*i) + j;
+            data->v[ld] += (data->y[ijd] - data->m[ld]) * (data->y[ijd] - data->m[ld]) * data->probs[lij];
+          }
+        }
+      }
+      if (data->N[l] != 0)
+      {
+        for (d = 0; d < dims; d++)
+        {
+          ld = (dims * l) + d;
+          data->v[ld] = data->v[ld] / data->N[l];
+        }
+      }
+    }
+
+    /* Monitor estimates of mean and variance */
+    if (emiter < 10 || (k + 1) % (emiter / 10) == 0)
+    {
       for (l = 0; l < classes; l++)
       {
-        for (i = 0; i < rows; i++)
+        printf(" *** Class %d:\n", l + 1);
+        printf("      m:  ");
+        for (d = 0; d < dims; d++)
         {
-          for (j = 0; j < cols; j++)
-            // numerator of (21)
-            data->v[l] += (data->y[i][j] - data->m[l]) * (data->y[i][j] - data->m[l]) * data->probs[l][i][j];
-
+          ld = (dims * l) + d;
+          printf("%.3f ", data->m[ld]);
         }
-        if (data->N[l] != 0) data->v[l] = data->v[l] / data->N[l];
+        printf("\n      v:  ");
+        for (d = 0; d < dims; d++)
+        {
+          ld = (dims * l) + d;
+          printf("%.3f ", data->v[ld]);
+        }
+        printf("\n");
       }
+      printf(" **************************\n");
+    }
 
 #if 0
       /* Monitor estimates of mean and variance */
@@ -142,15 +206,50 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       {
         for (l = 0; l < classes - 1; l++)
         {
-          snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
+          snprintf(msgbuff, 1024, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
           EMMPM_ShowProgress(msgbuff, data->progress);
         }
-        snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", (classes-1), data->m[classes - 1], data->v[classes - 1]);
+        snprintf(msgbuff, 1024, "%d\t%.3f\t%.3f", (classes-1), data->m[classes - 1], data->v[classes - 1]);
         EMMPM_ShowProgress(msgbuff, data->progress);
       }
 #endif
 
       EMMPM_ConvertXtToOutputImage(data, callbacks);
+
+      /* Eliminate any classes that have zero probability */
+
+    for (kk = 0; kk < classes; kk++)
+    {
+      if (data->N[kk] == 0)
+      {
+        for (l = kk; l < classes - 1; l++)
+        {
+          /* Move other classes to fill the gap */
+          data->N[l] = data->N[l + 1];
+          for (d = 0; d < dims; d++)
+          {
+            ld = (dims * l) + d;
+            ld1 = (dims * (l + 1)) + d;
+            data->m[ld] = data->m[ld1];
+            data->v[ld] = data->v[ld1];
+          }
+        }
+        for (i = 0; i < rows; i++)
+        {
+          for (j = 0; j < columns; j++)
+          {
+            ij = (columns*i) + j;
+            if (data->xt[ij] > kk)
+            {
+              data->xt[ij]--;
+            }
+          }
+        }
+        classes = classes - 1;
+      }
+    }
+
+
 
 #if 0
       /* Eliminate any classes that have zero probability */
@@ -165,7 +264,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             data->m[l] = data->m[l + 1];
             data->v[l] = data->v[l + 1];
             for (i = 0; i < rows; i++)
-            for (j = 0; j < cols; j++)
+            for (j = 0; j < columns; j++)
             if (data->xt[i][j] == l + 1) data->xt[i][j] = l;
 
           }
@@ -179,7 +278,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       callbacks->EMMPM_ProgressStatsFunc(data);
     }
 
-  }
+  } /* Bottom of EM Loop */
   data->inside_em_loop = 0;
   free(simAnnealBetas);
 }

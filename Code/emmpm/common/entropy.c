@@ -28,16 +28,27 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef EMMPM_CONSTANTS_H_
-#define EMMPM_CONSTANTS_H_
-
 #include <math.h>
+#include <stdio.h>
 
-#ifndef PI
-// #define PI  3.14159265358979323846
-#endif
+void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes)
+{
+	unsigned int l, i, j;
+	double entr;
 
-#define EMMPM_MAX_CLASSES 15
+	for(i = 0; i < rows; i++)
+	{
+		for(j = 0; j < cols; j++)
+		{
+			entr = 0;
+			/* Compute entropy of each pixel */
+			for(l = 0; l < classes; l++)
+			{
+				if(probs[l][i][j] > 0)
+					entr -= probs[l][i][j] * (log10(probs[l][i][j]) / log10(2));
+			}
+			output[i][j] = (unsigned char)(entr + 0.5);
+		}
+	}
 
-
-#endif /* EMMPM_CONSTANTS_H_ */
+}

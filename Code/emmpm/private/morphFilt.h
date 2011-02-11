@@ -28,16 +28,34 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef EMMPM_CONSTANTS_H_
-#define EMMPM_CONSTANTS_H_
+#ifndef _MORPHFILT_H_
+#define _MORPHFILT_H_
 
-#include <math.h>
 
-#ifndef PI
-// #define PI  3.14159265358979323846
+#include "emmpm/public/EMMPM_Constants.h"
+#include "emmpm/public/EMMPM_Structures.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define EMMPM_MAX_CLASSES 15
+EMMPM_EXPORT unsigned int maxi(int a, int b);
+
+EMMPM_EXPORT int mini(int a, int b);
+
+EMMPM_EXPORT void morphFilt(unsigned char **xt, unsigned char **curve, unsigned char** se, int r, unsigned int rows, unsigned int cols, int classes);
+
+EMMPM_EXPORT void multiSE(EMMPM_Data* data);
 
 
-#endif /* EMMPM_CONSTANTS_H_ */
+#ifdef __cplusplus
+}
+#endif
+
+
+
+
+
+#endif /* _MORPHFILT_H_ */

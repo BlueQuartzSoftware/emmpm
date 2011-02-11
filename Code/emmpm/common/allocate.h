@@ -1,3 +1,5 @@
+#if 0
+
 /* allocate.h */
 #ifndef em_allocate_h_
 #define em_allocate_h_
@@ -24,6 +26,10 @@ void *get_spc(int num, size_t size);
 void *mget_spc(int num, size_t size);
 void **get_img(int wd, int ht, size_t size);
 void EMMPM_free_img(void **pt);
+
+void ***get_3d_img(int wd, int ht, int dp, size_t size);
+void free_3d_img(void ***pt);
+
 void *multialloc(size_t s, int d, ...);
 void multifree(void *r,int d);
 
@@ -33,3 +39,6 @@ void multifree(void *r,int d);
 
 
 #endif /* _allocate.h_  */
+
+
+#endif

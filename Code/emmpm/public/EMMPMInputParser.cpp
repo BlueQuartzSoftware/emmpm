@@ -180,6 +180,10 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   TCLAP::ValueArg<std::string> graytable( "", "graytable", "Set an lookup table for the gray values associated with each class. This can be used to combine classes together at file writing time.", false, "", "");
   cmd.add(graytable);
 
+//#error Add additional Arguments for the curvature penalty case
+
+
+
   try
   {
     int error = 0;

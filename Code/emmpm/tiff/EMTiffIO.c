@@ -28,7 +28,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "emmpm/common/io/EMTiffIO.h"
+#include "emmpm/tiff/EMTiffIO.h"
 
 #ifdef CMP_HAVE_STDLIB_H
 #include <stdlib.h>
@@ -49,8 +49,8 @@
 #include <tiffio.h>
 
 #include "emmpm/common/EMMPMVersion.h"
-#include "emmpm/common/utilities/EMTime.h"
-#include "emmpm/common/utilities/allocate.h"
+#include "emmpm/common/EMTime.h"
+#include "emmpm/common/allocate.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -84,7 +84,8 @@ int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int err = 0;
 
   data->inputImage = EMMPM_ReadTiffAsGrayScale(data, callbacks);
-  data->channels = 1;
+  data->dims = 1;
+  data->inputImageChannels = 1;
 
   if (NULL ==  data->inputImage)
   {

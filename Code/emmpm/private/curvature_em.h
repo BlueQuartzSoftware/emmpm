@@ -28,16 +28,31 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef EMMPM_CONSTANTS_H_
-#define EMMPM_CONSTANTS_H_
+#ifndef CURVATUREEM_H_
+#define CURVATUREEM_H_
 
-#include <math.h>
+#include "emmpm/common/EMMPMTypes.h"
+#include "emmpm/public/EMMPM_Constants.h"
+#include "emmpm/public/EMMPM.h"
+#error
 
-#ifndef PI
-// #define PI  3.14159265358979323846
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define EMMPM_MAX_CLASSES 15
 
 
-#endif /* EMMPM_CONSTANTS_H_ */
+/**
+ * @brief
+ * @param data a non NULL EMMPM_Data pointer
+ * @param callbacks a non NULL EMMPM_CallbackFunctions
+ */
+EMMPM_EXPORT void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+#endif /* CURVATUREEM_H_ */

@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "emmpm/common/utilities/allocate.h"
-#include "emmpm/common/utilities/random.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
 #include "emmpm/common/io/EMTiffIO.h"
 
 #define EMMPM_MAX_CLASSES 15

@@ -4,19 +4,18 @@ set (EMMPMLib_PROJECT_FILES "")
 option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
 
 # --------------------------------------------------------------------
-Macro(Add_EMMPMLib_Dir DirName Path)
+Macro(Add_EMMPMLib_Dir VarName Path)
     include(${EMMPMLib_SOURCE_DIR}/${Path}/SourceList.cmake)
     set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES}
-                                        ${EMMPM_${DirName}_SRCS}
-                                        ${EMMPM_${DirName}_HDRS} )
+                                        ${EMMPM_${VarName}_SRCS}
+                                        ${EMMPM_${VarName}_HDRS} )
 endMacro()
 
-
-Add_EMMPMLib_Dir(Common common)
-Add_EMMPMLib_Dir(Common_io common/io)
-Add_EMMPMLib_Dir(Common_utilities common/utilities)
-Add_EMMPMLib_Dir(Private private)
 Add_EMMPMLib_Dir(Public public)
+Add_EMMPMLib_Dir(Common common)
+Add_EMMPMLib_Dir(Tiff tiff)
+Add_EMMPMLib_Dir(Private private)
+
 if (EMMPM_USE_MT_RNG)
     Add_EMMPMLib_Dir(mt mt)
     add_definitions(-DUSE_MERSENNE_TWISTER)

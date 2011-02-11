@@ -7,8 +7,8 @@ under the BSD License.
 Copyright (c) <2010>, <Mary L. Comer>
 All rights reserved.
 
-[1] Comer, Mary L., and Delp, Edward J.,  ÒThe EM/MPM Algorithm for Segmentation
-of Textured Images: Analysis and Further Experimental Results,Ó IEEE Transactions
+[1] Comer, Mary L., and Delp, Edward J.,  "The EM/MPM Algorithm for Segmentation
+of Textured Images: Analysis and Further Experimental Results" IEEE Transactions
 on Image Processing, Vol. 9, No. 10, October 2000, pp. 1731-1744.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -36,15 +36,15 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
 #include "mpm.h"
 
-#include "emmpm/common/utilities/allocate.h"
-#include "emmpm/common/utilities/random.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
 #include "emmpm/public/EMMPM.h"
 
 
@@ -58,11 +58,15 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int classes;
   char msgbuff[256];
 
-	double **yk[EMMPM_MAX_CLASSES], sqrt2pi, current, con[EMMPM_MAX_CLASSES], d[EMMPM_MAX_CLASSES];
+	double* yk, sqrt2pi, current, con[EMMPM_MAX_CLASSES], dd[EMMPM_MAX_CLASSES];
 	double x, post[EMMPM_MAX_CLASSES], sum;
-	int i, j, k, l, mm, prior[EMMPM_MAX_CLASSES];
+	int i, j, k, l, d, mm, prior[EMMPM_MAX_CLASSES];
+	int ij, ld, lij;
   float totalLoops;
   float currentLoopCount = 0.0;
+  int dims = data->dims;
+  int rows = data->rows;
+  int columns = data->columns;
 
   classes = data->classes;
   totalLoops = data->emIterations * data->mpmIterations;
@@ -72,24 +76,40 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   local_beta = data->workingBeta;
 
 	/* Allocate space for yk[][][] */
-	for (l = 0; l < classes; l++)
-		yk[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+//	for (l = 0; l < classes; l++)
+//		yk[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
 
-	sqrt2pi = sqrt(2.0 * PI);
+	yk = (double*)malloc(data->columns*data->rows*data->classes*sizeof(double));
 
-	for (l = 0; l < classes; l++) {
-		con[l] = -log(sqrt2pi * sqrt(data->v[l]));
-		d[l] = -2.0 * data->v[l];
-	}
+
+	sqrt2pi = sqrt(2.0 * M_PI);
+  /* Hard set to a single dimension. This will eventually have to be fixed
+    to accomondate a vector image */
+  d = 1;
+  for (l = 0; l < classes; l++)
+  {
+    ld = (dims*l) + d;
+    con[l] = -log(sqrt2pi * sqrt(data->v[ld]));
+    dd[l] = -2.0 * data->v[l];
+  }
+
+
 
 	for (i = 0; i < data->rows; i++)
-		for (j = 0; j < data->columns; j++) {
-			mm = data->y[i][j];
-			for (l = 0; l < classes; l++) {
-				data->probs[l][i][j] = 0;  // reset content of (16)
-				yk[l][i][j] = con[l] + ((mm - data->m[l]) * (mm - data->m[l]) / d[l]);
-			}
-		}
+  {
+    for (j = 0; j < data->columns; j++)
+    {
+      ij = (columns * i) + j;
+      mm = data->y[ij];
+      for (l = 0; l < classes; l++)
+      {
+        lij = (columns*rows*l)+(columns*i) + j;
+        data->probs[lij] = 0; // reset content of (16)
+        ld = (dims*l)+d;
+        yk[lij] = con[l] + ((mm - data->m[ld]) * (mm - data->m[ld]) / dd[l]);
+      }
+    }
+  }
 
 	data->inside_mpm_loop = 1;
 	for (k = 0; k < data->mpmIterations; k++)
@@ -99,53 +119,48 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
 	    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
 	  }
-		for (i=0; i<data->rows; i++) {
-			for (j=0; j<data->columns; j++) {
-				sum = 0;
-				for (l = 0; l < classes; l++) {
-					prior[l] = 0;
-					if (i - 1 >= 0) {
-						if (j - 1 >= 0)
-							if (data->xt[i - 1][j - 1] != l)
-	 							(prior[l])++;
-						if (data->xt[i - 1][j] != l)
-							(prior[l])++;
-						if (j + 1 < data->columns)
-							if (data->xt[i - 1][j + 1] != l)
-								(prior[l])++;
-					}
-					if (i + 1 < data->rows) {
-						if (j - 1 >= 0)
-							if (data->xt[i + 1][j - 1] != l)
-								(prior[l])++;
-						if (data->xt[i + 1][j] != l)
-							(prior[l])++;
-						if (j + 1 < data->columns)
-							if (data->xt[i + 1][j + 1] != l)
-								(prior[l])++;
-					}
-					if (j - 1 >= 0)
-						if (data->xt[i][j - 1] != l)
-							(prior[l])++;
-					if (j + 1 < data->columns)
-						if (data->xt[i][j + 1] != l)
-							(prior[l])++;
+		for (i = 0; i < data->rows; i++)
+    {
+      for (j = 0; j < data->columns; j++)
+      {
+        sum = 0;
+        for (l = 0; l < classes; l++)
+        {
+          prior[l] = 0;
+          if (i - 1 >= 0)
+          {
+            if (j - 1 >= 0) if (data->xt[(columns*(i-1)) + j-1] != l) (prior[l])++;
+            if (data->xt[(columns*(i-1))+j] != l) (prior[l])++;
+            if (j + 1 < data->columns) if (data->xt[(columns*(i-1))+j+1] != l) (prior[l])++;
+          }
+          if (i + 1 < data->rows)
+          {
+            if (j - 1 >= 0) if (data->xt[(columns*(i+1))+j-1] != l) (prior[l])++;
+            if (data->xt[(columns*(i+1))+j] != l) (prior[l])++;
+            if (j + 1 < data->columns) if (data->xt[(columns*(i+1))+j+1] != l) (prior[l])++;
+          }
+          if (j - 1 >= 0) if (data->xt[(columns*i)+j-1] != l) (prior[l])++;
+          if (j + 1 < data->columns) if (data->xt[(columns*i)+j+1] != l) (prior[l])++;
 
-					post[l] = exp(yk[l][i][j] - local_beta * (double)(prior[l]) - data->w_gamma[l]);
-					sum += post[l];
-				}
-				x = genrand_real2();
-				current = 0;
+          lij = (columns*rows*l)+(columns*i) + j;
+          post[l] = exp(yk[lij] - local_beta * (double)(prior[l]) - data->w_gamma[l]);
+          sum += post[l];
+        }
+        x = genrand_real2();
+        current = 0;
 
-				for (l = 0; l < classes; l++) {
-					if ((x >= current) && (x <= (current + post[l] / sum))) {
-						data->xt[i][j] = l;
-						data->probs[l][i][j] += 1.0;
-					}
-					current += post[l] / sum;
-				}
-			}
-		}
+        for (l = 0; l < classes; l++)
+        {
+          if ((x >= current) && (x <= (current + post[l] / sum)))
+          {
+            lij = (columns*rows*l)+(columns*i) + j;
+            data->xt[(columns*i)+j] = l;
+            data->probs[lij] += 1.0;
+          }
+          current += post[l] / sum;
+        }
+      }
+    }
     if (NULL != callbacks->EMMPM_ProgressStatsFunc)
     {
       currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
@@ -158,11 +173,12 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 	/* Normalize probabilities */
 	for (i=0; i<data->rows; i++)
 		for (j=0; j<data->columns; j++)
-			for (l = 0; l < classes; l++)
-				data->probs[l][i][j] = data->probs[l][i][j] / (double)data->mpmIterations;
+			for (l = 0; l < classes; l++){
+        lij = (columns*rows*l)+(columns*i) + j;
+        data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
+			}
 
 	/* Clean Up */
-	for (l = 0; l < classes; l++)
-	  EMMPM_free_img((void **)yk[l]);
+	free(yk);
 
 }

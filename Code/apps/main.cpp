@@ -17,7 +17,7 @@
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/public/EMMPMInputParser.h"
-#include "emmpm/common/io/EMTiffIO.h"
+#include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
 
@@ -53,7 +53,7 @@ void UpdateStats(EMMPM_Data* data)
       double mu = data->m[c];
       double sig = data->v[c];
       double twoSigSqrd = sig * sig * 2.0f;
-      double constant = 1.0f / (sig * sqrtf(2.0f * PI));
+      double constant = 1.0f / (sig * sqrtf(2.0f * M_PI));
       for (size_t x = 0; x < 256; ++x)
       {
         hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
@@ -87,7 +87,7 @@ int main(int argc,char *argv[])
 {
 
 
-  EMMPM_Data* data = EMMPM_AllocateDataStructure();
+  EMMPM_Data* data = EMMPM_CreateDataStructure();
   EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 
   /* Parse the comand line arguments */
@@ -120,14 +120,41 @@ int main(int argc,char *argv[])
     case EMMPM_BASIC_INITIALIZATION:
       callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
       break;
+    case EMMPM_CURVATURE_INITIALIZATION:
+    //  callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
+      break;
     default:
       break;
   }
 
-  std::cout << "emmpm Starting.... " << std::endl;
+  std::cout << "EM/MPM Starting.... " << std::endl;
 
-  // Run the EM/MPM algorithm on the input image
-  EMMPM_Execute(data, callbacks);
+  // Allocate all the memory here
+
+  err = EMMPM_AllocateDataStructureMemory(data);
+  if (err)
+  {
+    printf("Error allocating memory for the EMMPM Data Structure.\n   %s(%d)\n", __FILE__, __LINE__);
+    return 1;
+  }
+
+
+  switch(data->algorithm)
+  {
+    case EMMPM_Basic:
+    case EMMPM_UserInitArea:
+      /* Run the Classic EM Loops */
+      EMMPM_StandardAlgo(data, callbacks);
+      break;
+    case EMMPM_CurvaturePenalty:
+      /* Run the Curvature Penalty version of the EM/MPM Algorithm */
+//      EMMPM_CurvaturePenaltyAlgo(data, callbacks);
+      break;
+    default:
+      callbacks->EMMPM_ProgressFunc("The Proper Algorithm was not selected. Nothing was done.", 100.0);
+  }
+
+
 
   err = EMMPM_WriteOutputImage(data, callbacks);
   if (err < 0)

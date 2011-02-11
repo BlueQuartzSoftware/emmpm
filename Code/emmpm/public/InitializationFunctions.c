@@ -28,6 +28,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -35,8 +36,8 @@
 #include "InitializationFunctions.h"
 
 #include "emmpm/public/EMMPM.h"
-#include "emmpm/common/utilities/allocate.h"
-#include "emmpm/common/utilities/random.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
 
 
 // -----------------------------------------------------------------------------
@@ -44,40 +45,161 @@
 // -----------------------------------------------------------------------------
 void EMMPM_InitializeXtArray(EMMPM_Data* data)
 {
-  int i, j, l;
+  int i, l;
+  size_t total;
 
+  total = data->rows * data->columns;
   /* Initialize classification of each pixel randomly with a uniform disribution */
-  for (i = 0; i < data->rows; i++)
+  for (i = 0; i < total; i++)
   {
-    for (j = 0; j < data->columns; j++)
-    {
       l = genrand_real2() * data->classes;
-      data->xt[i][j] = l;
-    }
+      data->xt[i] = l;
   }
 }
 
+#if 0
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_CurvatureInitialization(EMMPM_Data* data)
+{
+  int d;
+  int i;
+  int j;
+  size_t index;
+  int l;
+  double x;
+
+ // We already have read the input image into the
+  data->yvec = (unsigned char ***)get_3d_img(data->rows, data->columns, data->dims, sizeof(unsigned char));
+
+  for ( d = 0; d < data->dims; d++)
+  {
+    for (i = 0; i < data->rows; i++)
+    {
+      for (j = 0; j < data->columns; j++)
+      {
+        index = data->columns * i + j;
+        data->yvec[i][j][d] = data->inputImage[index];
+      }
+    }
+  }
+  data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));
+
+
+  /***  Choose initial conditions by placing means randomly
+   and setting variances to 20 in each dimension (unless scalar image) ***/
+  for (l = 0; l < data->classes; l++)
+  {
+    /* Allocate */
+    data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+    data->ccost[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+    data->m[l] = (double *)malloc(data->dims * sizeof(double));
+    data->v[l] = (double *)malloc(data->dims * sizeof(double));
+    if (data->probs[l] == NULL || data->m[l] == NULL || data->v[l] == NULL)
+    {
+      printf("Warning:   Memory Disaster!!!\n");
+      exit(1);
+    }
+    if (data->dims == 1)
+    {
+      data->m[l][0] = (128 + 255 * l) / data->classes;
+      data->v[l][0] = 20;
+    }
+    else for (d = 0; d < data->dims; d++)
+    {
+      data->m[l][d] = rand() % 256;
+      data->v[l][d] = 20;
+    }
+  }
+
+  /* Initialize classification of each pixel randomly with a uniform disribution */
+  EMMPM_InitializeXtArray(data);
+
+
+  /* Allocate for edge images */
+  data->ns = (double **)get_img(data->columns - 1, data->rows, sizeof(double));
+  data->ew = (double **)get_img(data->columns, data->rows - 1, sizeof(double));
+  data->sw = (double **)get_img(data->columns - 1, data->rows - 1, sizeof(double));
+  data->nw = (double **)get_img(data->columns - 1, data->rows - 1, sizeof(double));
+
+
+  /* Do edge detection */
+  for (i = 0; i < data->rows; i++)
+  {
+    for (j = 0; j < data->columns - 1; j++)
+    {
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+        x += (data->yvec[i][j][d] - data->yvec[i][j + 1][d]) * (data->yvec[i][j][d] - data->yvec[i][j + 1][d]);
+      data->ns[i][j] = data->beta_e * atan((10 - sqrt(x)) / 5);
+    }
+  }
+  for (i = 0; i < data->rows - 1; i++)
+  {
+    for (j = 0; j < data->columns; j++)
+    {
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+        x += (data->yvec[i][j][d] - data->yvec[i + 1][j][d]) * (data->yvec[i][j][d] - data->yvec[i + 1][j][d]);
+      data->ew[i][j] = data->beta_e * atan((10 - sqrt(x)) / 5);
+    }
+  }
+  for (i = 0; i < data->rows - 1; i++)
+  {
+    for (j = 0; j < data->columns - 1; j++)
+    {
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+        x += (data->yvec[i][j][d] - data->yvec[i + 1][j + 1][d]) * (data->yvec[i][j][d] - data->yvec[i + 1][j + 1][d]);
+      data->sw[i][j] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+        x += (data->yvec[i + 1][j][d] - data->yvec[i][j + 1][d]) * (data->yvec[i + 1][j][d] - data->yvec[i][j + 1][d]);
+      data->nw[i][j] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
+    }
+  }
+
+
+  /* Initialize Curve Costs to zero */
+  for (l = 0; l < data->classes; l++)
+  {
+    for (i = 0; i < data->rows; i++)
+    {
+      for (j = 0; j < data->columns; j++)
+      {
+        data->ccost[l][i][j] = 0;
+      }
+    }
+  }
+
+}
+#endif
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void EMMPM_BasicInitialization(EMMPM_Data* data)
 {
-  unsigned int i, j, k, l;
+
+  //FIXME: This needs to be adapted for vector images (dims > 1)
+  unsigned int i, k, l;
   double mu, sigma;
   char msgbuff[256];
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
   unsigned int classes = data->classes;
 //  double rndNum = 0.0;
-  unsigned char** y = data->y;
+  unsigned char* y = data->y;
 //  unsigned char** xt = data->xt;
-
-//  printf("- EMMPM_BasicInitialization()\n");
+  size_t total;
 
   rows = data->rows;
   cols = data->columns;
+  total = data->rows * data->columns;
 
+
+//  printf("- EMMPM_BasicInitialization()\n");
   memset(msgbuff, 0, 256);
 
   //  printf("EMMPM_BasicInitialization Starting\n");
@@ -87,15 +209,16 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   /* Initialization of parameter estimation */
   mu = 0;
   sigma = 0;
-  for (i = 0; i < rows; i++)
-    for (j = 0; j < cols; j++)
-      mu += y[i][j];
+  for (i = 0; i < total; i++) {
+      mu += y[i];
+  }
 
   mu /= (rows * cols);
 
-  for (i = 0; i < rows; i++)
-    for (j = 0; j < cols; j++)
-      sigma += (y[i][j] - mu) * (y[i][j] - mu);
+  for (i = 0; i < total; i++) {
+      sigma += (y[i] - mu) * (y[i] - mu);
+  }
+
   sigma /= (rows * cols);
   sigma = sqrt((double)sigma);
   // printf("mu=%f sigma=%f\n",mu,sigma);
@@ -110,8 +233,8 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   {
     for (k = 0; k < classes / 2; k++)
     {
-      data->m[classes / 2 + k] = mu + (k + 1) * sigma / 2;
-      data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
+        data->m[classes / 2 + k] = mu + (k + 1) * sigma / 2;
+        data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
     }
   }
   else
@@ -124,10 +247,11 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
     }
   }
 
+
   for (l = 0; l < classes; l++)
   {
     data->v[l] = 20;
-    data->probs[l] = (double **)get_img(cols, rows, sizeof(double));
+//    data->probs[l] = (double **)get_img(cols, rows, sizeof(double));
   }
   EMMPM_InitializeXtArray(data);
 }
@@ -137,16 +261,14 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
 {
- // char startMsg[] = "InitNClassInitialization Starting";
-//  EMMPM_ShowProgress(startMsg, 1.0f);
-//  printf("EMMPM_UserDefinedAreasInitialization Starting\n");
   unsigned int i, j;
+  size_t index;
   int c, l;
   double mu, sigma;
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
   char msgbuff[256];
-  unsigned char** y = data->y;
+  unsigned char* y = data->y;
 //  unsigned char** xt = data->xt;
   rows = data->rows;
   cols = data->columns;
@@ -154,6 +276,11 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   sigma = 0;
   mu = 0;
 
+  if (data->dims != 1)
+  {
+    printf("User Defined Initialization ONLY works with GrayScale images and not vector images.\n  %s(%d)", __FILE__, __LINE__);
+    exit(1);
+  }
 
   memset(msgbuff, 0, 256);
 
@@ -169,7 +296,8 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
  //   EMMPM_ShowProgress(msgbuff, 1.0);
     for (i=data->initCoords[c][1]; i<data->initCoords[c][3]; i++) {
       for (j=data->initCoords[c][0]; j<data->initCoords[c][2]; j++) {
-        mu += y[i][j];
+        index = (cols * i) + j;
+        mu += y[index];
    //     printf ("%03d ", y[i][j]);
       }
    //   printf("\n");
@@ -184,12 +312,12 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
     if (l < data->classes) {
       data->v[l] = 20;
-      data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+     // data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
     }
     else
     {
       data->v[l] = -1;
-      data->probs[l] = NULL;
+     // data->probs[l] = NULL;
     }
   }
 
@@ -201,21 +329,5 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_ManualInitialization(EMMPM_Data* data)
 {
-//  unsigned int i, j;
-  int l;
-//  unsigned char** xt = data->xt;
- // double rndNum;
-
-  for (l = 0; l < EMMPM_MAX_CLASSES; l++) {
-    if (l < data->classes) {
-      //data->v[l] = 20;
-      data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
-    }
-    else
-    {
-      data->v[l] = -1;
-      data->probs[l] = NULL;
-    }
-  }
   EMMPM_InitializeXtArray(data);
 }

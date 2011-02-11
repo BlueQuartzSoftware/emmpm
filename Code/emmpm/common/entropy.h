@@ -28,16 +28,18 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef EMMPM_CONSTANTS_H_
-#define EMMPM_CONSTANTS_H_
+#ifndef ENTROPY_H_
+#define ENTROPY_H_
 
-#include <math.h>
-
-#ifndef PI
-// #define PI  3.14159265358979323846
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define EMMPM_MAX_CLASSES 15
+void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes);
+
+#ifdef __cplusplus
+}
+#endif
 
 
-#endif /* EMMPM_CONSTANTS_H_ */
+#endif /* ENTROPY_H_ */

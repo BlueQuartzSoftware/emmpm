@@ -34,10 +34,11 @@
 
 
 #include "emmpm/private/em.h"
-#include "emmpm/common/utilities/entropy.h"
-#include "emmpm/common/utilities/allocate.h"
-#include "emmpm/common/utilities/random.h"
-#include "emmpm/common/io/EMTiffIO.h"
+//#include "emmpm/private/curvature_em.h"
+#include "emmpm/common/entropy.h"
+#include "emmpm/common/allocate.h"
+#include "emmpm/common/random.h"
+#include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
 
@@ -45,45 +46,46 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EMMPM_Data* EMMPM_AllocateDataStructure()
+EMMPM_Data* EMMPM_CreateDataStructure()
 {
   EMMPM_Data* data = (EMMPM_Data*)(malloc(sizeof(EMMPM_Data)));
   int c;
-   data->emIterations = 0;
-   data->mpmIterations = 0;
-   data->in_beta = 0.0;
- //  data->in_gamma = 0.0;
-   data->classes = 0;
-   data->rows = 0;
-   data->columns = 0;
-   data->channels = 0;
-   data->initType = 0;
-   for(c = 0; c < EMMPM_MAX_CLASSES; c++)
-   {
-     data->initCoords[c][0] = 0;
-     data->initCoords[c][1] = 1;
-     data->initCoords[c][2] = 2;
-     data->initCoords[c][3] = 3;
-     data->grayTable[c] = 0;
-     data->w_gamma[c] = 0.0;
-     data->m[c] = 0.0;
-     data->v[c] = 0.0;
-     data->N[c] = 0.0;
-     data->probs[c] = NULL;
-   }
-   data->verbose = 0;
+  data->algorithm = EMMPM_Basic;
+  data->emIterations = 0;
+  data->mpmIterations = 0;
+  data->in_beta = 0.0;
+  //  data->in_gamma = 0.0;
+  data->classes = 0;
+  data->rows = 0;
+  data->columns = 0;
+  data->dims = 1;
+  data->initType = 0;
+  for (c = 0; c < EMMPM_MAX_CLASSES; c++)
+  {
+    data->initCoords[c][0] = 0;
+    data->initCoords[c][1] = 1;
+    data->initCoords[c][2] = 2;
+    data->initCoords[c][3] = 3;
+    data->grayTable[c] = 0;
+    data->N[c] = 0.0;
+    data->w_gamma[c] = 1.0;
+  }
+  data->verbose = 0;
 
+
+  data->m = NULL;
+  data->v = NULL;
+  data->probs = NULL;
+  data->ccost = NULL;
 
   data->input_file_name = NULL;
   data->inputImage = NULL;
+  data->inputImageChannels = 0;
   data->output_file_name = NULL;
   data->outputImage = NULL;
 
   data->y = NULL;
   data->xt = NULL;
-//  data->ga = 0;
-//  data->x = 0;
-
   data->workingBeta = 0.0;
 
   data->currentEMLoop = 0;
@@ -93,7 +95,38 @@ EMMPM_Data* EMMPM_AllocateDataStructure()
   data->inside_em_loop = 0;
   data->inside_mpm_loop = 0;
 
+  data->beta_e = 0.0;
+  data->beta_c = 0.0;
+  data->r_max = 0.0;
+  data->ns = NULL;
+  data->ew = NULL;
+  data->sw = NULL;
+  data->nw = NULL;
+
   return data;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data)
+{
+  data->y = (unsigned char *)malloc(data->columns * data->rows*data->dims*sizeof(unsigned char));
+  if (NULL == data->y) return -1;
+  data->xt = (unsigned char*)malloc(data->columns * data->rows * sizeof(unsigned char));
+  if (NULL == data->xt) return -1;
+//  data->w_gamma = (double*)malloc(data->classes * data->dims * sizeof(double));
+//  if (NULL == data->w_gamma) return -1;
+  data->m = (double*)malloc(data->classes * data->dims * sizeof(double));
+  if (NULL == data->m) return -1;
+  data->v = (double*)malloc(data->classes * data->dims * sizeof(double));
+  if (NULL == data->v) return -1;
+//  data->N = (double*)malloc(data->classes * data->dims * sizeof(double));
+//  if (NULL == data->N) return -1;
+  data->probs = (double*)malloc(data->classes * data->columns * data->rows * sizeof(double));
+  if (NULL == data->probs) return -1;
+
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -105,6 +138,7 @@ EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure()
   callbacks->EMMPM_InitializationFunc = NULL;
   callbacks->EMMPM_ProgressFunc = NULL;
   callbacks->EMMPM_ProgressStatsFunc = NULL;
+
   return callbacks;
 }
 
@@ -113,16 +147,34 @@ EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure()
 // -----------------------------------------------------------------------------
 void EMMPM_FreeDataStructure(EMMPM_Data* data)
 {
-  free(data->input_file_name);
-  free(data->output_file_name);
+  free(data->input_file_name); data->input_file_name = NULL;
+  free(data->output_file_name); data->output_file_name = NULL;
   if (data->inputImage != NULL)
   {
     EMMPM_FreeTiffImageBuffer(data->inputImage);
+    data->inputImage = NULL;
   }
   if(data->outputImage != NULL)
   {
     EMMPM_FreeTiffImageBuffer(data->outputImage);
+    data->outputImage = NULL;
   }
+
+  free(data->y); data->y = NULL;
+  free(data->xt); data->xt = NULL;
+ // free(data->w_gamma);
+  free(data->m); data->m = NULL;
+  free(data->v); data->v = NULL;
+//  free(data->N);
+  free(data->probs); data->probs = NULL;
+
+  if (NULL != data->ccost) free(data->ccost); data->ccost = NULL;
+  if (NULL != data->ns) free(data->ns); data->ns = NULL;
+  if (NULL != data->ew) free(data->ew); data->ew = NULL;
+  if (NULL != data->sw) free(data->sw); data->sw = NULL;
+  if (NULL != data->nw) free(data->nw); data->nw = NULL;
+
+
   free(data);
 }
 
@@ -133,58 +185,7 @@ void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* ptr)
 {
   free(ptr);
 }
-#if 0
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_ShowProgress(char* message, float progress)
-{
-  if (NULL != &EMMPM_ProgressFunc)
-  {
-    EMMPM_ProgressFunc(message, progress);
-  }
-}
 
-
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_SetProgressFunction(void (*callBack)(char*, float))
-{
-  EMMPM_ProgressFunc = callBack;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_SetInitializationFunction(void (*callBack)(EMMPM_Inputs*, EMMPM_WorkingVars*))
-{
-  EMMPM_InitializationFunc = callBack;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_SetProgressStatsFunction(void (*callBack)(EMMPM_Update*))
-{
-  EMMPM_ProgressStatsFunc = callBack;
-}
-
-
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_ProgressStats(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks)
-{
- // EMMPM_ShowProgress("UpdateStats being called", 0.0);
-  if (NULL != &callbacks->EMMPM_ProgressStatsFunc)
-  {
-    callbacks->EMMPM_ProgressStatsFunc(update);
-  }
-}
-#endif
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -193,17 +194,39 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunct
   uint8_t* dst;
   int i;
   int j;
-  /* Copy input image to y[][] */
-  int cols = data->columns;
-  int rows = data->rows;
-  dst = data->inputImage;
-  data->y = (unsigned char **)get_img(cols, rows, sizeof(char));
-  for (i = 0; i < rows; i++)
+  int d;
+  size_t index = 0;
+
+  if (data->inputImageChannels == 0)
   {
-    for (j = 0; j < cols; j++)
+    printf("The number of input color channels was 0\n. Exiting Program.\n");
+    exit(1);
+  }
+
+  if (data->inputImageChannels != data->dims)
+  {
+    printf("The number of image channels does not match the number of vector dimensions\nExiting Program.\n");
+    exit(1);
+  }
+
+
+  /* Copy input image to y[][] */
+  int width = data->columns;
+  int height = data->rows;
+  int dims = data->dims;
+  dst = data->inputImage;
+
+
+  for (j = 0; j < height; j++)
+  {
+    for (i = 0; i < width; i++)
     {
-      data->y[i][j] = *dst;
-      ++dst;
+      for (d = 0; d < dims; d++)
+      {
+        index = (j*width*dims) + (i*dims) + d;
+        data->y[index] = *dst;
+        ++dst;
+      }
     }
   }
 }
@@ -213,15 +236,16 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunct
 // -----------------------------------------------------------------------------
 void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  int index;
+  size_t index;
   unsigned int i;
   unsigned int j;
   unsigned char* raster;
   size_t gtindex = 0;
 
+
   if (data->outputImage == NULL)
   {
-    data->outputImage = EMMPM_AllocateTiffImageBuffer(data->columns, data->rows, data->channels);
+    data->outputImage = EMMPM_AllocateTiffImageBuffer(data->columns, data->rows, data->dims);
   }
   raster = data->outputImage;
   index = 0;
@@ -229,12 +253,8 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   {
     for (j = 0; j < data->columns; j++)
     {
-      if (data->xt[i][j] == 1)
-      {
-    //    printf("data->xt[i][j] == 1\n");
-      }
-      gtindex = data->xt[i][j];
-      raster[index++] = data->grayTable[data->xt[i][j]];
+      gtindex = data->xt[ i*data->columns + j ];
+      raster[index++] = data->grayTable[gtindex];
     }
   }
 }
@@ -344,22 +364,27 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
+void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  int l;
+  //int l;
+
+  int err = 0;
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
   init_genrand(143542612ul);
 
-  /* Allocate memory for the xt arrays */
-  data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));
-
   /* Check to make sure we have at least a basic initialization function setup */
-  if (NULL == callbacks->EMMPM_InitializationFunc)
-  {
-    callbacks->EMMPM_InitializationFunc = &EMMPM_BasicInitialization;
-  }
+//  if (NULL == callbacks->EMMPM_InitializationFunc && data->dims == 1)
+//  {
+//    callbacks->EMMPM_InitializationFunc = &EMMPM_BasicInitialization;
+//  }
+//  else
+//  {
+//    char* msg = "Error: Classic Initialization does NOT work with vector images. Dims must = 1";
+//    callbacks->EMMPM_ProgressFunc(msg, 100.0);
+//    return;
+//  }
 
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
@@ -376,7 +401,6 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   printData(data);
 
-  /* Run the EM Loops */
   EMMPM_PerformEMLoops(data, callbacks);
 
   /* Allocate space for the output image, and copy a scaled xt
@@ -384,13 +408,29 @@ void EMMPM_Execute(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   EMMPM_ConvertXtToOutputImage(data, callbacks);
 
 
-  for (l = 0; l < data->classes; l++) {
-    EMMPM_free_img((void **)data->probs[l]);
+//  writeseed();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_CurvaturePenaltyAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
+{
+  init_genrand(143542612ul);
+  if (NULL == callbacks->EMMPM_InitializationFunc)
+  {
+    // Error No Inititalization function was specified
+    return;
   }
 
-  // Free all the memory that was allocated on the heap.
-  EMMPM_free_img((void **)data->xt);
-  EMMPM_free_img((void **)data->y);
+  /* Initialization of parameter estimation */
+    callbacks->EMMPM_InitializationFunc(data);
 
-//  writeseed();
+    printData(data);
+
+
+ //   EMMPM_CurvatureEMLoops(data, callbacks);
+
+
+
 }

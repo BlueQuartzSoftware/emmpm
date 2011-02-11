@@ -9,7 +9,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "emmpm/common/utilities/EMTime.h"
+
+#include "emmpm/common/EMTime.h"
 #include "emmpm/common/MSVCDefines.h"
 
 static char em_log_time[128];

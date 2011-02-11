@@ -45,7 +45,15 @@ extern "C" {
  *
  * @return
  */
-EMMPM_EXPORT EMMPM_Data* EMMPM_AllocateDataStructure();
+EMMPM_EXPORT EMMPM_Data* EMMPM_CreateDataStructure();
+
+
+/**
+ * @brief
+ * @param data
+ */
+EMMPM_EXPORT int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data);
+
 
 /**
  *
@@ -68,11 +76,10 @@ EMMPM_EXPORT void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* p
 /**
  * @brief This function will copy the input image into an internal data structure
  * for use during the algorithm
- * @param files
- * @param inputs
- * @param vars
+ * @param data The EMMPM_Structure to use
+ * @param callbacks The list of callback functions
  */
-EMMPM_EXPORT void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 /**
  * @brief This function will copy the internal data structure that represents an
  * segmented image into a possibly newly allocated array. If the outputImage pointer
@@ -80,11 +87,10 @@ EMMPM_EXPORT void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* update, EMMP
  * happen for you then YOU need to call @see EMMPM_FreeTiffImageBuffer yourself
  * when the emmpm algorithm is complete. If you preallocate the array then your
  * own memory clean systems will work just fine.
- * @param files
- * @param inputs
- * @param vars
+ * @param data The EMMPM_Structure to use
+ * @param callbacks The list of callback functions
  */
-EMMPM_EXPORT void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 /**
  * @brief Main entry point for running the EMMPM algorithm. The EMMPM_Inputs and
@@ -92,11 +98,18 @@ EMMPM_EXPORT void EMMPM_ConvertXtToOutputImage(EMMPM_Data* update, EMMPM_Callbac
  * values and input images. A new output Image will be allocated for you if one
  * is NOT provided. YOU are responsible for cleaning up the memory that is allocated
  * by that process.
- * @param files The input filenames and/or raw image array
- * @param inputs The main input parameters to the emmpm algorithm
+ * @param data The EMMPM_Structure to use
+ * @param callbacks The list of callback functions
  */
-EMMPM_EXPORT void EMMPM_Execute(EMMPM_Data* update, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
+
+/**
+ * @brief
+ * @param data The EMMPM_Structure to use
+ * @param callbacks The list of callback functions
+ */
+EMMPM_EXPORT void EMMPM_CurvaturePenaltyAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }
