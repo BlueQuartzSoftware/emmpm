@@ -84,6 +84,7 @@ void EMMPM_CurvatureInitialization(EMMPM_Data* data)
 
   /***  Choose initial conditions by placing means randomly
    and setting variances to 20 in each dimension (unless scalar image) ***/
+  d = 0;
   for (l = 0; l < classes; l++)
   {
     if (dims == 1)

@@ -119,9 +119,12 @@ int main(int argc, char **argv)
   data->output_file_name = "/tmp/slice000_curve.tiff"; // arg[5]
   data->dims = 1; // arg[6]
   data->r_max = 0; // arg[7]
-  data->mpmIterations = 1; // arg[8]
-  data->emIterations = 1; // arg[9]
+  data->mpmIterations = 10; // arg[8]
+  data->emIterations = 10; // arg[9]
   data->classes = 3; // arg[10]
+  data->grayTable[0] = 0;
+  data->grayTable[1] = 128;
+  data->grayTable[2] = 255;
 
 
   /* Set the Callback functions to provide feedback */

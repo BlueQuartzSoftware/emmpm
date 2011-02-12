@@ -56,6 +56,9 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int k, l, prior;
   int i, j, d;
 
+  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
+  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
+
   size_t ld, ijd, ij, lij, i1j1;
   int dims = data->dims;
   int rows = data->rows;
@@ -127,6 +130,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    data->inside_mpm_loop = 1;
     if (callbacks->EMMPM_ProgressFunc != NULL)
     {
       data->currentMPMLoop = k;
