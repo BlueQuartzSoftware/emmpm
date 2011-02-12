@@ -30,6 +30,8 @@
 
 #include "EMMPMInputParser.h"
 
+#include <string.h>
+
 #include <tclap/CmdLine.h>
 #include <tclap/ValueArg.h>
 #include "emmpm/common/EMMPMVersion.h"
