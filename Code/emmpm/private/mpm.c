@@ -164,12 +164,17 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   data->inside_mpm_loop = 0;
 
   /* Normalize probabilities */
-  for (i = 0; i < data->rows; i++) {
-    for (j = 0; j < data->columns; j++) {
-      for (l = 0; l < classes; l++) {
+  for (i = 0; i < data->rows; i++)
+  {
+    for (j = 0; j < data->columns; j++)
+    {
+      for (l = 0; l < classes; l++)
+      {
         lij = (cols * rows * l) + (cols * i) + j;
         data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
-      }}}
+      }
+    }
+  }
 
   /* Clean Up */
 //  for (l = 0; l < classes; l++)

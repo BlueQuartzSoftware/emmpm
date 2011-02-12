@@ -72,6 +72,13 @@ IF (BUILD_SHARED_LIBS)
 ENDIF (BUILD_SHARED_LIBS)
 
 # --------------------------------------------------------------------
+# Possibly use a different Random Number Generator
+set(USE_MERSENNE_TWISTER)
+option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" OFF)
+if (EMMPM_USE_MT_RNG)
+  set(USE_MERSENNE_TWISTER 1)
+endif()
+# --------------------------------------------------------------------
 # Now configure this extra file with some additional definitions
 configure_file(${PROJECT_RESOURCES_DIR}/emmpm/EMMPMConfiguration.h.in
                ${CMP_HEADER_DIR}/${CMP_EXTRA_CONFIGURATION_FILE})

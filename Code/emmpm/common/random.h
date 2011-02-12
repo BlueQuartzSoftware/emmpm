@@ -8,7 +8,7 @@
 #define	_RANDOM_
 
 
-
+#include "emmpm/common/EMMPMConfiguration.h"
 
 
 #ifdef __cplusplus
@@ -20,6 +20,7 @@ extern "C"
 #ifdef USE_MERSENNE_TWISTER
 #include "emmpm/mt/mt19937ar.h"
 #else
+
 /**
  * @brief Random Number Generator based off code from Park and Miller with
  * recommended adjustments.

@@ -33,6 +33,8 @@
 /* Modified by Joel Dumke on 1/30/09 */
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "emmpm/private/curvature_mpm.h"
@@ -69,7 +71,22 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   double* ew = data->ew;
   double* sw = data->sw;
   double* nw = data->nw;
+  char msgbuff[256];
+  float totalLoops;
+  float currentLoopCount = 0.0;
 
+  size_t nsCols = data->columns - 1;
+  size_t nsRows = data->rows;
+  size_t ewCols = data->columns;
+  size_t ewRows = data->rows - 1;
+  size_t swCols = data->columns - 1;
+  size_t swRows = data->rows - 1;
+  size_t nwCols = data->columns-1;
+  size_t nwRows = data->rows-1;
+
+  totalLoops = data->emIterations * data->mpmIterations;
+  memset(msgbuff, 0, 256);
+  data->progress++;
   /* Allocate space for yk[][][] */
   //	for (l = 0; l < classes; l++)
   //		yk[l] = (double **)get_img(cols, rows, sizeof(double));
@@ -110,6 +127,13 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    if (callbacks->EMMPM_ProgressFunc != NULL)
+    {
+      data->currentMPMLoop = k;
+      snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
+      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    }
+
     for (i = 0; i < rows; i++)
     {
       for (j = 0; j < cols; j++)
@@ -129,26 +153,33 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               if (xt[i1j1] != l)
               {
                 prior++;
+                i1j1 = (swCols*(i-1))+j-1;
                 edge += sw[i1j1];
               }
             }
+
+            //Mark1
             i1j1 = (cols*(i-1))+j;
             if (xt[i1j1] != l)
             {
               prior++;
+              i1j1 = (ewCols*(i-1))+j;
               edge += ew[i1j1];
             }
+            //mark2
             if (j + 1 < cols)
             {
               i1j1 = (cols*(i-1))+j+1;
               if (xt[i1j1] != l)
               {
                 prior++;
-                i1j1 = (cols*(i-1))+j;
+                i1j1 = (nwCols*(i-1))+j;
                 edge += nw[i1j1];
               }
             }
           }
+
+          //mark3
           if (i + 1 < rows)
           {
             if (j - 1 >= 0)
@@ -157,41 +188,49 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               if (xt[i1j1] != l)
               {
                 prior++;
-                i1j1 = (cols*(i))+j-1;
+                i1j1 = (nwCols*(i))+j-1;
                 edge += nw[i1j1];
               }
             }
+            //mark4
             i1j1 = (cols*(i+1))+j;
             if (xt[i1j1] != l)
             {
               prior++;
+              i1j1 = (ewCols*(i))+j;
               edge += ew[ij];
             }
+            //mark5
             if (j + 1 < cols)
             {
               i1j1 = (cols*(i+1))+j+1;
               if (xt[i1j1] != l)
               {
                 prior++;
+                i1j1 = (swCols*(i))+j;
                 edge += sw[ij];
               }
             }
           }
+          //mark6
           if (j - 1 >= 0)
           {
             i1j1 = (cols*(i))+j-1;
             if (xt[i1j1] != l)
             {
               prior++;
+              i1j1 = (nsCols*(i))+j-1;
               edge += ns[i1j1];
             }
           }
+          //mark7
           if (j + 1 < cols)
           {
             i1j1 = (cols*(i))+j+1;
             if (xt[i1j1] != l)
             {
               prior++;
+              i1j1 = (nsCols*(i))+j;
               edge += ns[ij];
             }
           }
@@ -206,7 +245,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
           if ((x >= current) && (x <= (current + post[l] / sum)))
           {
             lij = (cols * rows * l) + (cols * i) + j;
-            ij = (cols*i) + j;
+            //ij = (cols*i) + j;
             xt[ij] = l;
             probs[lij] += 1.0;
           }
@@ -214,8 +253,14 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         }
       }
     }
+    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+    {
+      currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
+      data->progress = currentLoopCount / totalLoops * 100.0;
+      callbacks->EMMPM_ProgressStatsFunc(data);
+    }
   }
-
+  data->inside_mpm_loop = 0;
   /* Normalize probsobabilities */
   for (i = 0; i < rows; i++)
   {

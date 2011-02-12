@@ -1,7 +1,7 @@
 project (EMMPMLib)
 
 set (EMMPMLib_PROJECT_FILES "")
-option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
+
 
 # --------------------------------------------------------------------
 Macro(Add_EMMPMLib_Dir VarName Path)
@@ -18,7 +18,6 @@ Add_EMMPMLib_Dir(Private private)
 
 if (EMMPM_USE_MT_RNG)
     Add_EMMPMLib_Dir(mt mt)
-    add_definitions(-DUSE_MERSENNE_TWISTER)
 endif()
 # --------------------------------------------------------------------
 # Add in the configured headers

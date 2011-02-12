@@ -143,13 +143,17 @@ EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure()
   return callbacks;
 }
 
+#define EMMPM_FREE_POINTER(ptr)\
+  if (NULL != (ptr)) { free(ptr); (ptr) = NULL;}
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void EMMPM_FreeDataStructure(EMMPM_Data* data)
 {
-  free(data->input_file_name); data->input_file_name = NULL;
-  free(data->output_file_name); data->output_file_name = NULL;
+  EMMPM_FREE_POINTER(data->input_file_name)
+  EMMPM_FREE_POINTER(data->output_file_name)
+
   if (data->inputImage != NULL)
   {
     EMMPM_FreeTiffImageBuffer(data->inputImage);
@@ -161,20 +165,16 @@ void EMMPM_FreeDataStructure(EMMPM_Data* data)
     data->outputImage = NULL;
   }
 
-  free(data->y); data->y = NULL;
-  free(data->xt); data->xt = NULL;
- // free(data->w_gamma);
-  free(data->m); data->m = NULL;
-  free(data->v); data->v = NULL;
-//  free(data->N);
-  free(data->probs); data->probs = NULL;
-
-  if (NULL != data->ccost) free(data->ccost); data->ccost = NULL;
-  if (NULL != data->ns) free(data->ns); data->ns = NULL;
-  if (NULL != data->ew) free(data->ew); data->ew = NULL;
-  if (NULL != data->sw) free(data->sw); data->sw = NULL;
-  if (NULL != data->nw) free(data->nw); data->nw = NULL;
-
+  EMMPM_FREE_POINTER(data->y)
+  EMMPM_FREE_POINTER(data->xt)
+  EMMPM_FREE_POINTER(data->m)
+  EMMPM_FREE_POINTER(data->v)
+  EMMPM_FREE_POINTER(data->probs)
+  EMMPM_FREE_POINTER(data->ccost)
+  EMMPM_FREE_POINTER(data->ns)
+  EMMPM_FREE_POINTER(data->ew)
+  EMMPM_FREE_POINTER(data->sw)
+  EMMPM_FREE_POINTER(data->nw)
 
   free(data);
 }

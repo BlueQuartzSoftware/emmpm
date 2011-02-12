@@ -20,6 +20,8 @@
 /* What system is the library running */
 #define EMMPM_SYSTEM "@CMAKE_SYSTEM@"
 
+/* Should we use a more modern random number generator */
+#cmakedefine USE_MERSENNE_TWISTER @USE_MERSENNE_TWISTER@
 
 /* The Following include MUST appear AFTER EMMPM_BUILT_AS_DYNAMIC_LIB has been defined */
 #include "emmpm/common/DLLExport.h"

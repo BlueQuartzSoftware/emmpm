@@ -12,3 +12,8 @@ cmp_IDE_SOURCE_PROPERTIES("emmpm/apps" "${emmpm_HDRS}" "${emmpm_SRCS}"  "${CMP_I
 add_executable(emmpm ${emmpm_SRCS})
 target_link_libraries(emmpm EMMPMLib)
 cmp_ToolInstallationSupport(emmpm ${EXE_DEBUG_EXTENSION} ${emmpm_BINARY_DIR})
+
+
+add_executable(curve curvature.cpp)
+target_link_libraries(curve EMMPMLib)
+cmp_ToolInstallationSupport(curve ${EXE_DEBUG_EXTENSION} ${emmpm_BINARY_DIR})

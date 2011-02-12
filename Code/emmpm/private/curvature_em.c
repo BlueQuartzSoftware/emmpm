@@ -29,7 +29,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <stddef.h>
 #include <stdio.h>
-
+#include <string.h>
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/public/EMMPM_Structures.h"
@@ -50,9 +50,30 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   int cols = data->columns;
   int classes = data->classes;
 
+  float totalLoops = data->emIterations * data->mpmIterations;
+  float currentLoopCount = 0.0;
+
+  char msgbuff[256];
+  memset(msgbuff, 0, 256);
+  data->currentEMLoop = 0;
+  data->currentMPMLoop = 0;
+
+  data->workingBeta = data->in_beta;
+
   /* Perform EM */
   for (k = 0; k < data->emIterations; k++)
   {
+    data->inside_em_loop = 1;
+    data->currentEMLoop = k;
+    data->currentMPMLoop = 0;
+    currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
+
+    data->progress = currentLoopCount/totalLoops * 100.0;
+    if (callbacks->EMMPM_ProgressFunc != NULL) {
+      snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
+      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    }
+
     /* After CURVE_DELAY iterations, begin calculating curvature costs */
     if (k >= CURVE_DELAY)
     {
@@ -132,7 +153,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     {
       for (l = 0; l < classes; l++)
       {
-        printf(" *** Class %ud:\n", (int)(l+1));
+        printf(" *** Class %u:\n", (int)(l+1));
         printf("      m:  ");
         for (d = 0; d < dims; d++)
         {
@@ -150,8 +171,10 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
       printf(" **************************\n\n\n");
     }
 
+    EMMPM_ConvertXtToOutputImage(data, callbacks);
+
     /* Eliminate any classes that have zero probability */
-    for (kk = 0; kk < classes; kk++)
+    for (kk = 0; kk < classes; kk++) {
       if (data->N[kk] == 0)
       {
         for (l = kk; l < classes - 1; l++)
@@ -176,6 +199,11 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
         }
         classes = classes - 1;
       }
+    }
+    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+    {
+      callbacks->EMMPM_ProgressStatsFunc(data);
+    }
   }
-
+  data->inside_em_loop = 0;
 }
