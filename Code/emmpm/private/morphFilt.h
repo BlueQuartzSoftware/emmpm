@@ -45,7 +45,14 @@ EMMPM_EXPORT unsigned int maxi(int a, int b);
 
 EMMPM_EXPORT int mini(int a, int b);
 
-EMMPM_EXPORT void morphFilt(unsigned char **xt, unsigned char **curve, unsigned char** se, int r, unsigned int rows, unsigned int cols, int classes);
+/**
+ *
+ * @param data
+ * @param curve
+ * @param se
+ * @param r
+ */
+EMMPM_EXPORT void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r);
 
 EMMPM_EXPORT void multiSE(EMMPM_Data* data);
 

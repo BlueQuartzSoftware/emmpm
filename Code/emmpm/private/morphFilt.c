@@ -8,10 +8,11 @@
 
 /* Note: This is the function where I really got windowing right for the first time. */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include <math.h>
 
-#include "emmpm/public/EMMPM_Constants.h"
-#include "emmpm/common/allocate.h"
+#include <emmpm/private/morphFilt.h>
 
 
 #define NUM_SES 8
@@ -39,83 +40,140 @@ int mini(int a, int b) {
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void morphFilt(unsigned char **xt, unsigned char **curve, unsigned char** se, int r, unsigned int rows, unsigned int cols, int classes) {
-	unsigned char **erosion;
-	unsigned int i, j, l, maxr, maxc;
-	int ii, jj;
+void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
+{
+  unsigned char* erosion;
+  unsigned int i, j, l, maxr, maxc;
+  int ii, jj;
+  size_t ij, i1j1, iirjjr;
 
-	erosion = (unsigned char**)get_img(cols, rows, sizeof(unsigned char));
+  int rows = data->rows;
+  int cols = data->columns;
+  int classes = data->classes;
 
-	for (i = 0; i < rows; i++)
-		for (j = 0; j < cols; j++) {
-			curve[i][j] = classes;
-			l = xt[i][j];
-			erosion[i][j] = l;
-			maxr = mini(r, rows - 1 - i);
-			maxc = mini(r, cols - 1 - j);
-			for (ii = -mini(r, i); ii <= (int)maxr; ii++)
-				for (jj = -mini(r, j); jj <= (int)maxc && erosion[i][j] == l; jj++) {
-					if (se[ii + r][jj + r] == 1 && xt[i + ii][j + jj] != l)
-						erosion[i][j] = classes;
-				}
-		}
+  erosion = (unsigned char*)malloc(cols * rows * sizeof(unsigned char));
 
+  for (i = 0; i < rows; i++)
+  {
+    for (j = 0; j < cols; j++)
+    {
+      ij = (cols * i) + j;
 
+      curve[ij] = classes;
+      l = data->xt[ij];
+      erosion[ij] = l;
+      maxr = mini(r, rows - 1 - i);
+      maxc = mini(r, cols - 1 - j);
+      for (ii = -mini(r, i); ii <= (int)maxr; ii++)
+      {
+        for (jj = -mini(r, j); jj <= (int)maxc && erosion[ij] == l; jj++)
+        {
+          i1j1 = (cols * (i+ii)) + (j+jj);
+          iirjjr = (cols * (ii+r)) + (jj+r);
+          if (se[iirjjr] == 1 && data->xt[i1j1] != l)
+          {
+            erosion[ij] = classes;
+          }
+        }
+      }
+    }
+  }
 
-	for (ii = -r; ii <= r; ii++)
-		for (jj = -r; jj <= r; jj++)
-			if (se[ii + r][jj + r] == 1) {
-				maxr = rows - maxi(0, ii);
-				maxc = cols - maxi(0, jj);
-				for (i = maxi(0, -ii); i < maxr; i++)
-					for (j = maxi(0, -jj); j < maxc; j++) {
-						l = erosion[i][j];
-						if (l != classes)
-							curve[i + ii][j + jj] = l;
-					}
-			}
+  for (ii = -r; ii <= r; ii++)
+  {
+    for (jj = -r; jj <= r; jj++)
+    {
+      iirjjr = (cols * (ii+r)) + (jj+r);
+      if (se[iirjjr] == 1)
+      {
+        maxr = rows - maxi(0, ii);
+        maxc = cols - maxi(0, jj);
+        for (i = maxi(0, -ii); i < maxr; i++)
+          for (j = maxi(0, -jj); j < maxc; j++)
+          {
+            ij = (cols * i) + j;
+            l = erosion[ij];
+            if (l != classes) {
+              i1j1 = (cols * (i+ii)) + (j+jj);
+              curve[i1j1] = l;
+            }
+          }
+      }
+    }
+  }
 
-
-	free_img((void **)erosion);
+  free(erosion);
 }
 
-void multiSE(unsigned char **xt, double** ccost[], double r_max, unsigned int rows, unsigned int cols, int classes) {
-	unsigned int i, j, k;
-	int ii, jj, ri;
-	unsigned char **se, **curve;
-	double r, r_sq, pnlty;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void multiSE(EMMPM_Data* data)
+{
+  unsigned int i, j, k, l;
+  int ii, jj, ri;
+  unsigned char* se = NULL;
+  unsigned char* curve = NULL;
+  double r, r_sq, pnlty;
+  size_t ij, lij, iirijjri;
+ // int dims = data->dims;
+  int rows = data->rows;
+  int cols = data->columns;
+  int classes = data->classes;
 
-	pnlty = 1 / (double)NUM_SES;
+  pnlty = 1 / (double)NUM_SES;
 
-	curve = (unsigned char**)get_img(cols, rows, sizeof(unsigned char));
+  curve = (unsigned char*)malloc(cols * rows * sizeof(unsigned char));
 
-	for (k = 0; k < NUM_SES; k++) {
-		/* Calculate new r */
-		r = r_max / (k + 1);
+  for (k = 0; k < NUM_SES; k++)
+  {
+    /* Calculate new r */
+    r = data->r_max / (k + 1);
 
-		r_sq = r * r;
-		ri = (int)r;
+    r_sq = r * r;
+    ri = (int)r;
 
-		/* Create Morphological SE */
-		se = (unsigned char**)get_img(2 * ri + 1, 2 * ri + 1, sizeof(unsigned char));
-		for (ii = -((int)ri); ii <= (int)ri; ii++)
-			for (jj = -((int)ri); jj <= (int)ri; jj++)
-				if (ii * ii + jj * jj <= r_sq)
-					se[ii + ri][jj + ri] = 1;
-				else
-					se[ii + ri][jj + ri] = 0;
+    /* Create Morphological SE */
+    size_t se_cols = (2 * ri + 1);
+    size_t se_rows = (2 * ri + 1);
+    se = (unsigned char*)malloc(se_cols * se_rows * sizeof(unsigned char));
+    for (ii = -((int)ri); ii <= (int)ri; ii++)
+    {
+      for (jj = -((int)ri); jj <= (int)ri; jj++)
+      {
+        iirijjri = (se_cols * (ii+ri)) + (jj+ri);
+        if (ii * ii + jj * jj <= r_sq)
+        {
+          se[iirijjri] = 1;
+//          se[ii + ri][jj + ri] = 1;
+        }
+        else
+        {
+          se[iirijjri] = 0;
+//          se[ii + ri][jj + ri] = 0;
+        }
+      }
+    }
+    morphFilt(data, curve, se, ri);
 
-		morphFilt(xt, curve, se, ri, rows, cols, classes);
+    for (i = 0; i < rows; i++)
+    {
+      for (j = 0; j < cols; j++)
+      {
+        ij = (cols * i) + j;
+        l = curve[ij];
+        if (l == classes)
+        {
+          l = data->xt[ij];
+          lij = (cols * rows * l) + (cols * i) + j;
+          data->ccost[lij] += pnlty;
+        }
+      }
+    }
 
-		for (i = 0; i < rows; i++)
-			for (j = 0; j < cols; j++)
-				if (curve[i][j] == classes)
-					ccost[xt[i][j]][i][j] += pnlty;
+    free(se);
 
+  }
 
-		free_img((void **)se);
-
-	}
-
-	free_img((void **)curve);
+  free(curve);
 }

@@ -91,7 +91,7 @@ typedef struct
     double* m; /**< classes * dims array (classes is fastest moving dimension)*/
     double* v; /**< classes * dims array */
     double N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
-    double* probs; /**< classes * height * width (slowest to fastest)*/
+    double* probs; /**< classes * rows * cols (slowest to fastest)*/
     double workingBeta; /**<  */
 
     // -----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ typedef struct
     double beta_e; /**<  */
     double beta_c; /**<  */
     double r_max; /**<  */
-    double* ccost; /**<  */
+    double* ccost; /**< classes * rows * cols (slowest to fastest)*/
     double* ns; /**<  */
     double* ew; /**<  */
     double* sw; /**<  */

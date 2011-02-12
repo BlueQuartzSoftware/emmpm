@@ -36,7 +36,7 @@
 #include "InitializationFunctions.h"
 
 #include "emmpm/public/EMMPM.h"
-#include "emmpm/common/allocate.h"
+//#include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
 
 
@@ -57,7 +57,7 @@ void EMMPM_InitializeXtArray(EMMPM_Data* data)
   }
 }
 
-#if 0
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -66,50 +66,60 @@ void EMMPM_CurvatureInitialization(EMMPM_Data* data)
   int d;
   int i;
   int j;
-  size_t index;
+  size_t ld, ijd, ij, lij, ijd1;
   int l;
   double x;
+  int dims = data->dims;
+  int rows = data->rows;
+  int cols = data->columns;
+  int classes = data->classes;
 
  // We already have read the input image into the
-  data->yvec = (unsigned char ***)get_3d_img(data->rows, data->columns, data->dims, sizeof(unsigned char));
+ // data->y = (unsigned char ***)get_3d_img(data->rows, data->columns, data->dims, sizeof(unsigned char));
 
-  for ( d = 0; d < data->dims; d++)
-  {
-    for (i = 0; i < data->rows; i++)
-    {
-      for (j = 0; j < data->columns; j++)
-      {
-        index = data->columns * i + j;
-        data->yvec[i][j][d] = data->inputImage[index];
-      }
-    }
-  }
-  data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));
+//
+//  for ( d = 0; d < data->dims; d++)
+//  {
+//    for (i = 0; i < data->rows; i++)
+//    {
+//      for (j = 0; j < data->columns; j++)
+//      {
+//        index = data->columns * i + j;
+//        data->y[i][j][d] = data->inputImage[index];
+//      }
+//    }
+//  }
+//  data->xt = (unsigned char **)get_img(data->columns, data->rows, sizeof(char));
 
 
   /***  Choose initial conditions by placing means randomly
    and setting variances to 20 in each dimension (unless scalar image) ***/
-  for (l = 0; l < data->classes; l++)
+  for (l = 0; l < classes; l++)
   {
     /* Allocate */
-    data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
-    data->ccost[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
-    data->m[l] = (double *)malloc(data->dims * sizeof(double));
-    data->v[l] = (double *)malloc(data->dims * sizeof(double));
-    if (data->probs[l] == NULL || data->m[l] == NULL || data->v[l] == NULL)
+//    data->probs[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+//    data->ccost[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
+//    data->m[l] = (double *)malloc(data->dims * sizeof(double));
+//    data->v[l] = (double *)malloc(data->dims * sizeof(double));
+//    if (data->probs[l] == NULL || data->m[l] == NULL || data->v[l] == NULL)
+//    {
+//      printf("Warning:   Memory Disaster!!!\n");
+//      exit(1);
+//    }
+    if (dims == 1)
     {
-      printf("Warning:   Memory Disaster!!!\n");
-      exit(1);
+      ld = dims * l + d;
+      data->m[ld] = (128 + 255 * l) / classes;
+      data->v[ld] = 20;
     }
-    if (data->dims == 1)
+    else
     {
-      data->m[l][0] = (128 + 255 * l) / data->classes;
-      data->v[l][0] = 20;
-    }
-    else for (d = 0; d < data->dims; d++)
-    {
-      data->m[l][d] = rand() % 256;
-      data->v[l][d] = 20;
+      for (d = 0; d < data->dims; d++)
+      {
+        ld = dims * l + d;
+        data->m[ld] = genrand_int32() % 256;
+        data->v[ld] = 20;
+      }
     }
   }
 
@@ -118,48 +128,69 @@ void EMMPM_CurvatureInitialization(EMMPM_Data* data)
 
 
   /* Allocate for edge images */
-  data->ns = (double **)get_img(data->columns - 1, data->rows, sizeof(double));
-  data->ew = (double **)get_img(data->columns, data->rows - 1, sizeof(double));
-  data->sw = (double **)get_img(data->columns - 1, data->rows - 1, sizeof(double));
-  data->nw = (double **)get_img(data->columns - 1, data->rows - 1, sizeof(double));
+
+  data->ns = (double*)malloc(data->columns - 1 * data->rows * sizeof(double));
+  data->ew = (double*)malloc(data->columns * data->rows - 1 * sizeof(double));
+  data->sw = (double*)malloc(data->columns - 1 * data->rows - 1 * sizeof(double));
+  data->nw = (double*)malloc(data->columns - 1 * data->rows - 1 * sizeof(double));
+
 
 
   /* Do edge detection */
-  for (i = 0; i < data->rows; i++)
+  for (i = 0; i < rows; i++)
+  {
+    for (j = 0; j < cols - 1; j++)
+    {
+      x = 0;
+      for (d = 0; d < dims; d++)
+      {
+        ijd = (dims * cols * i) + ( dims * j) + d;
+        ijd1 = (dims * cols * (i)) + (dims * (j+1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (cols*i) + j;
+      data->ns[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
+    }
+  }
+  for (i = 0; i < rows - 1; i++)
+  {
+    for (j = 0; j < cols; j++)
+    {
+      x = 0;
+      for (d = 0; d < dims; d++)
+      {
+        ijd = (dims * cols * i) + ( dims * j) + d;
+        ijd1 = (dims * cols * (i+1)) + (dims * (j)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (cols*i) + j;
+      data->ew[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
+    }
+  }
+  for (i = 0; i < data->rows - 1; i++)
   {
     for (j = 0; j < data->columns - 1; j++)
     {
       x = 0;
       for (d = 0; d < data->dims; d++)
-        x += (data->yvec[i][j][d] - data->yvec[i][j + 1][d]) * (data->yvec[i][j][d] - data->yvec[i][j + 1][d]);
-      data->ns[i][j] = data->beta_e * atan((10 - sqrt(x)) / 5);
-    }
-  }
-  for (i = 0; i < data->rows - 1; i++)
-  {
-    for (j = 0; j < data->columns; j++)
-    {
+      {
+        ijd = (dims * cols * i) + ( dims * j) + d;
+        ijd1 = (dims * cols * (i+1)) + ( dims * (j+1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (cols*i) + j;
+      data->sw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
       x = 0;
       for (d = 0; d < data->dims; d++)
-        x += (data->yvec[i][j][d] - data->yvec[i + 1][j][d]) * (data->yvec[i][j][d] - data->yvec[i + 1][j][d]);
-      data->ew[i][j] = data->beta_e * atan((10 - sqrt(x)) / 5);
+      {
+        ijd = (dims * cols * (i+1)) + ( dims * (j)) + d;
+        ijd1 = (dims * cols * (i)) + ( dims * (j+1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (cols*i) + j;
+      data->nw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
     }
   }
-  for (i = 0; i < data->rows - 1; i++)
-  {
-    for (j = 0; j < data->columns - 1; j++)
-    {
-      x = 0;
-      for (d = 0; d < data->dims; d++)
-        x += (data->yvec[i][j][d] - data->yvec[i + 1][j + 1][d]) * (data->yvec[i][j][d] - data->yvec[i + 1][j + 1][d]);
-      data->sw[i][j] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
-      x = 0;
-      for (d = 0; d < data->dims; d++)
-        x += (data->yvec[i + 1][j][d] - data->yvec[i][j + 1][d]) * (data->yvec[i + 1][j][d] - data->yvec[i][j + 1][d]);
-      data->nw[i][j] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
-    }
-  }
-
 
   /* Initialize Curve Costs to zero */
   for (l = 0; l < data->classes; l++)
@@ -168,13 +199,17 @@ void EMMPM_CurvatureInitialization(EMMPM_Data* data)
     {
       for (j = 0; j < data->columns; j++)
       {
-        data->ccost[l][i][j] = 0;
+        {
+          lij = (cols*rows*l) + (cols*i) + j;
+          data->ccost[lij] = 0;
+        }
       }
     }
   }
 
+
+
 }
-#endif
 
 // -----------------------------------------------------------------------------
 //

@@ -121,7 +121,7 @@ int main(int argc,char *argv[])
       callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
       break;
     case EMMPM_CURVATURE_INITIALIZATION:
-    //  callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
+      callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
       break;
     default:
       break;
@@ -148,7 +148,7 @@ int main(int argc,char *argv[])
       break;
     case EMMPM_CurvaturePenalty:
       /* Run the Curvature Penalty version of the EM/MPM Algorithm */
-//      EMMPM_CurvaturePenaltyAlgo(data, callbacks);
+      EMMPM_CurvaturePenaltyAlgo(data, callbacks);
       break;
     default:
       callbacks->EMMPM_ProgressFunc("The Proper Algorithm was not selected. Nothing was done.", 100.0);

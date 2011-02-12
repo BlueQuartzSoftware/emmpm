@@ -34,9 +34,10 @@
 
 
 #include "emmpm/private/em.h"
+#include "emmpm/private/curvature_em.h"
 //#include "emmpm/private/curvature_em.h"
 #include "emmpm/common/entropy.h"
-#include "emmpm/common/allocate.h"
+//#include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
 #include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
@@ -111,7 +112,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
 // -----------------------------------------------------------------------------
 int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data)
 {
-  data->y = (unsigned char *)malloc(data->columns * data->rows*data->dims*sizeof(unsigned char));
+  data->y = (unsigned char *)malloc(data->columns * data->rows * data->dims * sizeof(unsigned char));
   if (NULL == data->y) return -1;
   data->xt = (unsigned char*)malloc(data->columns * data->rows * sizeof(unsigned char));
   if (NULL == data->xt) return -1;
@@ -368,7 +369,7 @@ void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   //int l;
 
-  int err = 0;
+ // int err = 0;
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
@@ -416,21 +417,21 @@ void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 // -----------------------------------------------------------------------------
 void EMMPM_CurvaturePenaltyAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
+ // int err = 0;
+
+  // Copy the input image into data->y arrays
+  EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
   init_genrand(143542612ul);
-  if (NULL == callbacks->EMMPM_InitializationFunc)
-  {
-    // Error No Inititalization function was specified
-    return;
-  }
 
   /* Initialization of parameter estimation */
-    callbacks->EMMPM_InitializationFunc(data);
+  callbacks->EMMPM_InitializationFunc(data);
 
-    printData(data);
+  printData(data);
 
-
- //   EMMPM_CurvatureEMLoops(data, callbacks);
-
+  EMMPM_CurvatureEMLoops(data, callbacks);
 
 
+  /* Allocate space for the output image, and copy a scaled xt
+   * and then write the output image.*/
+  EMMPM_ConvertXtToOutputImage(data, callbacks);
 }

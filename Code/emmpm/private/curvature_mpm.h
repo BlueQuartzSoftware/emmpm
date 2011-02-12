@@ -27,13 +27,12 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-#ifndef CURVATUREEM_H_
-#define CURVATUREEM_H_
+#ifndef CURVATURE_MPM_H_
+#define CURVATURE_MPM_H_
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Constants.h"
-#include "emmpm/public/EMMPM.h"
+#include "emmpm/public/EMMPM_Structures.h"
 
 
 #ifdef __cplusplus
@@ -47,7 +46,7 @@ extern "C" {
  * @param data a non NULL EMMPM_Data pointer
  * @param callbacks a non NULL EMMPM_CallbackFunctions
  */
-EMMPM_EXPORT void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }
@@ -55,4 +54,5 @@ EMMPM_EXPORT void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctio
 
 
 
-#endif /* CURVATUREEM_H_ */
+
+#endif /* CURVATURE_MPM_H_ */
