@@ -31,16 +31,11 @@
 #ifndef EMMPM_STRUCTURES_H_
 #define EMMPM_STRUCTURES_H_
 
+#include <stddef.h>
 
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/common/EMMPMTypes.h"
 
-enum EMMPM_Variation
-{
-  EMMPM_Basic = 0,
-  EMMPM_UserInitArea,
-  EMMPM_CurvaturePenalty
-};
 
 
 /**
@@ -61,7 +56,7 @@ typedef struct
     unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
     unsigned int dims; /**< The number of vector elements in the image.*/
-    unsigned int initType;  /**< The type of initialization algorithm to use  */
+    enum EMMPM_InitializationType initType;  /**< The type of initialization algorithm to use  */
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */
     unsigned int grayTable[EMMPM_MAX_CLASSES];
@@ -78,17 +73,14 @@ typedef struct
     char* output_file_name; /**< The name of the output file */
     unsigned char* outputImage; /**< The raw output image data which can be allocated by the library or the calling function. */
 
-    enum EMMPM_Variation algorithm; /**< Which algorithm to use for the EM/MPM */
-
     // -----------------------------------------------------------------------------
     //  Working Vars section - Internal Variables to the algorithm
     // -----------------------------------------------------------------------------
     unsigned char* y; /**< height*width*dims array of bytes */
-//    unsigned char* yvec; /**< */
     unsigned char* xt; /**< width*height array of bytes */
 
     double w_gamma[EMMPM_MAX_CLASSES]; /**<  */
-    double* m; /**< classes * dims array (classes is fastest moving dimension)*/
+    double* m; /**< classes * dims array (classes is slowest moving dimension)*/
     double* v; /**< classes * dims array */
     double N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
     double* probs; /**< classes * rows * cols (slowest to fastest)*/
@@ -97,6 +89,8 @@ typedef struct
     // -----------------------------------------------------------------------------
     //  Curvature Penalty Function Related variables
     // -----------------------------------------------------------------------------
+    char   useCurvaturePenalty; /**<  Use the curvature Penalty function */
+    size_t ccostLoopDelay; /**<  How many em loops until the Curvature Penalty is calculated   */
     double beta_e; /**<  */
     double beta_c; /**<  */
     double r_max; /**<  */

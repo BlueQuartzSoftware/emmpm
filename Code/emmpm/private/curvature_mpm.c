@@ -1,32 +1,38 @@
-/* ============================================================================
- * Copyright (c) 2010, Michael A. Jackson (BlueQuartz Software)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted probsovided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials probsovided with the distribution.
- *
- * Neither the name of Michael A. Jackson nor the names of its contributors may
- * be used to endorse or probsomote probsoducts derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*
+The Original EM/MPM algorithm was developed by Mary L. Comer and is distributed
+under the BSD License.
+Copyright (c) <2010>, <Mary L. Comer>
+All rights reserved.
+
+[1] Comer, Mary L., and Delp, Edward J.,  ÒThe EM/MPM Algorithm for Segmentation
+of Textured Images: Analysis and Further Experimental Results,Ó IEEE Transactions
+on Image Processing, Vol. 9, No. 10, October 2000, pp. 1731-1744.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the name of <Mary L. Comer> nor the names of its contributors may be
+used to endorse or promote products derived from this software without specific
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 /* acvmpm.c */
 
@@ -37,18 +43,14 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "emmpm/common/random.h"
+#include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
-#include "emmpm/common/random.h"
 
-
-//#include "allocate.h"
-#include "emmpm/common/random.h"
-//#define M_PI  3.14159265358979323846
-//#define EMMPM_MAX_CLASSES 15
-
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
-
-//void acvmpm(unsigned char ***y, double **ns, double **ew, double **sw, double **nw, unsigned char **xt, double **ccost[], double **pr[], double beta, double beta_c, double **m, double **v, unsigned int rows, unsigned int cols, int n, int classes, unsigned int dim)
 {
   double* yk;
   double sqrt2pi, current, con[EMMPM_MAX_CLASSES];
@@ -79,20 +81,17 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   float currentLoopCount = 0.0;
 
   size_t nsCols = data->columns - 1;
-  size_t nsRows = data->rows;
+ // size_t nsRows = data->rows;
   size_t ewCols = data->columns;
-  size_t ewRows = data->rows - 1;
+//  size_t ewRows = data->rows - 1;
   size_t swCols = data->columns - 1;
-  size_t swRows = data->rows - 1;
+//  size_t swRows = data->rows - 1;
   size_t nwCols = data->columns-1;
-  size_t nwRows = data->rows-1;
+//  size_t nwRows = data->rows-1;
 
   totalLoops = data->emIterations * data->mpmIterations;
   memset(msgbuff, 0, 256);
   data->progress++;
-  /* Allocate space for yk[][][] */
-  //	for (l = 0; l < classes; l++)
-  //		yk[l] = (double **)get_img(cols, rows, sizeof(double));
 
   yk = (double*)malloc(cols * rows * classes * sizeof(double));
 
@@ -265,7 +264,8 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     }
   }
   data->inside_mpm_loop = 0;
-  /* Normalize probsobabilities */
+
+  /* Normalize probabilities */
   for (i = 0; i < rows; i++)
   {
     for (j = 0; j < cols; j++)

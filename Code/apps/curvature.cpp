@@ -28,6 +28,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -40,9 +41,9 @@
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/public/EMMPMInputParser.h"
-#include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
+#include "emmpm/tiff/EMTiffIO.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -56,6 +57,7 @@ void UpdateStats(EMMPM_Data* data)
     memset(buff, 0, 256);
     snprintf(buff, 256, "/tmp/curvature_out_%d.tif", data->currentEMLoop);
     int err = EMMPM_WriteGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
+    std::cout << "Writing Image: " << buff << std::endl;
     if (err < 0)
     {
       std::cout << "Error writing intermediate tiff image." << std::endl;
@@ -68,7 +70,7 @@ void UpdateStats(EMMPM_Data* data)
       //    EMMPM_ShowProgress(msgbuff, data->progress);
       std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
     }
-
+#if 0
     double hist[EMMPM_MAX_CLASSES][256];
     // Generate a gaussian curve for each class based off the mu and sigma for that class
     for (int c = 0; c < data->classes; ++c)
@@ -98,6 +100,7 @@ void UpdateStats(EMMPM_Data* data)
         file << std::endl;
       }
     }
+#endif
   }
 
 }
@@ -112,20 +115,28 @@ int main(int argc, char **argv)
   EMMPM_Data* data = EMMPM_CreateDataStructure();
   EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 
+  const char* infilename = "/Users/Shared/Data/MNML-3_Tiles/MNML-3_Tile-09_769.tif"; // arg[4]
+  const char* outfilename = "/tmp/MNML-3_Tile-09_769_curve.tiff"; // arg[5]
+
+
+  data->useCurvaturePenalty = 1;
   data->in_beta = 1.5; // arg[1]
   data->beta_e = 1.5; // arg[2]
   data->beta_c = 0.0; // arg[3]
-  data->input_file_name = "/Users/Shared/Data/Rene88DT/slice000.tiff"; // arg[4]
-  data->output_file_name = "/tmp/slice000_curve.tiff"; // arg[5]
+  data->input_file_name = (char*)infilename;
+  data->output_file_name = (char*)outfilename;
   data->dims = 1; // arg[6]
   data->r_max = 0; // arg[7]
-  data->mpmIterations = 10; // arg[8]
-  data->emIterations = 10; // arg[9]
+  data->mpmIterations = 5; // arg[8]
+  data->emIterations = 5; // arg[9]
   data->classes = 3; // arg[10]
   data->grayTable[0] = 0;
   data->grayTable[1] = 128;
   data->grayTable[2] = 255;
-
+  data->currentMPMLoop = 3;
+  data->w_gamma[0] = 1.0;
+  data->w_gamma[1] = 1.0;
+  data->w_gamma[2] = 1.0;
 
   /* Set the Callback functions to provide feedback */
   callbacks->EMMPM_ProgressFunc = &EMMPM_PrintfProgress;
@@ -139,7 +150,8 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
+  //callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
+  callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
 
   std::cout << "EM/MPM Curvature Starting.... " << std::endl;
 
@@ -152,7 +164,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  EMMPM_CurvaturePenaltyAlgo(data, callbacks);
+  EMMPM_Run(data, callbacks);
 
   err = EMMPM_WriteOutputImage(data, callbacks);
   if (err < 0)

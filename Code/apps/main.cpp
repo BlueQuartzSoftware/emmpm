@@ -18,9 +18,9 @@
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/public/EMMPMInputParser.h"
-#include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
+#include "emmpm/tiff/EMTiffIO.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -33,6 +33,7 @@ void UpdateStats(EMMPM_Data* data)
     char buff[256];
     memset(buff, 0, 256);
     snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
+    std::cout << "Writing Image: " << buff << std::endl;
     int err = EMMPM_WriteGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
     if (err < 0)
     {
@@ -46,7 +47,7 @@ void UpdateStats(EMMPM_Data* data)
       //    EMMPM_ShowProgress(msgbuff, data->progress);
       std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
     }
-
+#if 0
     double hist[EMMPM_MAX_CLASSES][256];
     // Generate a gaussian curve for each class based off the mu and sigma for that class
     for (int c = 0; c < data->classes; ++c)
@@ -60,6 +61,7 @@ void UpdateStats(EMMPM_Data* data)
         hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
       }
     }
+
 
     memset(buff, 0, 256);
     snprintf(buff, 256, "/tmp/emmpm_hist_%d.csv", data->currentEMLoop);
@@ -76,6 +78,8 @@ void UpdateStats(EMMPM_Data* data)
         file << std::endl;
       }
     }
+#endif
+
   }
 
 }
@@ -115,13 +119,13 @@ int main(int argc,char *argv[])
   // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
-    case EMMPM_USER_DEFINED_AREA_INITIALIZATION:
+    case EMMPM_UserInitArea:
       callbacks->EMMPM_InitializationFunc = EMMPM_UserDefinedAreasInitialization;
       break;
-    case EMMPM_BASIC_INITIALIZATION:
+    case EMMPM_Basic:
       callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
       break;
-    case EMMPM_CURVATURE_INITIALIZATION:
+    case EMMPM_CurvaturePenalty:
       callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
       break;
     default:
@@ -140,21 +144,7 @@ int main(int argc,char *argv[])
   }
 
 
-  switch(data->algorithm)
-  {
-    case EMMPM_Basic:
-    case EMMPM_UserInitArea:
-      /* Run the Classic EM Loops */
-      EMMPM_StandardAlgo(data, callbacks);
-      break;
-    case EMMPM_CurvaturePenalty:
-      /* Run the Curvature Penalty version of the EM/MPM Algorithm */
-      EMMPM_CurvaturePenaltyAlgo(data, callbacks);
-      break;
-    default:
-      callbacks->EMMPM_ProgressFunc("The Proper Algorithm was not selected. Nothing was done.", 100.0);
-  }
-
+  EMMPM_Run(data, callbacks);
 
 
   err = EMMPM_WriteOutputImage(data, callbacks);

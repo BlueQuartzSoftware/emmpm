@@ -34,16 +34,9 @@
 #include "emmpm/common/DLLExport.h"
 #include "emmpm/public/EMMPM_Structures.h"
 
-#define EMMPM_BASIC_INITIALIZATION 0
-#define EMMPM_USER_DEFINED_AREA_INITIALIZATION 1
-#define EMMPM_MANUAL_INITIALIZATION 2
-#define EMMPM_CURVATURE_INITIALIZATION 3
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 
 /**
@@ -72,6 +65,13 @@ EMMPM_EXPORT void EMMPM_ManualInitialization(EMMPM_Data* data);
  * @param data The EMMPM_Data Pointer
  */
 EMMPM_EXPORT void EMMPM_CurvatureInitialization(EMMPM_Data* data);
+
+
+/**
+ *
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_InitCurvatureVariables(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }

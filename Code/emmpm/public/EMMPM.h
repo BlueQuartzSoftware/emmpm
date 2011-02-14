@@ -101,15 +101,8 @@ EMMPM_EXPORT void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackF
  * @param data The EMMPM_Structure to use
  * @param callbacks The list of callback functions
  */
-EMMPM_EXPORT void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
-
-/**
- * @brief
- * @param data The EMMPM_Structure to use
- * @param callbacks The list of callback functions
- */
-EMMPM_EXPORT void EMMPM_CurvaturePenaltyAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }

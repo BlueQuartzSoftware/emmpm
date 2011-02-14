@@ -33,11 +33,16 @@
 
 #include <math.h>
 
-#ifndef PI
-// #define PI  3.14159265358979323846
-#endif
-
 #define EMMPM_MAX_CLASSES 15
+
+
+enum EMMPM_InitializationType
+{
+  EMMPM_Basic = 0,
+  EMMPM_UserInitArea,
+  EMMPM_Manual,
+  EMMPM_CurvaturePenalty
+};
 
 
 #endif /* EMMPM_CONSTANTS_H_ */

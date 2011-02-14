@@ -37,15 +37,15 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 #include <math.h>
 
-#include "mpm.h"
-
-//#include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
 #include "emmpm/public/EMMPM.h"
+#include "emmpm/private/mpm.h"
+
 
 // -----------------------------------------------------------------------------
 //
@@ -74,10 +74,6 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   local_beta = data->workingBeta;
 
-  /* Allocate space for yk[][][] */
-  //	for (l = 0; l < classes; l++)
-  //		yk[l] = (double **)get_img(data->columns, data->rows, sizeof(double));
-
   yk = (double*)malloc(cols * rows * classes * sizeof(double));
 
   sqrt2pi = sqrt(2.0 * M_PI);
@@ -89,6 +85,7 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   }
 
   for (i = 0; i < data->rows; i++)
+  {
     for (j = 0; j < data->columns; j++)
     {
       ij = (cols * i) + j;
@@ -100,10 +97,12 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         yk[lij] = con[l] + ((mm - data->m[l]) * (mm - data->m[l]) / d[l]);
       }
     }
+  }
 
-  data->inside_mpm_loop = 1;
+  /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    data->inside_mpm_loop = 1;
     if (callbacks->EMMPM_ProgressFunc != NULL)
     {
       data->currentMPMLoop = k;

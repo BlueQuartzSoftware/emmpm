@@ -40,7 +40,30 @@
 extern "C" {
 #endif
 
+/**
+ *
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_ResetModelParameters(EMMPM_Data* data);
 
+/**
+ *
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_UpdateMeansAndVariances(EMMPM_Data* data);
+
+/**
+ *
+ * @param data
+ * @param callbacks
+ */
+EMMPM_EXPORT void EMMPM_MonitorMeansAndVariances(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+
+/**
+ *
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_RemoveZeroProbClasses(EMMPM_Data* data);
 
 /**
  * @brief

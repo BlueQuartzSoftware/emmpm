@@ -32,16 +32,13 @@
 #include <stdio.h>
 #include <math.h>
 
-
-#include "emmpm/private/em.h"
-#include "emmpm/private/curvature_em.h"
-//#include "emmpm/private/curvature_em.h"
 #include "emmpm/common/entropy.h"
-//#include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"
-#include "emmpm/tiff/EMTiffIO.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
+#include "emmpm/private/em.h"
+#include "emmpm/private/curvature_em.h"
+#include "emmpm/tiff/EMTiffIO.h"
 
 
 // -----------------------------------------------------------------------------
@@ -51,7 +48,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
 {
   EMMPM_Data* data = (EMMPM_Data*)(malloc(sizeof(EMMPM_Data)));
   int c;
-  data->algorithm = EMMPM_Basic;
+
   data->emIterations = 0;
   data->mpmIterations = 0;
   data->in_beta = 0.0;
@@ -60,7 +57,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->rows = 0;
   data->columns = 0;
   data->dims = 1;
-  data->initType = 0;
+  data->initType = EMMPM_Basic;
   for (c = 0; c < EMMPM_MAX_CLASSES; c++)
   {
     data->initCoords[c][0] = 0;
@@ -96,6 +93,8 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->inside_em_loop = 0;
   data->inside_mpm_loop = 0;
 
+  data->useCurvaturePenalty = 0;
+  data->ccostLoopDelay = 1;
   data->beta_e = 0.0;
   data->beta_c = 0.0;
   data->r_max = 0.0;
@@ -365,30 +364,27 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
+void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  //int l;
-
- // int err = 0;
-
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
   init_genrand(143542612ul);
 
   /* Check to make sure we have at least a basic initialization function setup */
-//  if (NULL == callbacks->EMMPM_InitializationFunc && data->dims == 1)
-//  {
-//    callbacks->EMMPM_InitializationFunc = &EMMPM_BasicInitialization;
-//  }
-//  else
-//  {
-//    char* msg = "Error: Classic Initialization does NOT work with vector images. Dims must = 1";
-//    callbacks->EMMPM_ProgressFunc(msg, 100.0);
-//    return;
-//  }
+  if (NULL == callbacks->EMMPM_InitializationFunc)
+  {
+    callbacks->EMMPM_InitializationFunc = &EMMPM_BasicInitialization;
+  }
+
 
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
+
+  if (data->useCurvaturePenalty != 0)
+  {
+    /* Initialize the Curvature Penalty variables */
+    EMMPM_InitCurvatureVariables(data);
+  }
 
 #if 0
   /* Allocate space for the output image, and copy a scaled xt
@@ -402,7 +398,14 @@ void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   printData(data);
 
-  EMMPM_PerformEMLoops(data, callbacks);
+  if (data->useCurvaturePenalty)
+  {
+    EMMPM_CurvatureEMLoops(data, callbacks);
+  }
+  else
+  {
+    EMMPM_PerformEMLoops(data, callbacks);
+  }
 
   /* Allocate space for the output image, and copy a scaled xt
    * and then write the output image.*/
@@ -412,26 +415,3 @@ void EMMPM_StandardAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 //  writeseed();
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void EMMPM_CurvaturePenaltyAlgo(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
-{
- // int err = 0;
-
-  // Copy the input image into data->y arrays
-  EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
-  init_genrand(143542612ul);
-
-  /* Initialization of parameter estimation */
-  callbacks->EMMPM_InitializationFunc(data);
-
-  printData(data);
-
-  EMMPM_CurvatureEMLoops(data, callbacks);
-
-
-  /* Allocate space for the output image, and copy a scaled xt
-   * and then write the output image.*/
-  EMMPM_ConvertXtToOutputImage(data, callbacks);
-}
