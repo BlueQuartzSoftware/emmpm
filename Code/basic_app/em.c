@@ -4,7 +4,7 @@
 
 /* Modified by Joel Dumke on 9/4/06 */
 
-#include <math.h>
+
 #include <stdlib.h>
 #include "tiff.h"
 #include "allocate.h"

@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include <math.h>
+
 
 #include <emmpm/private/morphFilt.h>
 
@@ -116,6 +116,8 @@ void multiSE(EMMPM_Data* data)
   unsigned char* curve = NULL;
   double r, r_sq, pnlty;
   size_t ij, lij, iirijjri;
+  size_t se_cols;
+  size_t se_rows;
  // int dims = data->dims;
   int rows = data->rows;
   int cols = data->columns;
@@ -134,8 +136,8 @@ void multiSE(EMMPM_Data* data)
     ri = (int)r;
 
     /* Create Morphological SE */
-    size_t se_cols = (2 * ri + 1);
-    size_t se_rows = (2 * ri + 1);
+    se_cols = (2 * ri + 1);
+    se_rows = (2 * ri + 1);
     se = (unsigned char*)malloc(se_cols * se_rows * sizeof(unsigned char));
     for (ii = -((int)ri); ii <= (int)ri; ii++)
     {

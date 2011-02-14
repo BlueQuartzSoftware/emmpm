@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+
 
 #include "emmpm/common/allocate.h"
 #include "emmpm/common/random.h"

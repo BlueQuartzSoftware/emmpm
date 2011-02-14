@@ -9,6 +9,7 @@ set (EMMPM_Common_HDRS
     ${EMMPMLib_SOURCE_DIR}/common/EMTime.h
     ${EMMPMLib_SOURCE_DIR}/common/entropy.h
     ${EMMPMLib_SOURCE_DIR}/common/random.h
+    ${EMMPMLib_SOURCE_DIR}/common/EMMPM_Math.h
 )
 
 if (NOT EMMPM_USE_MT_RNG)

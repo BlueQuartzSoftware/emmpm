@@ -28,8 +28,9 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include <math.h>
+
 #include <stdio.h>
+#include "emmpm/common/EMMPM_Math.h"
 
 void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes)
 {

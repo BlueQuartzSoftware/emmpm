@@ -41,8 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
-#include <math.h>
 
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
@@ -57,10 +57,6 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   double x, post[EMMPM_MAX_CLASSES], sum, edge;
   int k, l, prior;
   int i, j, d;
-
-  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
-  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
-
   size_t ld, ijd, ij, lij, i1j1;
   int dims = data->dims;
   int rows = data->rows;
@@ -89,7 +85,10 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   size_t nwCols = data->columns-1;
 //  size_t nwRows = data->rows-1;
 
-  totalLoops = data->emIterations * data->mpmIterations;
+  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
+  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
+
+  totalLoops = (float)(data->emIterations * data->mpmIterations);
   memset(msgbuff, 0, 256);
   data->progress++;
 

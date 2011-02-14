@@ -35,13 +35,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+
 #include <string.h>
 #include <stdlib.h>
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/public/EMMPM_Structures.h"
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/InitializationFunctions.h"
 #include "emmpm/private/em.h"
 
@@ -60,7 +61,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   int emiter = data->emIterations;
   double* simAnnealBetas = NULL;
 
-  float totalLoops = data->emIterations * data->mpmIterations;
+  float totalLoops = (float)(data->emIterations * data->mpmIterations);
   float currentLoopCount = 0.0;
 
   size_t ccostLoopDelay = data->ccostLoopDelay;

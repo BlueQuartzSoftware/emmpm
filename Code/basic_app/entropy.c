@@ -1,4 +1,4 @@
-#include <math.h>
+
 #include <stdio.h>
 
 void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes)

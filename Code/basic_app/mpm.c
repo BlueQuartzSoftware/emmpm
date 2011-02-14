@@ -2,7 +2,7 @@
 
 /* Modified by Joel Dumke on 9/4/06 */
 
-#include <math.h>
+
 #include "allocate.h"
 #include "random.h"
 #define PI  3.14159265358979323846

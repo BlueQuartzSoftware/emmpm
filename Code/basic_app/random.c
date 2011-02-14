@@ -6,7 +6,7 @@
 /* #include<pwd.h> */
 #include <stdio.h>
 //#include <stdlib.h>
-#include <math.h>
+
 #include <string.h>
 #define MAXPRIME  2147483647       /*  MAXPRIME = (2^31)-1     */
 #define PI        3.14159265358979323846

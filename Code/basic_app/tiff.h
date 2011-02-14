@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <math.h>
+
 
 
 struct TIFF_img {

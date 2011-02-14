@@ -7,13 +7,14 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+
 
 #include <iostream>
 #include <ostream>
 #include <fstream>
 #include <string>
 
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/public/EMMPM.h"

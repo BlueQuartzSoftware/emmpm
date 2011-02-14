@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+
 
 #include "emmpm/common/entropy.h"
 #include "emmpm/common/random.h"
@@ -196,6 +196,9 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunct
   int j;
   int d;
   size_t index = 0;
+  int width;
+  int height;
+  int dims;
 
   if (data->inputImageChannels == 0)
   {
@@ -211,9 +214,9 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunct
 
 
   /* Copy input image to y[][] */
-  int width = data->columns;
-  int height = data->rows;
-  int dims = data->dims;
+  width = data->columns;
+  height = data->rows;
+  dims = data->dims;
   dst = data->inputImage;
 
 

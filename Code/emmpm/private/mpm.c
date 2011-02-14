@@ -40,8 +40,8 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
-#include <math.h>
 
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/mpm.h"

@@ -30,15 +30,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 
 #include "InitializationFunctions.h"
 
-#include "emmpm/public/EMMPM.h"
-//#include "emmpm/common/allocate.h"
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
-
+#include "emmpm/public/EMMPM.h"
 
 // -----------------------------------------------------------------------------
 //

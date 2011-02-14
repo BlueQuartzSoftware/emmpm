@@ -31,7 +31,7 @@
 #ifndef EMMPM_CONSTANTS_H_
 #define EMMPM_CONSTANTS_H_
 
-#include <math.h>
+
 
 #define EMMPM_MAX_CLASSES 15
 
