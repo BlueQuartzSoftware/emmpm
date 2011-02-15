@@ -156,7 +156,6 @@ int main(int argc, char **argv)
   std::cout << "EM/MPM Curvature Starting.... " << std::endl;
 
   // Allocate all the memory here
-
   err = EMMPM_AllocateDataStructureMemory(data);
   if (err)
   {

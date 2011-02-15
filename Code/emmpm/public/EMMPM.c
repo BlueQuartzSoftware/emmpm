@@ -30,10 +30,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 
 #include "emmpm/common/entropy.h"
 #include "emmpm/common/random.h"
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
 #include "emmpm/private/em.h"
@@ -103,6 +104,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->sw = NULL;
   data->nw = NULL;
 
+  data->histograms = NULL;
   return data;
 }
 
@@ -111,20 +113,24 @@ EMMPM_Data* EMMPM_CreateDataStructure()
 // -----------------------------------------------------------------------------
 int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data)
 {
-  data->y = (unsigned char *)malloc(data->columns * data->rows * data->dims * sizeof(unsigned char));
+  if (NULL == data->y) { data->y = (unsigned char *)malloc(data->columns * data->rows * data->dims * sizeof(unsigned char));}
   if (NULL == data->y) return -1;
-  data->xt = (unsigned char*)malloc(data->columns * data->rows * sizeof(unsigned char));
+
+  if (NULL == data->xt) { data->xt = (unsigned char*)malloc(data->columns * data->rows * sizeof(unsigned char));}
   if (NULL == data->xt) return -1;
-//  data->w_gamma = (double*)malloc(data->classes * data->dims * sizeof(double));
-//  if (NULL == data->w_gamma) return -1;
-  data->m = (double*)malloc(data->classes * data->dims * sizeof(double));
+
+  if (NULL == data->m) { data->m = (double*)malloc(data->classes * data->dims * sizeof(double));}
   if (NULL == data->m) return -1;
-  data->v = (double*)malloc(data->classes * data->dims * sizeof(double));
+
+  if (NULL == data->v) { data->v = (double*)malloc(data->classes * data->dims * sizeof(double)); }
   if (NULL == data->v) return -1;
-//  data->N = (double*)malloc(data->classes * data->dims * sizeof(double));
-//  if (NULL == data->N) return -1;
-  data->probs = (double*)malloc(data->classes * data->columns * data->rows * sizeof(double));
+
+  if (NULL == data->probs) { data->probs = (double*)malloc(data->classes * data->columns * data->rows * sizeof(double));}
   if (NULL == data->probs) return -1;
+
+  if (NULL == data->histograms) { data->histograms = (double*)malloc(data->classes * data->dims * 256 * sizeof(double)); }
+  if (NULL == data->histograms) return -1;
+
 
   return 0;
 }
@@ -174,6 +180,7 @@ void EMMPM_FreeDataStructure(EMMPM_Data* data)
   EMMPM_FREE_POINTER(data->ew)
   EMMPM_FREE_POINTER(data->sw)
   EMMPM_FREE_POINTER(data->nw)
+  EMMPM_FREE_POINTER(data->histograms);
 
   free(data);
 }
@@ -243,8 +250,23 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   unsigned int i;
   unsigned int j;
   unsigned char* raster;
+  int d, l, ld;
   size_t gtindex = 0;
+  size_t* classCounts = NULL;
+  size_t x = 0;
 
+  double mu = 0.0;
+  double sig = 0.0;
+  double twoSigSqrd = 0.0f;
+  double constant = 0.0;
+  float sqrt2pi = sqrtf(2.0f * M_PI);
+  size_t histIdx = 0;
+  float pixelWeight = 0.0;
+  size_t totalPixels = 0;
+
+  // Initialize all the counts to Zero
+  classCounts = (size_t*)malloc(data->classes * sizeof(size_t));
+  memset(classCounts, 0, data->classes * sizeof(size_t));
 
   if (data->outputImage == NULL)
   {
@@ -252,14 +274,37 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   }
   raster = data->outputImage;
   index = 0;
+  totalPixels = data->rows * data->columns;
   for (i = 0; i < data->rows; i++)
   {
     for (j = 0; j < data->columns; j++)
     {
       gtindex = data->xt[ i*data->columns + j ];
+      classCounts[gtindex]++;
       raster[index++] = data->grayTable[gtindex];
     }
   }
+  // Now we have the counts for the number of pixels of each class.
+  // The "classes" loop could be its own threaded Task at this point
+  for (d = 0; d < data->dims; d++){
+    for (l = 0; l < data->classes; ++l)
+    {
+      pixelWeight = (float)(classCounts[l])/(float)(totalPixels);
+      ld = data->dims * l + d;
+      mu = data->m[ld];
+      sig = data->v[ld];
+      twoSigSqrd = sig * sig * 2.0f;
+      constant = 1.0f / (sig * sqrt2pi);
+      for (x = 0; x < 256; ++x)
+      {
+        histIdx = (256*data->classes*d) + (256*l) + x;
+        data->histograms[histIdx] = pixelWeight * constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
+      }
+    }
+  }
+
+
+  free(classCounts);
 }
 
 

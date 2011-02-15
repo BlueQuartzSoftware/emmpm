@@ -108,6 +108,12 @@ typedef struct
     int           currentMPMLoop; /**< The current MPM Loop  */
     float         progress; /**< A Percentage to indicate how far along the algorthm is.*/
 
+
+    // -----------------------------------------------------------------------------
+    //  Variables to hold the histograms for each class weighted by area fraction
+    // -----------------------------------------------------------------------------
+    double* histograms; /**< classes * dims * 256 */
+
     // -----------------------------------------------------------------------------
     //  User defined Pointer that can point to anything
     // -----------------------------------------------------------------------------
