@@ -31,6 +31,30 @@
 #ifndef EMMPM_H_
 #define EMMPM_H_
 
+/**
+
+Watch histogram to make sure EM loops is correct
+
+pittiness in regions to make sure MPM is correct
+
+smoothness of boundaries controlled Beta
+
+recession of boundary from original image to see if Gamma is correct.
+
+num of EM Loops controls the fit of the gaussians to the original histogram
+
+num of MPM loops controls the quality of the segmentation
+
+If segmented regions are too small then Gamma needs to be adjusted.
+
+Gamma is the chemical potential or magnetization.
+
+ */
+
+
+
+
+
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Structures.h"

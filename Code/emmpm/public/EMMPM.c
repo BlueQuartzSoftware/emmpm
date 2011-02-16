@@ -70,7 +70,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
     data->w_gamma[c] = 1.0;
   }
   data->verbose = 0;
-
+  data->cancel = 0;
 
   data->m = NULL;
   data->v = NULL;
@@ -286,15 +286,18 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   }
   // Now we have the counts for the number of pixels of each class.
   // The "classes" loop could be its own threaded Task at this point
+  printf("=============================\n");
   for (d = 0; d < data->dims; d++){
     for (l = 0; l < data->classes; ++l)
     {
       pixelWeight = (float)(classCounts[l])/(float)(totalPixels);
       ld = data->dims * l + d;
       mu = data->m[ld];
-      sig = data->v[ld];
+      sig = sqrt( data->v[ld] );
       twoSigSqrd = sig * sig * 2.0f;
       constant = 1.0f / (sig * sqrt2pi);
+
+      printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
       for (x = 0; x < 256; ++x)
       {
         histIdx = (256*data->classes*d) + (256*l) + x;
@@ -423,7 +426,7 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   {
     callbacks->EMMPM_InitializationFunc = &EMMPM_BasicInitialization;
   }
-
+  if (data->cancel) { data->progress = 100.0; return; }
 
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
@@ -433,6 +436,7 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     /* Initialize the Curvature Penalty variables */
     EMMPM_InitCurvatureVariables(data);
   }
+  if (data->cancel) { data->progress = 100.0; return; }
 
 #if 0
   /* Allocate space for the output image, and copy a scaled xt

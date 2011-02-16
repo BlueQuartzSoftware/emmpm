@@ -118,6 +118,7 @@ typedef struct
     //  User defined Pointer that can point to anything
     // -----------------------------------------------------------------------------
     void*    userData; /**< User defined Pointer that can point to anything */
+    char     cancel;
 } EMMPM_Data;
 
 /**

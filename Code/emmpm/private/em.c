@@ -224,6 +224,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
+    if (data->cancel) { data->progress = 100.0; return; }
     data->inside_em_loop = 1;
     data->currentEMLoop = k;
     data->currentMPMLoop = 0;
