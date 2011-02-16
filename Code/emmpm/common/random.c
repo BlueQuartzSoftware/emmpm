@@ -9,7 +9,9 @@
 
 #include <string.h>
 #define MAXPRIME  2147483647       /*  MAXPRIME = (2^31)-1     */
-#define PI        3.14159265358979323846
+/* #define PI        3.14159265358979323846 */
+
+#include "emmpm/common/EMMPM_Math.h"
 
 /* PORTABILITY 1:  The functions in this file assume that a long is 32 bits
       and a short is 16 bits.  These conventions are machine dependent and
@@ -229,7 +231,7 @@ double normal()
   }
   else
   {
-    theta = 2 * PI * genrand_real2();
+    theta = 2 * M_PI * genrand_real2();
     r = sqrt(-2 * log(genrand_real2()));
     a = r * cos(theta);
     b = r * sin(theta);
