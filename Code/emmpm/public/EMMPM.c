@@ -259,6 +259,8 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   double sig = 0.0;
   double twoSigSqrd = 0.0f;
   double constant = 0.0;
+  double variance = 0.0;
+
   float sqrt2pi = sqrtf(2.0f * M_PI);
   size_t histIdx = 0;
   float pixelWeight = 0.0;
@@ -286,18 +288,18 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   }
   // Now we have the counts for the number of pixels of each class.
   // The "classes" loop could be its own threaded Task at this point
-  printf("=============================\n");
+  //printf("=============================\n");
   for (d = 0; d < data->dims; d++){
     for (l = 0; l < data->classes; ++l)
     {
       pixelWeight = (float)(classCounts[l])/(float)(totalPixels);
       ld = data->dims * l + d;
       mu = data->m[ld];
-      sig = sqrt( data->v[ld] );
-      twoSigSqrd = sig * sig * 2.0f;
+      variance = data->v[ld];
+      sig = sqrt( data->v[ld] ); // Sigma is the Square Root of the Variance
+      twoSigSqrd = variance * 2.0f; // variance is Sigma Squared, so just use the Variance value
       constant = 1.0f / (sig * sqrt2pi);
-
-      printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
+      //printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
       for (x = 0; x < 256; ++x)
       {
         histIdx = (256*data->classes*d) + (256*l) + x;
