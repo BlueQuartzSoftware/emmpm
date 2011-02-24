@@ -256,7 +256,7 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   size_t x = 0;
 
   double mu = 0.0;
-  double sig = 0.0;
+  double stdDev = 0.0;
   double twoSigSqrd = 0.0f;
   double constant = 0.0;
   double variance = 0.0;
@@ -296,9 +296,9 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
       ld = data->dims * l + d;
       mu = data->m[ld];
       variance = data->v[ld];
-      sig = sqrt( data->v[ld] ); // Sigma is the Square Root of the Variance
-      twoSigSqrd = variance * 2.0f; // variance is Sigma Squared, so just use the Variance value
-      constant = 1.0f / (sig * sqrt2pi);
+      stdDev = sqrt( data->v[ld] ); // Standard Deviation is the Square Root of the Variance
+      twoSigSqrd = variance * 2.0f; // variance is StdDev Squared, so just use the Variance value
+      constant = 1.0f / (stdDev * sqrt2pi);
       //printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
       for (x = 0; x < 256; ++x)
       {
