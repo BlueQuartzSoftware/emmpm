@@ -51,9 +51,21 @@ Gamma is the chemical potential or magnetization.
 
  */
 
+/**
+ x = pixel grey level
+ mu = mean
+ sigma = standard deviation
+
+ Gaussian Distribution(x; mu, sigma) = ( 1/ (sigma * sqrt(28Pi))) * exp( -(x - mu)^2 / (2 *sigma^2));
+
+ Variance computed as sigma^2 = { SUM(x - mu)^2 } /  N
+
+ where N is the population.
+
+ Standard Deviation is the Square Root of Variance.
 
 
-
+ */
 
 
 #include "emmpm/common/EMMPMTypes.h"
