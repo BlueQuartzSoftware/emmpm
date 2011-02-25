@@ -200,7 +200,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (ewCols*(i))+j;
-              edge += ew[ij];
+              edge += ew[i1j1];
             }
             //mark5
             if (j + 1 < cols)
@@ -210,7 +210,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               {
                 prior++;
                 i1j1 = (swCols*(i))+j;
-                edge += sw[ij];
+                edge += sw[i1j1];
               }
             }
           }
@@ -233,7 +233,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (nsCols*(i))+j;
-              edge += ns[ij];
+              edge += ns[i1j1];
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
