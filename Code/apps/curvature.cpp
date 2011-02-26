@@ -115,7 +115,7 @@ int main(int argc, char **argv)
   EMMPM_Data* data = EMMPM_CreateDataStructure();
   EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 
-  const char* infilename = "/Users/Shared/Data/MNML-3_Tiles/MNML-3_Tile-09_769.tif"; // arg[4]
+  const char* infilename = "/Users/Shared/Data/MNML-5_Tiles/MNML-5_Tile-26_611.tif"; // arg[4]
   const char* outfilename = "/tmp/MNML-3_Tile-09_769_curve.tiff"; // arg[5]
 
 

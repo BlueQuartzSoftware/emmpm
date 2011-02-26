@@ -79,11 +79,13 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
     }
   }
 
+  int h = r - -r + 1;
+  int w = r - -r + 1;
   for (ii = -r; ii <= r; ii++)
   {
     for (jj = -r; jj <= r; jj++)
     {
-      iirjjr = (cols * (ii+r)) + (jj+r);
+      iirjjr = (w * (ii+r)) + (jj+r);
       if (se[iirjjr] == 1)
       {
         maxr = rows - maxi(0, ii);

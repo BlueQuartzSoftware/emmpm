@@ -33,7 +33,11 @@ void UpdateStats(EMMPM_Data* data)
   {
     char buff[256];
     memset(buff, 0, 256);
+#if (_WIN32)
+
+#else
     snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
+#endif
     std::cout << "Writing Image: " << buff << std::endl;
     int err = EMMPM_WriteGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
     if (err < 0)
