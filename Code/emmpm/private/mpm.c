@@ -102,6 +102,7 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
     if (callbacks->EMMPM_ProgressFunc != NULL)
     {
@@ -162,22 +163,21 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   }
   data->inside_mpm_loop = 0;
 
-  /* Normalize probabilities */
-  for (i = 0; i < data->rows; i++)
+  if (!data->cancel)
   {
-    for (j = 0; j < data->columns; j++)
+  /* Normalize probabilities */
+    for (i = 0; i < data->rows; i++)
     {
-      for (l = 0; l < classes; l++)
+      for (j = 0; j < data->columns; j++)
       {
-        lij = (cols * rows * l) + (cols * i) + j;
-        data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
+        for (l = 0; l < classes; l++)
+        {
+          lij = (cols * rows * l) + (cols * i) + j;
+          data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
+        }
       }
     }
   }
-
-  /* Clean Up */
-//  for (l = 0; l < classes; l++)
-//    EMMPM_free_img((void **)yk[l]);
-
+  /* Clean up the memory */
   free(yk);
 }
