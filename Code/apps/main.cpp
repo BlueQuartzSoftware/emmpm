@@ -133,6 +133,9 @@ int main(int argc,char *argv[])
     case EMMPM_CurvaturePenalty:
       callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
       break;
+    case EMMPM_ManualInit:
+      callbacks->EMMPM_InitializationFunc = EMMPM_ManualInitialization;
+      break;
     default:
       break;
   }

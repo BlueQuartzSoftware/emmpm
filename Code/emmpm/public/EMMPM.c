@@ -430,6 +430,28 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   }
   if (data->cancel) { data->progress = 100.0; return; }
 
+#if 0
+  // Set the initialization function based on the command line arguments
+  switch(data->initType)
+  {
+    case EMMPM_ManualInit:
+      printf("Manuual Init\n");
+      break;
+    case EMMPM_Basic:
+      printf("Basic Init\n");
+      break;
+    case EMMPM_CurvaturePenalty:
+      printf("Curvature Init\n");
+      break;
+    case EMMPM_UserInitArea:
+      printf("User Init\n");
+      break;
+    default:
+      printf("No Initialization was Set\n");
+      break;
+  }
+#endif
+
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
 
