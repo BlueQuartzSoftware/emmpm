@@ -34,7 +34,7 @@ void UpdateStats(EMMPM_Data* data)
     char buff[256];
     memset(buff, 0, 256);
 #if (_WIN32)
-
+    snprintf(buff, 256, "C:\\Data\\emmpm_out_%d.tif", data->currentEMLoop);
 #else
     snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
 #endif
@@ -100,14 +100,37 @@ int main(int argc,char *argv[])
   EMMPM_Data* data = EMMPM_CreateDataStructure();
   EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 
-  /* Parse the comand line arguments */
+  /* Parse the command line arguments */
   EMMPMInputParser parser;
   int err = parser.parseCLIArguments(argc, argv, data);
+#if 1 
   if (err < 0)
   {
     printf("Error trying to parse the arguments.\n");
     return 0;
   }
+#else
+  data->input_file_name = "C:\\Data\\MNML-5_Tile-26_610.tif";
+  data->output_file_name = "C:\\Data\\segmented.tif";
+  data->emIterations = 5;
+  data->mpmIterations = 5;
+  data->in_beta = 1.0;
+  data->classes = 2;
+  data->dims = 1;
+  data->initType = EMMPM_CurvaturePenalty;
+  data->simulatedAnnealing = 1;
+  data->grayTable[0] = 0;
+  data->grayTable[1] = 255;
+  data->verbose = 1;
+  data->w_gamma[0] = 0.1;
+  data->w_gamma[1] = 1.0;
+  data->useCurvaturePenalty = 1;
+  data->ccostLoopDelay = 1;
+  data->beta_e = 1.0;
+  data->beta_c = 0.0;
+  data->r_max = 1.0;
+#endif
+
 
   /* Set the Callback functions to provide feedback */
   callbacks->EMMPM_ProgressFunc = &EMMPM_PrintfProgress;
