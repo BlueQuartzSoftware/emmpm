@@ -53,26 +53,41 @@
 void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
 {
-  double local_beta;
-  char msgbuff[256];
-
   double* yk;
-  double sqrt2pi, current, con[EMMPM_MAX_CLASSES], d[EMMPM_MAX_CLASSES];
-  double x, post[EMMPM_MAX_CLASSES], sum;
-  int i, j, k, l, mm, prior[EMMPM_MAX_CLASSES];
-  int ij, lij;
-  float totalLoops;
-  float currentLoopCount = 0.0;
+  double sqrt2pi, current, con[EMMPM_MAX_CLASSES];
+  double x, post[EMMPM_MAX_CLASSES], sum, edge;
+  int k, l, prior;
+  int i, j, d[EMMPM_MAX_CLASSES];
+  size_t ld, ijd, ij, lij, i1j1;
+  int dims = data->dims;
   int rows = data->rows;
   int cols = data->columns;
   int classes = data->classes;
+  unsigned char* y = data->y;
+  unsigned char* xt = data->xt;
+  double* probs = data->probs;
+  double* m = data->m;
+  double* v = data->v;
+  double* ccost = data->ccost;
+  double* ns = data->ns;
+  double* ew = data->ew;
+  double* sw = data->sw;
+  double* nw = data->nw;
+  char msgbuff[256];
+  float totalLoops;
+  float currentLoopCount = 0.0;
+  double local_beta;
 
-  classes = data->classes;
-  totalLoops = data->emIterations * data->mpmIterations;
+  double mm;
+
+  local_beta = data->in_beta;
+
+  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
+  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
+
+  totalLoops = (float)(data->emIterations * data->mpmIterations);
   memset(msgbuff, 0, 256);
   data->progress++;
-
-  local_beta = data->workingBeta;
 
   yk = (double*)malloc(cols * rows * classes * sizeof(double));
 
@@ -80,21 +95,21 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   for (l = 0; l < classes; l++)
   {
-    con[l] = -log(sqrt2pi * sqrt(data->v[l]));
-    d[l] = -2.0 * data->v[l];
+    con[l] = -log(sqrt2pi * sqrt(v[l]));
+    d[l] = -2.0 * v[l];
   }
 
-  for (i = 0; i < data->rows; i++)
+  for (i = 0; i < rows; i++)
   {
-    for (j = 0; j < data->columns; j++)
+    for (j = 0; j < cols; j++)
     {
       ij = (cols * i) + j;
-      mm = data->y[ij];
+      mm = y[ij];
       for (l = 0; l < classes; l++)
       {
         lij = (cols * rows * l) + (cols * i) + j;
-        data->probs[lij] = 0; // reset content of (16)
-        yk[lij] = con[l] + ((mm - data->m[l]) * (mm - data->m[l]) / d[l]);
+        probs[lij] = 0; // reset content of (16)
+        yk[lij] = con[l] + ((mm - m[l]) * (mm - m[l]) / d[l]);
       }
     }
   }
@@ -110,45 +125,103 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
       callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
     }
-    for (i = 0; i < data->rows; i++)
+
+    for (i = 0; i < rows; i++)
     {
-      for (j = 0; j < data->columns; j++)
+      for (j = 0; j < cols; j++)
       {
+        ij = (cols * i) + j;
         sum = 0;
         for (l = 0; l < classes; l++)
         {
-          lij = (cols * rows * l) + (cols * i) + j;
-
-          prior[l] = 0;
+          prior = 0;
           if (i - 1 >= 0)
           {
-            if (j - 1 >= 0) if (data->xt[(cols*(i-1))+j- 1] != l) (prior[l])++;
-            if (data->xt[(cols*(i-1))+j] != l) (prior[l])++;
-            if (j + 1 < data->columns) if (data->xt[(cols*(i-1))+j+ 1] != l) (prior[l])++;
-          }
-          if (i + 1 < data->rows)
-          {
-            if (j - 1 >= 0) if (data->xt[(cols*(i+1))+j- 1] != l) (prior[l])++;
-            if (data->xt[(cols*(i+1))+j] != l) (prior[l])++;
-            if (j + 1 < data->columns) if (data->xt[(cols*(i+1))+j+ 1] != l) (prior[l])++;
-          }
-          if (j - 1 >= 0) if (data->xt[(cols*(i))+j- 1] != l) (prior[l])++;
-          if (j + 1 < data->columns) if (data->xt[(cols*(i))+j+ 1] != l) (prior[l])++;
+            if (j - 1 >= 0)
+            {
+              i1j1 = (cols*(i-1))+j-1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+              }
+            }
 
-          post[l] = exp(yk[lij] - local_beta * (double)(prior[l]) - data->w_gamma[l]);
+            //mark1
+            i1j1 = (cols*(i-1))+j;
+            if (xt[i1j1] != l)
+            {
+              prior++;
+            }
+            //mark2
+            if (j + 1 < cols)
+            {
+              i1j1 = (cols*(i-1))+j+1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+              }
+            }
+          }
+
+          //mark3
+          if (i + 1 < rows)
+          {
+            if (j - 1 >= 0)
+            {
+              i1j1 = (cols*(i+1))+j-1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+              }
+            }
+            //mark4
+            i1j1 = (cols*(i+1))+j;
+            if (xt[i1j1] != l)
+            {
+              prior++;
+            }
+            //mark5
+            if (j + 1 < cols)
+            {
+              i1j1 = (cols*(i+1))+j+1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+              }
+            }
+          }
+          //mark6
+          if (j - 1 >= 0)
+          {
+            i1j1 = (cols*(i))+j-1;
+            if (xt[i1j1] != l)
+            {
+              prior++;
+            }
+          }
+          //mark7
+          if (j + 1 < cols)
+          {
+            i1j1 = (cols*(i))+j+1;
+            if (xt[i1j1] != l)
+            {
+              prior++;
+            }
+          }
+          lij = (cols * rows * l) + (cols * i) + j;
+          post[l] = exp(yk[lij] - local_beta * (double)(prior) - data->w_gamma[l]);
           sum += post[l];
         }
         x = genrand_real2();
         current = 0;
-
         for (l = 0; l < classes; l++)
         {
           lij = (cols * rows * l) + (cols * i) + j;
           ij = (cols*i)+j;
           if ((x >= current) && (x <= (current + post[l] / sum)))
           {
-            data->xt[ij] = l;
-            data->probs[lij] += 1.0;
+            xt[ij] = l;
+            probs[lij] += 1.0;
           }
           current += post[l] / sum;
         }
@@ -166,14 +239,14 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   if (!data->cancel)
   {
   /* Normalize probabilities */
-    for (i = 0; i < data->rows; i++)
+    for (i = 0; i < rows; i++)
     {
-      for (j = 0; j < data->columns; j++)
+      for (j = 0; j < cols; j++)
       {
         for (l = 0; l < classes; l++)
         {
           lij = (cols * rows * l) + (cols * i) + j;
-          data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
+          probs[lij] = probs[lij] / (double)data->mpmIterations;
         }
       }
     }

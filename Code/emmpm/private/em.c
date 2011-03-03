@@ -35,14 +35,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <string.h>
-#include <stdlib.h>
+
 
 #include "emmpm/common/EMMPMTypes.h"
-#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/public/EMMPM_Structures.h"
+#include "emmpm/common/EMMPM_Math.h"
+#include "emmpm/public/InitializationFunctions.h"
 #include "emmpm/private/em.h"
 #include "emmpm/private/mpm.h"
 

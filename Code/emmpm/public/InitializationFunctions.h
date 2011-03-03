@@ -68,10 +68,16 @@ EMMPM_EXPORT void EMMPM_CurvatureInitialization(EMMPM_Data* data);
 
 
 /**
- *
+ * @brief Initialize the Curvature Penalty variables
  * @param data
  */
 EMMPM_EXPORT void EMMPM_InitCurvatureVariables(EMMPM_Data* data);
+
+/**
+ * @brief Initialize the Edge Gradient variables
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_InitializeGradientVariables(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }

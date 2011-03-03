@@ -90,6 +90,7 @@ typedef struct
     //  Curvature Penalty Function Related variables
     // -----------------------------------------------------------------------------
     char   useCurvaturePenalty; /**<  Use the curvature Penalty function */
+    char   useGradientPenalty; /**< Use the Gradient Penalty function */
     size_t ccostLoopDelay; /**<  How many em loops until the Curvature Penalty is calculated   */
     double beta_e; /**<  */
     double beta_c; /**<  */

@@ -75,6 +75,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   char msgbuff[256];
   float totalLoops;
   float currentLoopCount = 0.0;
+  double local_beta;
 
   size_t nsCols = data->columns - 1;
  // size_t nsRows = data->rows;
@@ -238,17 +239,17 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
-          post[l] = exp(yk[lij] - data->in_beta * (double)prior - edge - data->beta_c * ccost[lij]);
+          post[l] = exp(yk[lij] - (data->in_beta * (double)prior) - edge - (data->beta_c * ccost[lij]) - data->w_gamma[l]);
           sum += post[l];
         }
         x = genrand_real2();
         current = 0;
         for (l = 0; l < classes; l++)
         {
+          lij = (cols * rows * l) + (cols * i) + j;
+          ij = (cols*i)+j;
           if ((x >= current) && (x <= (current + post[l] / sum)))
           {
-            lij = (cols * rows * l) + (cols * i) + j;
-            //ij = (cols*i) + j;
             xt[ij] = l;
             probs[lij] += 1.0;
           }

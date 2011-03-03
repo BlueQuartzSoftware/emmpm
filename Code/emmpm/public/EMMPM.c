@@ -95,6 +95,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->inside_mpm_loop = 0;
 
   data->useCurvaturePenalty = 0;
+  data->useGradientPenalty = 0;
   data->ccostLoopDelay = 1;
   data->beta_e = 0.0;
   data->beta_c = 0.0;
@@ -430,36 +431,20 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   }
   if (data->cancel) { data->progress = 100.0; return; }
 
-#if 0
-  // Set the initialization function based on the command line arguments
-  switch(data->initType)
-  {
-    case EMMPM_ManualInit:
-      printf("Manuual Init\n");
-      break;
-    case EMMPM_Basic:
-      printf("Basic Init\n");
-      break;
-    case EMMPM_CurvaturePenalty:
-      printf("Curvature Init\n");
-      break;
-    case EMMPM_UserInitArea:
-      printf("User Init\n");
-      break;
-    default:
-      printf("No Initialization was Set\n");
-      break;
-  }
-#endif
+
+  /* Initialize the Curvature Penalty variables:  */
+  EMMPM_InitCurvatureVariables(data);
+
+  /* Initialize the Edge Gradient Penalty variables */
+  EMMPM_InitializeGradientVariables(data);
+
 
   /* Initialization of parameter estimation */
   callbacks->EMMPM_InitializationFunc(data);
 
-  if (data->useCurvaturePenalty != 0)
-  {
-    /* Initialize the Curvature Penalty variables */
-    EMMPM_InitCurvatureVariables(data);
-  }
+  /* Initialize classification of each pixel randomly with a uniform disribution */
+  EMMPM_InitializeXtArray(data);
+
   if (data->cancel) { data->progress = 100.0; return; }
 
 #if 0
@@ -474,14 +459,14 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   printData(data);
 
-  if (data->useCurvaturePenalty)
+//  if (data->useCurvaturePenalty)
   {
     EMMPM_CurvatureEMLoops(data, callbacks);
   }
-  else
-  {
-    EMMPM_PerformEMLoops(data, callbacks);
-  }
+//  else
+//  {
+//    EMMPM_PerformEMLoops(data, callbacks);
+//  }
 
   /* Allocate space for the output image, and copy a scaled xt
    * and then write the output image.*/

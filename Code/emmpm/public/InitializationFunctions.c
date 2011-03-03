@@ -41,7 +41,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
+void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
 {
   size_t ijd, ij, lij, ijd1, i, j, d, l;
 
@@ -51,94 +51,102 @@ void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
   size_t ewRows = data->rows - 1;
   size_t swCols = data->columns - 1;
   size_t swRows = data->rows - 1;
-  size_t nwCols = data->columns-1;
-  size_t nwRows = data->rows-1;
+  size_t nwCols = data->columns - 1;
+  size_t nwRows = data->rows - 1;
 
   int dims = data->dims;
   double x;
 
   /* Allocate for edge images */
 
-    data->ns = (double*)malloc(nsCols * nsRows * sizeof(double));
-    data->ew = (double*)malloc(ewCols * ewRows * sizeof(double));
-    data->sw = (double*)malloc(swCols * swRows * sizeof(double));
-    data->nw = (double*)malloc(nwCols * nwRows * sizeof(double));
-    data->ccost = (double*)malloc(data->classes * data->rows * data->columns * sizeof(double));
+  data->ns = (double*)malloc(nsCols * nsRows * sizeof(double));
+  data->ew = (double*)malloc(ewCols * ewRows * sizeof(double));
+  data->sw = (double*)malloc(swCols * swRows * sizeof(double));
+  data->nw = (double*)malloc(nwCols * nwRows * sizeof(double));
 
-
-    /* Do edge detection */
-    for (i = 0; i < data->rows; i++)
+  /* Do edge detection for gradient penalty*/
+  for (i = 0; i < data->rows; i++)
+  {
+    for (j = 0; j < nwCols; j++)
     {
-      for (j = 0; j < nwCols; j++)
+      x = 0;
+      for (d = 0; d < dims; d++)
       {
-        x = 0;
-        for (d = 0; d < dims; d++)
-        {
-          ijd = (dims * nwCols * i) + ( dims * j) + d;
-          ijd1 = (dims * nwCols * (i)) + (dims * (j+1)) + d;
-          x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
-        }
-        ij = (nwCols*i) + j;
-        data->ns[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
+        ijd = (dims * nwCols * i) + (dims * j) + d;
+        ijd1 = (dims * nwCols * (i)) + (dims * (j + 1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
       }
+      ij = (nwCols * i) + j;
+      data->ns[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
     }
-    for (i = 0; i < nwRows; i++)
+  }
+  for (i = 0; i < nwRows; i++)
+  {
+    for (j = 0; j < data->columns; j++)
+    {
+      x = 0;
+      for (d = 0; d < dims; d++)
+      {
+        ijd = (dims * data->columns * i) + (dims * j) + d;
+        ijd1 = (dims * data->columns * (i + 1)) + (dims * (j)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (data->columns * i) + j;
+      data->ew[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
+    }
+  }
+  nwCols = data->columns - 1;
+  nwRows = data->rows - 1;
+  for (i = 0; i < nwRows; i++)
+  {
+    for (j = 0; j < nwCols; j++)
+    {
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+      {
+        ijd = (dims * data->columns * i) + (dims * j) + d;
+        ijd1 = (dims * data->columns * (i + 1)) + (dims * (j + 1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (nwCols * i) + j;
+      data->sw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
+      x = 0;
+      for (d = 0; d < data->dims; d++)
+      {
+        ijd = (dims * data->columns * (i + 1)) + (dims * (j)) + d;
+        ijd1 = (dims * data->columns * (i)) + (dims * (j + 1)) + d;
+        x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
+      }
+      ij = (nwCols * i) + j;
+      data->nw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
+    }
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
+{
+  int l, i, j, lij;
+
+  data->ccost = (double*)malloc(data->classes * data->rows * data->columns * sizeof(double));
+
+  /* Initialize Curve Costs to zero */
+  for (l = 0; l < data->classes; l++)
+  {
+    for (i = 0; i < data->rows; i++)
     {
       for (j = 0; j < data->columns; j++)
       {
-        x = 0;
-        for (d = 0; d < dims; d++)
         {
-          ijd = (dims * data->columns * i) + ( dims * j) + d;
-          ijd1 = (dims * data->columns * (i+1)) + (dims * (j)) + d;
-          x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
-        }
-        ij = (data->columns*i) + j;
-        data->ew[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
-      }
-    }
-    nwCols = data->columns-1;
-    nwRows = data->rows-1;
-    for (i = 0; i < nwRows; i++)
-    {
-      for (j = 0; j < nwCols; j++)
-      {
-        x = 0;
-        for (d = 0; d < data->dims; d++)
-        {
-          ijd = (dims * data->columns * i) + ( dims * j) + d;
-          ijd1 = (dims * data->columns * (i+1)) + ( dims * (j+1)) + d;
-          x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
-        }
-        ij = (nwCols*i) + j;
-        data->sw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
-        x = 0;
-        for (d = 0; d < data->dims; d++)
-        {
-          ijd = (dims * data->columns * (i+1)) + ( dims * (j)) + d;
-          ijd1 = (dims * data->columns * (i)) + ( dims * (j+1)) + d;
-          x += (data->y[ijd] - data->y[ijd1]) * (data->y[ijd] - data->y[ijd1]);
-        }
-        ij = (nwCols*i) + j;
-        data->nw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
-      }
-    }
-
-    /* Initialize Curve Costs to zero */
-    for (l = 0; l < data->classes; l++)
-    {
-      for (i = 0; i < data->rows; i++)
-      {
-        for (j = 0; j < data->columns; j++)
-        {
-          {
-            lij = (data->columns*data->rows*l) + (data->columns*i) + j;
-            data->ccost[lij] = 0;
-          }
+          lij = (data->columns * data->rows * l) + (data->columns * i) + j;
+          data->ccost[lij] = 0;
         }
       }
     }
-
+  }
 }
 
 
@@ -192,9 +200,6 @@ void EMMPM_CurvatureInitialization(EMMPM_Data* data)
       }
     }
   }
-
-  /* Initialize classification of each pixel randomly with a uniform disribution */
-  EMMPM_InitializeXtArray(data);
 }
 
 // -----------------------------------------------------------------------------
@@ -257,7 +262,6 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   {
     data->v[l] = 20.0;
   }
-  EMMPM_InitializeXtArray(data);
 }
 
 // -----------------------------------------------------------------------------
@@ -314,8 +318,6 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   {
     data->v[l] = 20.0;
   }
-
-  EMMPM_InitializeXtArray(data);
 }
 
 // -----------------------------------------------------------------------------
@@ -323,5 +325,5 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_ManualInitialization(EMMPM_Data* data)
 {
-  EMMPM_InitializeXtArray(data);
+  //TODO: Does this really need anything to be done?
 }
