@@ -50,7 +50,25 @@
 
 #include "emmpm/common/EMMPMVersion.h"
 #include "emmpm/common/EMTime.h"
-//#include "emmpm/common/allocate.h"
+
+#define PIXEL8_TO_GREYVALUE(pal, palIndex, out)\
+    r = pal[0][palIndex]; g = pal[1][palIndex]; b = pal[2][palIndex];\
+    if (r == b && r == g)\
+    { bitmapData[temp] = r; }\
+    else {\
+      R = r * 0.299; G = g * 0.587; B = b * 0.114;\
+      out = (unsigned char)(R + G + B);\
+    }
+
+#define PIXEL24_TO_GREYVALUE(in, out)\
+  r = in[0]; g = in[1]; b = in[2];\
+  if (r == g && r == b) \
+    out = r;\
+  else {\
+    R = r * 0.299; G = g * 0.587; B = b * 0.144;\
+    out = (unsigned char)(R + G + B);\
+  }
+
 
 // -----------------------------------------------------------------------------
 //
@@ -162,9 +180,11 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   // The collapse is done IN PLACE
   src = raster;
   dst = raster;
+  unsigned char r, g, b;
+  float R,G,B;
   while (pixel_count > 0)
   {
-    *(dst) = (unsigned char)((float)src[0] * 0.299f + (float)src[1] * 0.587f + (float)src[2] * 0.114f);
+    PIXEL24_TO_GREYVALUE(src, *(dst));
     dst++;
     src += 4; //skip ahead by 4 bytes because we read the raw array into an RGBA array.
     pixel_count--;
