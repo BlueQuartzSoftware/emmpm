@@ -179,8 +179,9 @@ void init_genrand(unsigned long num)
 /** @brief  Writes random # generator seed from file: /tmp/randomseedmlc */
 void writeseed()
 {
-  printf("+ Writing Random Seed '%d' to file /tmp/randomseedmlc", emmpm_rnd_tmp);
   FILE* fp1;
+  printf("+ Writing Random Seed '%d' to file /tmp/randomseedmlc", emmpm_rnd_tmp);
+  
   //char *calloc();
   fp1 = fopen("/tmp/randomseedmlc", "w");
   if ( NULL == fp1)

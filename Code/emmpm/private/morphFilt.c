@@ -45,6 +45,7 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
   unsigned char* erosion;
   unsigned int i, j, l, maxr, maxc;
   int ii, jj;
+  int h, w; 
   size_t ij, i1j1, iirjjr;
 
   int rows = data->rows;
@@ -79,8 +80,8 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
     }
   }
 
-  int h = r - -r + 1;
-  int w = r - -r + 1;
+  h = r - -r + 1;
+  w = r - -r + 1;
   for (ii = -r; ii <= r; ii++)
   {
     for (jj = -r; jj <= r; jj++)
