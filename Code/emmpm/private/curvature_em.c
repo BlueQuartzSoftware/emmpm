@@ -82,6 +82,41 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     data->workingBeta = simAnnealBetas[0];
   }
 
+
+  /* Perform a single MPM Loop to get things initialized. This is Jeff Simmons'
+   * idea and is a good idea.  */
+  k = 0; // Simulate first loop of EM by setting k=0;
+  // Possibly update the beta value due to simulated Annealing
+  if (data->simulatedAnnealing)  {
+    data->workingBeta = simAnnealBetas[k];
+  }
+
+  /* After curveLoopDelay iterations, begin calculating curvature costs */
+  if (k >= ccostLoopDelay)
+  {
+    if (callbacks->EMMPM_ProgressFunc != NULL)
+      {
+        snprintf(msgbuff, 256, "Performing Morphological Filter on input data", 0);
+        callbacks->EMMPM_ProgressFunc(msgbuff, 0);
+      }
+    multiSE(data);
+  }
+
+  if (callbacks->EMMPM_ProgressFunc != NULL)
+  {
+    snprintf(msgbuff, 256, "Performing Initial MPM Loop", 0);
+    callbacks->EMMPM_ProgressFunc(msgbuff, 0);
+  }
+  /* Perform initial MPM - (Estimation) */
+  acvmpm(data, callbacks);
+
+  EMMPM_ConvertXtToOutputImage(data, callbacks);
+  if (callbacks->EMMPM_ProgressFunc != NULL)
+  {
+    snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
+    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+  }
+
   /* Perform EM Loops*/
   for (k = 0; k < emiter; k++)
   {
@@ -93,25 +128,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
 
     data->progress = currentLoopCount/totalLoops * 100.0;
-    if (callbacks->EMMPM_ProgressFunc != NULL) {
-      snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
-      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
-    }
 
-    // Possibly update the beta value due to simulated Annealing
-    if (data->simulatedAnnealing)  {
-      data->workingBeta = simAnnealBetas[k];
-    }
-
-    /* After curveLoopDelay iterations, begin calculating curvature costs */
-    if (k >= ccostLoopDelay)
-    {
-      multiSE(data);
-    }
-
-    /* Perform MPM - (Estimation) */
-    //acvmpm(y, ns, ew, sw, nw, xt, ccost, probs, beta, beta_c, m, v, rows, columns, mpmiter, classes, dims);
-    acvmpm(data, callbacks);
 
     /* Reset model parameters to zero */
     EMMPM_ResetModelParameters(data);
@@ -127,17 +144,32 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 #endif
 
-    EMMPM_ConvertXtToOutputImage(data, callbacks);
-
 #if 1
     /* Eliminate any classes that have zero probability */
     EMMPM_RemoveZeroProbClasses(data);
 #endif
 
+    // Possibly update the beta value due to simulated Annealing
+    if (data->simulatedAnnealing)  {
+     data->workingBeta = simAnnealBetas[k];
+    }
+
+    /* After curveLoopDelay iterations, begin calculating curvature costs */
+    if (k >= ccostLoopDelay)
+    {
+     multiSE(data);
+    }
+
+    /* Perform MPM - (Estimation) */
+    //acvmpm(y, ns, ew, sw, nw, xt, ccost, probs, beta, beta_c, m, v, rows, columns, mpmiter, classes, dims);
+    acvmpm(data, callbacks);
+
+    EMMPM_ConvertXtToOutputImage(data, callbacks);
     if (NULL != callbacks->EMMPM_ProgressStatsFunc)
     {
       callbacks->EMMPM_ProgressStatsFunc(data);
     }
+
   } /* EM Loop End */
 
   data->inside_em_loop = 0;
