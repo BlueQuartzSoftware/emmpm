@@ -412,9 +412,6 @@ void printData(EMMPM_Data* data)
 #endif
 }
 
-
-
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -467,11 +464,6 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 //  {
 //    EMMPM_PerformEMLoops(data, callbacks);
 //  }
-
-  /* Allocate space for the output image, and copy a scaled xt
-   * and then write the output image.*/
-  EMMPM_ConvertXtToOutputImage(data, callbacks);
-
 
 //  writeseed();
 }

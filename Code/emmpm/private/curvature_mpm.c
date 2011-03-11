@@ -129,6 +129,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    data->currentMPMLoop = k;
     if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
     if (callbacks->EMMPM_ProgressFunc != NULL)
@@ -136,6 +137,12 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       data->currentMPMLoop = k;
       snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
       callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    }
+    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+    {
+      currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
+      data->progress = currentLoopCount / totalLoops * 100.0;
+      callbacks->EMMPM_ProgressStatsFunc(data);
     }
 
     for (i = 0; i < rows; i++)
@@ -257,12 +264,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         }
       }
     }
-    if (NULL != callbacks->EMMPM_ProgressStatsFunc)
-    {
-      currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
-      data->progress = currentLoopCount / totalLoops * 100.0;
-      callbacks->EMMPM_ProgressStatsFunc(data);
-    }
+
   }
   data->inside_mpm_loop = 0;
 
