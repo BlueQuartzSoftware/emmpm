@@ -131,6 +131,8 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   unsigned short orientation;
   int err;
   int width, height;
+  unsigned char r, g, b;
+  float R,G,B;
 
   bitspersample = 0;
   samplesperpixel = 0;
@@ -180,8 +182,7 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   // The collapse is done IN PLACE
   src = raster;
   dst = raster;
-  unsigned char r, g, b;
-  float R,G,B;
+
   while (pixel_count > 0)
   {
     PIXEL24_TO_GREYVALUE(src, *(dst));
