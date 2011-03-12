@@ -92,7 +92,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   }
 
   /* After curveLoopDelay iterations, begin calculating curvature costs */
-  if (k >= ccostLoopDelay)
+  if (k >= ccostLoopDelay && data->useCurvaturePenalty)
   {
     if (callbacks->EMMPM_ProgressFunc != NULL)
       {
@@ -163,7 +163,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 
     /* After curveLoopDelay iterations, begin calculating curvature costs */
-    if (k >= ccostLoopDelay)
+    if (k >= ccostLoopDelay && data->useCurvaturePenalty)
     {
      multiSE(data);
     }
