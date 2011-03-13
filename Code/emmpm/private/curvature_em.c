@@ -60,7 +60,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   int emiter = data->emIterations;
   double* simAnnealBetas = NULL;
 
-  float totalLoops = (float)(data->emIterations * data->mpmIterations);
+  float totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
   float currentLoopCount = 0.0;
 
   size_t ccostLoopDelay = data->ccostLoopDelay;
@@ -92,11 +92,11 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   }
 
   /* After curveLoopDelay iterations, begin calculating curvature costs */
-  if (k >= ccostLoopDelay)
+  if (k >= ccostLoopDelay && data->useCurvaturePenalty)
   {
     if (callbacks->EMMPM_ProgressFunc != NULL)
       {
-        snprintf(msgbuff, 256, "Performing Morphological Filter on input data", 0);
+        snprintf(msgbuff, 256, "Performing Morphological Filter on input data");
         callbacks->EMMPM_ProgressFunc(msgbuff, 0);
       }
     multiSE(data);
@@ -104,7 +104,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
 
   if (callbacks->EMMPM_ProgressFunc != NULL)
   {
-    snprintf(msgbuff, 256, "Performing Initial MPM Loop", 0);
+    snprintf(msgbuff, 256, "Performing Initial MPM Loop");
     callbacks->EMMPM_ProgressFunc(msgbuff, 0);
   }
   /* Perform initial MPM - (Estimation) */
@@ -163,7 +163,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 
     /* After curveLoopDelay iterations, begin calculating curvature costs */
-    if (k >= ccostLoopDelay)
+    if (k >= ccostLoopDelay && data->useCurvaturePenalty)
     {
      multiSE(data);
     }
@@ -173,15 +173,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     acvmpm(data, callbacks);
   } /* EM Loop End */
 
-  if (NULL != callbacks->EMMPM_ProgressStatsFunc)
-  {
-    callbacks->EMMPM_ProgressStatsFunc(data);
-  }
-  if (callbacks->EMMPM_ProgressFunc != NULL)
-  {
-    snprintf(msgbuff, 256, "EM Loop %d", data->currentEMLoop);
-    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
-  }
+  EMMPM_ConvertXtToOutputImage(data, callbacks);
 
   data->inside_em_loop = 0;
   free(simAnnealBetas);

@@ -55,11 +55,11 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   double* yk;
   double sqrt2pi, current, con[EMMPM_MAX_CLASSES];
-  double x, post[EMMPM_MAX_CLASSES], sum, edge;
+  double x, post[EMMPM_MAX_CLASSES], sum;
   int k, l, prior;
   int i, j, d[EMMPM_MAX_CLASSES];
-  size_t ld, ijd, ij, lij, i1j1;
-  int dims = data->dims;
+  size_t ij, lij, i1j1;
+//  int dims = data->dims;
   int rows = data->rows;
   int cols = data->columns;
   int classes = data->classes;
@@ -68,11 +68,11 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   double* probs = data->probs;
   double* m = data->m;
   double* v = data->v;
-  double* ccost = data->ccost;
-  double* ns = data->ns;
-  double* ew = data->ew;
-  double* sw = data->sw;
-  double* nw = data->nw;
+//  double* ccost = data->ccost;
+//  double* ns = data->ns;
+//  double* ew = data->ew;
+//  double* sw = data->sw;
+//  double* nw = data->nw;
   char msgbuff[256];
   float totalLoops;
   float currentLoopCount = 0.0;
@@ -212,7 +212,7 @@ void mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
           post[l] = exp(yk[lij] - local_beta * (double)(prior) - data->w_gamma[l]);
           sum += post[l];
         }
-        x = genrand_real2();
+        x = genrand_real2(data->rngVars);
         current = 0;
         for (l = 0; l < classes; l++)
         {

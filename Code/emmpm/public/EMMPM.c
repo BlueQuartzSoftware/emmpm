@@ -106,6 +106,8 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->nw = NULL;
 
   data->histograms = NULL;
+
+  data->rngVars = NULL;
   return data;
 }
 
@@ -131,7 +133,6 @@ int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data)
 
   if (NULL == data->histograms) { data->histograms = (double*)malloc(data->classes * data->dims * 256 * sizeof(double)); }
   if (NULL == data->histograms) return -1;
-
 
   return 0;
 }
@@ -182,6 +183,7 @@ void EMMPM_FreeDataStructure(EMMPM_Data* data)
   EMMPM_FREE_POINTER(data->sw)
   EMMPM_FREE_POINTER(data->nw)
   EMMPM_FREE_POINTER(data->histograms);
+  EMMPM_FREE_POINTER(data->rngVars);
 
   free(data);
 }
@@ -417,9 +419,12 @@ void printData(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
+  char msgbuff[256];
+  memset(msgbuff, 0, 256);
+
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
-  init_genrand(143542612ul);
+  data->rngVars = init_genrand(143542612ul);
 
   /* Check to make sure we have at least a basic initialization function setup */
   if (NULL == callbacks->EMMPM_InitializationFunc)
@@ -465,6 +470,20 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 //    EMMPM_PerformEMLoops(data, callbacks);
 //  }
 
+  data->progress = 100.0;
+  if (NULL != callbacks->EMMPM_ProgressStatsFunc)
+  {
+    callbacks->EMMPM_ProgressStatsFunc(data);
+  }
+  if (callbacks->EMMPM_ProgressFunc != NULL)
+  {
+    snprintf(msgbuff, 256, "EM/MPM Completed.");
+    callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+  }
+
+
+  freeRandStruct(data->rngVars);
+  data->rngVars = NULL;
 //  writeseed();
 }
 

@@ -43,7 +43,7 @@
 // -----------------------------------------------------------------------------
 void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
 {
-  size_t ijd, ij, lij, ijd1, i, j, d, l;
+  size_t ijd, ij, ijd1, i, j, d;
 
   size_t nsCols = data->columns - 1;
   size_t nsRows = data->rows;
@@ -162,7 +162,7 @@ void EMMPM_InitializeXtArray(EMMPM_Data* data)
   /* Initialize classification of each pixel randomly with a uniform disribution */
   for (i = 0; i < total; i++)
   {
-      l = genrand_real2() * data->classes;
+      l = genrand_real2(data->rngVars) * data->classes;
       data->xt[i] = l;
   }
 }

@@ -38,6 +38,11 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Initializes the XT (Label Map) array
+ * @param data
+ */
+EMMPM_EXPORT void EMMPM_InitializeXtArray(EMMPM_Data* data);
 
 /**
  * @brief The standard EM/MPM initialization functions
