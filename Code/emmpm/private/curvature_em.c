@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/InitializationFunctions.h"
-#include "emmpm/private/em.h"
+//#include "emmpm/private/em.h"
 
 #include "curvature_em.h"
 #include "morphFilt.h"

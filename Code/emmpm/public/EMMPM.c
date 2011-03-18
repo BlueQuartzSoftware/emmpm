@@ -37,7 +37,7 @@
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
-#include "emmpm/private/em.h"
+//#include "emmpm/private/em.h"
 #include "emmpm/private/curvature_em.h"
 #include "emmpm/tiff/EMTiffIO.h"
 
