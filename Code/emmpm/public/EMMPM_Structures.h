@@ -63,6 +63,7 @@ typedef struct
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */
     unsigned int grayTable[EMMPM_MAX_CLASSES];
+    double min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
     char verbose; /**<  */
     char inside_em_loop;
     char inside_mpm_loop;

@@ -28,6 +28,9 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#error DO NOT USE THIS CODE ANYMORE. THE NECESSARY CHANGES ARE ALREADY IN THE EMMPM LIBRARY\
+  TO USE THE CURVATURE AND GRADIENT PENALTIES.
+
 #include <string.h>
 #include <stdlib.h>
 

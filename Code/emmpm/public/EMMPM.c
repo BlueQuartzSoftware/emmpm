@@ -37,7 +37,6 @@
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
-//#include "emmpm/private/em.h"
 #include "emmpm/private/curvature_em.h"
 #include "emmpm/tiff/EMTiffIO.h"
 
@@ -68,6 +67,7 @@ EMMPM_Data* EMMPM_CreateDataStructure()
     data->grayTable[c] = 0;
     data->N[c] = 0.0;
     data->w_gamma[c] = 1.0;
+    data->min_variance[c] = 1.0;
   }
   data->verbose = 0;
   data->cancel = 0;
