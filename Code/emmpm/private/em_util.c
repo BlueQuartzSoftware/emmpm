@@ -128,6 +128,13 @@ void EMMPM_UpdateMeansAndVariances(EMMPM_Data* data)
       data->v[ld] = data->v[ld] / data->N[l];
     }
   }
+
+  for (l = 0; l < classes; l++)
+   {
+     if (data->v[l] < data->min_variance[l])
+       data->v[l] = data->min_variance[l];
+   }
+
 }
 
 // -----------------------------------------------------------------------------
