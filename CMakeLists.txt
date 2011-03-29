@@ -1,6 +1,6 @@
 #///////////////////////////////////////////////////////////////////////////////
 #
-#  Copyright (c) 2010, Michael A. Jackson. BlueQuartz Software
+#  Copyright (c) 2011, Michael A. Jackson. BlueQuartz Software
 #  All rights reserved.
 #  BSD License: http://www.opensource.org/licenses/bsd-license.html
 #

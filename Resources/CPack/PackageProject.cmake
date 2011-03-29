@@ -6,25 +6,44 @@
 #//
 #///////////////////////////////////////////////////////////////////////////////
 
+# ------------------------------------------------------------------------------ 
+# This CMake code sets up for CPack to be used to generate native installers
+# ------------------------------------------------------------------------------
+if (MSVC)
+    # Skip the install rules, we only want to gather a list of the system libraries
+    SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP 1)
+    #SET(CMAKE_INSTALL_DEBUG_LIBRARIES OFF)
+    
+    # Gather the list of system level runtime libraries
+    INCLUDE (InstallRequiredSystemLibraries)
+    
+    # Our own Install rule for Release builds of the MSVC runtime libs
+    IF (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+      INSTALL(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+        DESTINATION bin
+        PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ
+        COMPONENT Applications
+        CONFIGURATIONS Release)
+    ENDIF (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+endif()
 
 # ------------------------------------------------------------------------------ 
 # This CMake code sets up for CPack to be used to generate native installers
 # ------------------------------------------------------------------------------
-INCLUDE (${CMP_INSTALLATION_SUPPORT_SOURCE_DIR}/InstallMSVCLibraries.cmake)
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "GUI Application that runs various image processing algorithms through a plugin interface.")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library and Executable for the EM/MPM Segmentation Algorithm")
 SET(CPACK_PACKAGE_VENDOR "BlueQuartz Software, Michael A. Jackson")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_BINARY_DIR}/ReadMe.txt")
 SET(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_BINARY_DIR}/License.txt")
-SET(CPACK_PACKAGE_VERSION_MAJOR ${IPHelper_VER_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${IPHelper_VER_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${IPHelper_VER_PATCH})
-SET(CPACK_PACKAGE_VERSION ${IPHelper_VERSION})
+SET(CPACK_PACKAGE_VERSION_MAJOR ${EMMPM_VER_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${EMMPM_VER_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${EMMPM_VER_PATCH})
+SET(CPACK_PACKAGE_VERSION ${EMMPM_VERSION})
 SET(CPACK_COMPONENTS_ALL Applications)
 set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "Applications")
 set(CPACK_COMPONENT_APPLICATIONS_DESCRIPTION  "Applications that run the EM/MPM algorithm")
 set(CPACK_COMPONENT_APPLICATIONS_REQUIRED 1)
 set(CPACK_PACKAGE_EXECUTABLES
-    IPHelper IPHelper
+    emmpm emmpm
 )
 
 IF (APPLE)
