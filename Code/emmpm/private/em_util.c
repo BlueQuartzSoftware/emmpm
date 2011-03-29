@@ -43,8 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "emmpm/public/EMMPM_Structures.h"
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/InitializationFunctions.h"
-#include "emmpm/private/em.h"
-#include "emmpm/private/mpm.h"
+#include "emmpm/private/em_util.h"
+//#include "emmpm/private/mpm.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -128,6 +128,13 @@ void EMMPM_UpdateMeansAndVariances(EMMPM_Data* data)
       data->v[ld] = data->v[ld] / data->N[l];
     }
   }
+
+  for (l = 0; l < classes; l++)
+   {
+     if (data->v[l] < data->min_variance[l])
+       data->v[l] = data->min_variance[l];
+   }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -191,7 +198,7 @@ void EMMPM_RemoveZeroProbClasses(EMMPM_Data* data)
     }
   }
 }
-
+#if 0
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -274,3 +281,4 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   data->inside_em_loop = 0;
   free(simAnnealBetas);
 }
+#endif

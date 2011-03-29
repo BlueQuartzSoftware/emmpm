@@ -75,7 +75,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   char msgbuff[256];
   float totalLoops;
   float currentLoopCount = 0.0;
-  double local_beta;
+//  double local_beta;
 
   size_t nsCols = data->columns - 1;
  // size_t nsRows = data->rows;
@@ -89,7 +89,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
   memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
 
-  totalLoops = (float)(data->emIterations * data->mpmIterations);
+  totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
   memset(msgbuff, 0, 256);
   data->progress++;
 
@@ -129,14 +129,10 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
   {
+    data->currentMPMLoop = k;
     if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
-    if (callbacks->EMMPM_ProgressFunc != NULL)
-    {
-      data->currentMPMLoop = k;
-      snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
-      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
-    }
+
 
     for (i = 0; i < rows; i++)
     {
@@ -242,7 +238,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
           post[l] = exp(yk[lij] - (data->in_beta * (double)prior) - edge - (data->beta_c * ccost[lij]) - data->w_gamma[l]);
           sum += post[l];
         }
-        x = genrand_real2();
+        x = genrand_real2(data->rngVars);
         current = 0;
         for (l = 0; l < classes; l++)
         {
@@ -257,12 +253,21 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         }
       }
     }
+
+    EMMPM_ConvertXtToOutputImage(data, callbacks);
+    if (callbacks->EMMPM_ProgressFunc != NULL)
+    {
+      data->currentMPMLoop = k;
+      snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
+      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+    }
     if (NULL != callbacks->EMMPM_ProgressStatsFunc)
     {
       currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
       data->progress = currentLoopCount / totalLoops * 100.0;
       callbacks->EMMPM_ProgressStatsFunc(data);
     }
+
   }
   data->inside_mpm_loop = 0;
 

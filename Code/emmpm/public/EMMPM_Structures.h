@@ -31,10 +31,14 @@
 #ifndef EMMPM_STRUCTURES_H_
 #define EMMPM_STRUCTURES_H_
 
+// C Includes
 #include <stddef.h>
 
-#include "emmpm/public/EMMPM_Constants.h"
+// emmpm includes
 #include "emmpm/common/EMMPMTypes.h"
+#include "emmpm/common/random.h"
+#include "emmpm/public/EMMPM_Constants.h"
+
 
 
 
@@ -45,7 +49,6 @@
  */
 typedef struct
 {
-
     // -----------------------------------------------------------------------------
     //  Inputs from Command line or GUI program
     // -----------------------------------------------------------------------------
@@ -60,6 +63,7 @@ typedef struct
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */
     unsigned int grayTable[EMMPM_MAX_CLASSES];
+    double min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
     char verbose; /**<  */
     char inside_em_loop;
     char inside_mpm_loop;
@@ -120,6 +124,12 @@ typedef struct
     // -----------------------------------------------------------------------------
     void*    userData; /**< User defined Pointer that can point to anything */
     char     cancel;
+
+    // -----------------------------------------------------------------------------
+    //  These are for a per-thread storage for once-global variables that are now held
+    //  in this structure
+    // -----------------------------------------------------------------------------
+    RNGVars*    rngVars;
 } EMMPM_Data;
 
 /**

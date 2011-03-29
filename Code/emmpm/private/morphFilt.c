@@ -45,7 +45,7 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
   unsigned char* erosion;
   unsigned int i, j, l, maxr, maxc;
   int ii, jj;
-  int h, w; 
+  int h, w;
   size_t ij, i1j1, iirjjr;
 
   int rows = data->rows;
@@ -177,8 +177,6 @@ void multiSE(EMMPM_Data* data)
     }
 
     free(se);
-
   }
-
   free(curve);
 }
