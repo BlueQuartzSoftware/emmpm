@@ -248,10 +248,9 @@ void EMMPM_ConvertInputImageToWorkingImage(EMMPM_Data* data, EMMPM_CallbackFunct
 void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   size_t index;
-  unsigned int i;
-  unsigned int j;
+  unsigned int i, j, d;
   unsigned char* raster;
-  int d, l, ld;
+  int l, ld;
   size_t gtindex = 0;
   size_t* classCounts = NULL;
   size_t x = 0;
@@ -262,7 +261,7 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   double constant = 0.0;
   double variance = 0.0;
 
-  float sqrt2pi = sqrtf(2.0f * M_PI);
+  float sqrt2pi = sqrtf(2.0f * (float)M_PI);
   size_t histIdx = 0;
   float pixelWeight = 0.0;
   size_t totalPixels = 0;

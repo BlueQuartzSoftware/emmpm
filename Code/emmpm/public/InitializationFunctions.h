@@ -79,6 +79,12 @@ EMMPM_EXPORT void EMMPM_InitCurvatureVariables(EMMPM_Data* data);
  */
 EMMPM_EXPORT void EMMPM_InitializeGradientVariables(EMMPM_Data* data);
 
+/**
+* @brief Initializes the Xt array
+* @param data
+*/
+EMMPM_EXPORT void EMMPM_InitializeXtArray(EMMPM_Data* data);
+
 #ifdef __cplusplus
 }
 #endif

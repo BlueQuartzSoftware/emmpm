@@ -43,7 +43,7 @@
 // -----------------------------------------------------------------------------
 void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
 {
-  size_t ijd, ij, lij, ijd1, i, j, d, l;
+  size_t ijd, ij, ijd1, i, j, d;
 
   size_t nsCols = data->columns - 1;
   size_t nsRows = data->rows;
@@ -129,7 +129,8 @@ void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
 {
-  int l, i, j, lij;
+  int l, lij;
+  unsigned int i, j;
 
   data->ccost = (double*)malloc(data->classes * data->rows * data->columns * sizeof(double));
 
@@ -173,7 +174,7 @@ void EMMPM_InitializeXtArray(EMMPM_Data* data)
 // -----------------------------------------------------------------------------
 void EMMPM_CurvatureInitialization(EMMPM_Data* data)
 {
-  int d;
+  unsigned int d;
   size_t ld;
   int l;
   int dims = data->dims;

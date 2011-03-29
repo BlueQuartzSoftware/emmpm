@@ -90,7 +90,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     data->inside_em_loop = 1;
     data->currentEMLoop = k;
     data->currentMPMLoop = 0;
-    currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
+    currentLoopCount = (float)( (data->mpmIterations * data->currentEMLoop) + data->currentMPMLoop);
 
     data->progress = currentLoopCount/totalLoops * 100.0;
     if (callbacks->EMMPM_ProgressFunc != NULL) {
