@@ -37,17 +37,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
+#include "curvature_em.h"
 
 #include "emmpm/common/EMMPMTypes.h"
+#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/EMMPM_Constants.h"
 #include "emmpm/public/EMMPM_Structures.h"
-#include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/public/InitializationFunctions.h"
-//#include "emmpm/private/em.h"
 
-#include "curvature_em.h"
-#include "morphFilt.h"
-#include "curvature_mpm.h"
+#include "emmpm/private/em_util.h"
+#include "emmpm/private/morphFilt.h"
+#include "emmpm/private/curvature_mpm.h"
 
 
 
