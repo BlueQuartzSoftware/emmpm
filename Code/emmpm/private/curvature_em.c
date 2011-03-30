@@ -169,7 +169,6 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 
     /* Perform MPM - (Estimation) */
-    //acvmpm(y, ns, ew, sw, nw, xt, ccost, probs, beta, beta_c, m, v, rows, columns, mpmiter, classes, dims);
     acvmpm(data, callbacks);
   } /* EM Loop End */
 

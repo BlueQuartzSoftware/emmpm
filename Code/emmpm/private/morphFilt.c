@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-#include <emmpm/private/morphFilt.h>
+#include "emmpm/private/morphFilt.h"
 
 
 #define NUM_SES 8
@@ -46,11 +46,14 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
   unsigned int i, j, l, maxr, maxc;
   int ii, jj;
   int h, w;
+  unsigned int se_cols;
   size_t ij, i1j1, iirjjr;
 
   int rows = data->rows;
   int cols = data->columns;
   int classes = data->classes;
+
+  se_cols = 2*r + 1;
 
   erosion = (unsigned char*)malloc(cols * rows * sizeof(unsigned char));
 
@@ -70,7 +73,7 @@ void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r)
         for (jj = -mini(r, j); jj <= (int)maxc && erosion[ij] == l; jj++)
         {
           i1j1 = (cols * (i+ii)) + (j+jj);
-          iirjjr = (cols * (ii+r)) + (jj+r);
+          iirjjr = (se_cols * (ii+r)) + (jj+r);
           if (se[iirjjr] == 1 && data->xt[i1j1] != l)
           {
             erosion[ij] = classes;
