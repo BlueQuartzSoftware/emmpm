@@ -137,6 +137,9 @@ if(emmpm_BUILD_API_DOCS)
   configure_file(${PROJECT_RESOURCES_DIR}/emmpm.doxyfile.in 
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   add_custom_target(docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile)
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/Documentation/html/
+          DESTINATION Documentation 
+          COMPONENT Applications)
 endif()
 
 
