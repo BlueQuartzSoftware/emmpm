@@ -41,7 +41,7 @@ INSTALL(TARGETS EMMPMLib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin 
-        COMPONENT Runtime)
+        COMPONENT Applications)
         
 set (lib_rt_dest lib)
 if (WIN32 AND BUILD_SHARED_LIBS)
