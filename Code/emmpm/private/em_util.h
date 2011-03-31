@@ -41,34 +41,40 @@ extern "C" {
 #endif
 
 /**
- *
- * @param data
+ * @brief Resets the mean and variance to Zero in preparation for another round
+ * of EM loops
+ * @param data EMMPM_Data inputs
  */
 EMMPM_EXPORT void EMMPM_ResetModelParameters(EMMPM_Data* data);
 
 /**
- *
- * @param data
+ * @brief Updates the mean and variance for each class
+ * @param data EMMPM_Data inputs
  */
 EMMPM_EXPORT void EMMPM_UpdateMeansAndVariances(EMMPM_Data* data);
 
 /**
- *
- * @param data
- * @param callbacks
+ * @brief Prints out the Mean and Variance values for each class. Primarily used
+ * for debugging.
+ * @param data EMMPM_Data inputs
+ * @param callbacks a non NULL EMMPM_CallbackFunctions structure
  */
 EMMPM_EXPORT void EMMPM_MonitorMeansAndVariances(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 /**
- *
- * @param data
+ * @brief Removes classes that have a Zero Probability. The removed classes are
+ * simply collapsed into the next lower class value.
+ * @param data EMMPM_Data inputs
  */
 EMMPM_EXPORT void EMMPM_RemoveZeroProbClasses(EMMPM_Data* data);
 
 /**
- * @brief
- * @param data a non NULL EMMPM_Data pointer
- * @param callbacks a non NULL EMMPM_CallbackFunctions
+ * @brief Runs the EM Loops after all the pre-setup has been accomplished. This should
+ * not be called from any other library and is considered an internal function to
+ * this library.
+ * @see EMMPM_Run() in the @see emmpm/public/EMMPM.h file
+ * @param data EMMPM_Data inputs
+ * @param callbacks a non NULL EMMPM_CallbackFunctions structure
  */
 EMMPM_EXPORT void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 

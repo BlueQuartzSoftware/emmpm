@@ -43,7 +43,8 @@ extern "C" {
 
 
 /**
- * @brief
+ * @fn void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
+ * @brief Runs the EM portion of the EM/MPM Algorithm
  * @param data a non NULL EMMPM_Data pointer
  * @param callbacks a non NULL EMMPM_CallbackFunctions
  */

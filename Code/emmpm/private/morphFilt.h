@@ -46,14 +46,18 @@ EMMPM_EXPORT unsigned int maxi(int a, int b);
 EMMPM_EXPORT int mini(int a, int b);
 
 /**
- *
- * @param data
+ * @brief Performs the Morphological filtering on the input image
+ * @param data Non NULL EMMPM_Data pointer
  * @param curve
  * @param se
  * @param r
  */
 EMMPM_EXPORT void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r);
 
+/**
+ * @brief Main entry point for the morphological filter
+ * @param data Non NULL EMMPM_Data pointer
+ */
 EMMPM_EXPORT void multiSE(EMMPM_Data* data);
 
 

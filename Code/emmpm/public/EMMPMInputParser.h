@@ -34,8 +34,13 @@
 
 #include "EMMPM.h"
 
-/** @brief
- *
+/**
+ * @class EMMPMInputParser EMMPMInputParser.h emmpm/public/EMMPMInputParser.h
+ * @brief This class uses the TCLAP project to parse the command line arguments
+ * when using the command line version of the emmpm executable.
+ * @author Michael A. Jackson for BlueQuartz Software
+ * @date Mar 31, 2011
+ * @version 1.0
  */
 class EMMPM_EXPORT EMMPMInputParser
 {
@@ -47,7 +52,6 @@ class EMMPM_EXPORT EMMPMInputParser
      * @brief
      * @param argc
      * @param argv
-     * @param files
      * @param inputs
      * @return
      */
@@ -55,29 +59,34 @@ class EMMPM_EXPORT EMMPMInputParser
 
     /**
      * @brief This will parse the pixel coordinates for each class that is to be initialized
-     * @param coords
-     * @param inputs
+     * @param coords The raw string the user entered on the command line
+     * @param inputs The EMMPM_Data structure to store the results
      * @return
      */
     int parseInitCoords(const std::string &coords, EMMPM_Data* inputs);
 
     /**
-     * @brief
-     * @param values
-     * @param inputs
+     * @brief Parse the Gray Scale Mapping Table as input by the user
+     * @param values The raw string the user entered on the command line
+     * @param inputs The EMMPM_Data structure to store the results
      * @return
      */
     int parseGrayTable(const std::string &values, EMMPM_Data* inputs);
 
     /**
-     * @brief
-     * @param values
-     * @param inputs
+     * @brief Parse the Mean and Variance values from the command line
+     * @param values The raw string the user entered on the command line
+     * @param inputs The EMMPM_Data structure to store the results
      * @return
      */
     int parseMeanVarianceValues(const std::string &values, EMMPM_Data* inputs);
 
-    char* setFileName( const std::string &fname);
+    /**
+     * @brief Copys the std::string contents into a newly malloc'ed char array which
+     * the programmer will need to free when they are finished with it.
+     * @param fname The filename to copy
+     */
+    char* copyFilenameToNewCharBuffer( const std::string &fname);
 
   private:
     EMMPMInputParser(const EMMPMInputParser&); // Copy Constructor Not Implemented

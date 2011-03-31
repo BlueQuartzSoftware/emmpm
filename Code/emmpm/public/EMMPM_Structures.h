@@ -43,6 +43,7 @@
 
 
 /**
+ * @struct EMMPM_Data emmpm/public/EMMPM_Structures.h EMMPM_Structures.h
  * Holds variables that are needed by the various functions through out
  * the EM/MPM algorithm. Packing them into a struct allows them to be easily
  * passed between functions.
@@ -133,6 +134,7 @@ typedef struct
 } EMMPM_Data;
 
 /**
+ * @struct EMMPM_CallbackFunctions
  *  A structure that holds the various callback functions that will be used
  *  throughout the code
  */

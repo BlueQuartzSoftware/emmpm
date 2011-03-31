@@ -31,41 +31,7 @@
 #ifndef EMMPM_H_
 #define EMMPM_H_
 
-/**
 
-Watch histogram to make sure EM loops is correct
-
-pittiness in regions to make sure MPM is correct
-
-smoothness of boundaries controlled Beta
-
-recession of boundary from original image to see if Gamma is correct.
-
-num of EM Loops controls the fit of the gaussians to the original histogram
-
-num of MPM loops controls the quality of the segmentation
-
-If segmented regions are too small then Gamma needs to be adjusted.
-
-Gamma is the chemical potential or magnetization.
-
- */
-
-/**
- x = pixel grey level
- mu = mean
- sigma = standard deviation
-
- Gaussian Distribution(x; mu, sigma) = ( 1/ (sigma * sqrt(28Pi))) * exp( -(x - mu)^2 / (2 *sigma^2));
-
- Variance computed as sigma^2 = { SUM(x - mu)^2 } /  N
-
- where N is the population.
-
- Standard Deviation is the Square Root of Variance.
-
-
- */
 
 
 #include "emmpm/common/EMMPMTypes.h"
@@ -78,34 +44,40 @@ extern "C" {
 #endif
 
 /**
- *
- * @return
+ * @brief Allocates an EMMPM_Data structure and initializes all the variables
+ * @return Pointer to EMMPM_Data structure
  */
 EMMPM_EXPORT EMMPM_Data* EMMPM_CreateDataStructure();
 
 
 /**
- * @brief
- * @param data
+ * @brief Allocates all the various arrays in the EMMPM_Data structure ONLY if
+ * they are NOT null which means the programmer can allocate some of the arrays
+ * before calling this function if need be.
+ * @param data Non NULL EMMPM_Data Pointer
+ * @return Negative on error
  */
 EMMPM_EXPORT int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data);
 
 
 /**
- *
- * @return
+ * @brief Allocated a EMMPM_CallbackFunctions structure but NOT the actual
+ * callback functions
+ * @return A EMMPM_CallbackFunctions Pointer
  */
 EMMPM_EXPORT EMMPM_CallbackFunctions* EMMPM_AllocateCallbackFunctionStructure();
 
 /**
- *
- * @param ptr
+ * @brief Frees all the memory in use by the EMMPM_Data structure including
+ * arrays that may NOT have been allocated by the EMMPM Library. MAKE SURE you
+ * copy data out of the structure if you need it past this call.
+ * @param ptr Non NULL EMMPM_Data pointer which will be freed.
  */
 EMMPM_EXPORT void EMMPM_FreeDataStructure(EMMPM_Data* ptr);
 
 /**
- *
- * @param ptr
+ * @brief Deallocates the Callback function structure
+ * @param ptr Non NULL EMMPM_CallbackFunctions pointer
  */
 EMMPM_EXPORT void EMMPM_FreeCallbackFunctionStructure(EMMPM_CallbackFunctions* ptr);
 

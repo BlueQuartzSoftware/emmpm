@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 /**
-* @brief This is a progress callback function that simply prints out to the
+* @brief This is a progress call back function that simply prints out to the
 * standard output.
 * @param message
 * @param progress Value between 0 and 100

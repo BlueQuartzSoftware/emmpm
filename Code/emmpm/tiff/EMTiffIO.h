@@ -39,34 +39,35 @@ extern "C"
 #endif
 
 /**
- * @brief
- * @param files
- * @param inputs
- * @return
+ * @brief Reads an input image from an input file that is in the form of a Tiff image file
+ * @param data The EMMPM_Data Structure. Must not be NULL.
+ * @param callbacks The Callbacks structure to provide information to the user.
+ * @return Negative on Error
  */
 EMMPM_EXPORT int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 /**
- * @brief
- * @param files
- * @param inputs
- * @return
+ * @brief Writes the output from the EM/MPM algorithm to a tiff file
+ * @param data The EMMPM_Data Structure. Must not be NULL.
+ * @param callbacks The Callbacks structure to provide information to the user.
+ * @return Negative on Error
  */
 EMMPM_EXPORT int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 
 /**
- * @brief
- * @param files
+ * @brief Reads a tiff image value and converts it to a Grayscale image.
+ * @param data The EMMPM_Data Structure. Must not be NULL.
+ * @param callbacks The Callbacks structure to provide information to the user.
  * @return
  */
 EMMPM_EXPORT unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 /**
  * @brief Writes the output from the EM/MPM into a Tiff File
- * @param files
- * @param inputs
- * @param imageDescription
+ * @param data The EMMPM_Data Structure. Must not be NULL.
+ * @param callbacks The Callbacks structure to provide information to the user.
+ * @param imageDescription Some descriptive text to store in the tiff image
  * @return Zero Value or Negative on Error. Anything else is considered a success;
  */
 EMMPM_EXPORT int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
@@ -81,22 +82,22 @@ EMMPM_EXPORT int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
 EMMPM_EXPORT void EMMPM_FreeTiffImageBuffer(unsigned char* buffer);
 
 /**
- *
- * @param width
- * @param height
- * @param samplesPerPixel
- * @return
+ * @brief Allocates the proper Tiff Structures and Tiff raw image buffer
+ * @param width Width of image
+ * @param height Height of image
+ * @param samplesPerPixel bits per pixel. 1 for grayscale, 3 for RGB
+ * @return TIFF* image buffer
  */
 EMMPM_EXPORT unsigned char* EMMPM_AllocateTiffImageBuffer(int width, int height, int samplesPerPixel);
 
 
 /**
-* @brief
-* @param filename
-* @param rows
-* @param columns
-* @param imageDescription
-* @param image
+* @brief Writes the output from the EM/MPM Algorithm to a gray scale tiff image
+* @param filename The filename to write the image to
+* @param rows Number of rows in the image (height)
+* @param columns Number of columns in the image (width)
+* @param imageDescription Discription of what the image is
+* @param image raw image buffer
 * @return error code
 */
 EMMPM_EXPORT int EMMPM_WriteGrayScaleImage(const char* filename, int rows, int columns,

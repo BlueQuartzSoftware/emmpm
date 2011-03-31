@@ -1,0 +1,63 @@
+/**
+ @mainpage EM/MPM Library
+
+@section geninfor General Equations and Information
+ x = pixel grey level \n
+ mu = mean \n
+ sigma = standard deviation \n
+
+ Gaussian Distribution(x; mu, sigma) = ( 1/ (sigma * sqrt(2*Pi))) * exp( -(x - mu)^2 / (2 *sigma^2));
+
+ Variance computed as sigma^2 = { SUM(x - mu)^2 } /  N
+
+ where N is the population.
+
+ Standard Deviation is the Square Root of Variance.
+
+
+ @section quicklinks Quick Links to important files
+
+ @n This file defines the structure used in the EM/MPM Library.
+ @see emmpm/public/EMMPM_Structures.h
+
+ @n This file has the public functions that can be called from outside the librar
+ in order to run the EM/MPM algorithm on an input image
+ @see emmpm/public/EMMPM.h
+
+ @n These are the various initialization functions that can be used or supply
+ your own through the assignment of a "C" style call back function
+ @see emmpm/public/InitializationFunctions.h
+
+
+@section intro EM/MPM Introduction
+  EM/MPM uses a mixture of Gaussians to model the ideal segmentation of a given
+image. This is achieved by wrapping a series of MPM Loops inside a series of EM loops.
+
+
+
+@section threading Multi-Threaded Environments
+  The design of the EM/MPM Library is such that each function is re-entrant and
+thread safe. This is because there are NO global variables that are used. Each
+of the variables that are used (even the Random Number Generator) are their own
+unique instances and so should not clobber each other. This library has been
+tested on a 16 processor machine without any crashes or corrupted memory issues.
+It is however up to the programmer to fully review the code within to make sure
+it meets their requirements.
+
+@section info General Observations about EM/MPM
+
+@li Watch histogram to make sure EM loops is correct
+
+@li pittiness in regions to make sure MPM is correct
+
+@li smoothness of boundaries controlled Beta
+
+@li If segmented regions are too small then Gamma needs to be adjusted.
+
+@li num of EM Loops controls the fit of the gaussians to the original histogram
+
+@li num of MPM loops controls the quality of the segmentation
+
+@li Gamma is the chemical potential or magnetization.
+
+ */

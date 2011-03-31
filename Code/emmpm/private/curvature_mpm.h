@@ -42,7 +42,8 @@ extern "C" {
 
 
 /**
- * @brief
+ * @fn void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+ * @brief Runs the MPM portion of the EM/MPM algorithm
  * @param data a non NULL EMMPM_Data pointer
  * @param callbacks a non NULL EMMPM_CallbackFunctions
  */

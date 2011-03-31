@@ -44,6 +44,7 @@ extern "C" {
  */
 EMMPM_EXPORT void EMMPM_InitializeXtArray(EMMPM_Data* data);
 
+
 /**
  * @brief The standard EM/MPM initialization functions
  * @param data The EMMPM_Data Pointer
@@ -66,7 +67,7 @@ EMMPM_EXPORT void EMMPM_ManualInitialization(EMMPM_Data* data);
 
 
 /**
- * @brief Initialization using the curvature penatly functions
+ * @brief Initialization using the curvature penalty functions
  * @param data The EMMPM_Data Pointer
  */
 EMMPM_EXPORT void EMMPM_CurvatureInitialization(EMMPM_Data* data);
@@ -84,11 +85,6 @@ EMMPM_EXPORT void EMMPM_InitCurvatureVariables(EMMPM_Data* data);
  */
 EMMPM_EXPORT void EMMPM_InitializeGradientVariables(EMMPM_Data* data);
 
-/**
-* @brief Initializes the Xt array
-* @param data
-*/
-EMMPM_EXPORT void EMMPM_InitializeXtArray(EMMPM_Data* data);
 
 #ifdef __cplusplus
 }
