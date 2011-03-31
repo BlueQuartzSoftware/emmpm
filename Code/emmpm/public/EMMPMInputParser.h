@@ -69,6 +69,14 @@ class EMMPM_EXPORT EMMPMInputParser
      */
     int parseGrayTable(const std::string &values, EMMPM_Data* inputs);
 
+    /**
+     * @brief
+     * @param values
+     * @param inputs
+     * @return
+     */
+    int parseMeanVarianceValues(const std::string &values, EMMPM_Data* inputs);
+
     char* setFileName( const std::string &fname);
 
   private:

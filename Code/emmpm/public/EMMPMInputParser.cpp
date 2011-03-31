@@ -121,7 +121,48 @@ int EMMPMInputParser::parseInitCoords(const std::string &coords, EMMPM_Data* inp
     return -1;
   }
   return 0;
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_Data* inputs)
+{
+  std::string::size_type pos = values.find(":", 0);
+
+  inputs->dims = 1; // FORCING A GRAY SCALE IMAGE TO BE USED
+  inputs->m = (double*)malloc(inputs->classes * inputs->dims * sizeof(double));
+  inputs->v = (double*)malloc(inputs->classes * inputs->dims * sizeof(double));
+
+  size_t index = 0;
+  double* mPtr = inputs->m;
+  double* vPtr = inputs->v;
+
+  int n = sscanf(values.substr(0, pos).c_str(), "%lf,%lf", mPtr, vPtr );
+  if (n != 2)
+  {
+    *mPtr = 0.0;
+    *vPtr = 0.0;
+    return -1;
+  }
+  index++;
+
+  while(pos != std::string::npos && pos != values.size() - 1)
+  {
+    mPtr++;
+    vPtr++;
+    n = sscanf(values.substr(pos+1).c_str(), "%lf,%lf", &(mPtr[0]), &(vPtr[0]) );
+    pos = values.find(":", pos+1);
+    ++index;
+  }
+
+  if (index != static_cast<size_t>(inputs->classes) )
+  {
+    std::cout << "Mismatch between the number of classes declared [" << inputs->classes <<
+        "] and the number of sets of Mean/Variance to use for initialization [" << index << "]" << std::endl;
+    return -1;
+  }
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -179,11 +220,22 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   TCLAP::ValueArg<std::string> initcoords("", "coords", "The upper left (x,y) and lower right (x,y) pixel coordinate sets of each class to be used in the initialization algorithm where each set is separated by a colon ':'. An example is 487,192,507,212:0,332,60,392 for 2 class system.", false, "", "");
   cmd.add(initcoords);
 
-  TCLAP::ValueArg<std::string> graytable( "", "graytable", "Set an lookup table for the gray values associated with each class. This can be used to combine classes together at file writing time.", false, "", "");
+  TCLAP::ValueArg<std::string> graytable( "", "graytable", "Set a lookup table for the gray values associated with each class. This can be used to combine classes together at file writing time.", false, "", "");
   cmd.add(graytable);
 
-//#error Add additional Arguments for the curvature penalty case
+  TCLAP::ValueArg<float> beta_e("", "beta_e", "Gradient Penalty Weight", false, 0.0, "");
+  cmd.add(beta_e);
 
+  TCLAP::ValueArg<float> beta_c("", "beta_c", "Curvature Penalty Weight", false, 0.0, "");
+  cmd.add(beta_c);
+  TCLAP::ValueArg<float> rmax("", "rmax", "Maximum Radius for Curvature Morphalogical Filter", false, 15.0, "");
+  cmd.add(rmax);
+  TCLAP::ValueArg<int> em_loop_delay("", "emLoopDelay", "Number of EM Loops to delay before applying the Morphological Filter", false, 1, "");
+  cmd.add(em_loop_delay);
+
+
+  TCLAP::ValueArg<std::string> mv("", "mv", "Pairs of Mean,Variance initial values for each class where each set is separated by a ':'. Example for 2 classes is: 121.3,22.8:205.2,45.0", false, "", "");
+  cmd.add(mv);
 
 
   try
@@ -215,7 +267,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
       return -1;
     }
 
-    if (inputs->initType != 0) {
+    if (inputs->initType == EMMPM_UserInitArea) {
       error = parseInitCoords(initcoords.getValue(), inputs);
       if (error < 0)
       {
@@ -223,6 +275,16 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
         return -1;
       }
     }
+    if (inputs->initType == EMMPM_ManualInit)
+    {
+      error = parseMeanVarianceValues(mv.getValue(), inputs);
+      if (error < 0)
+      {
+        std::cout << "There was an error parsing the command line arguments for the mean and variance values" << std::endl;
+        return -1;
+      }
+    }
+
     if (graytable.getValue().empty() == false)
     {
       error = parseGrayTable(graytable.getValue(), inputs);
@@ -241,6 +303,21 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
       }
     }
 
+    /* Parse the Gradient Penalty Weighting (Beta E) from the command line */
+    if (beta_e.getValue() > 0.0)
+    {
+      inputs->useGradientPenalty = 1;
+      inputs->beta_e = beta_e.getValue();
+    }
+
+    /* Parse the Curvature Penalty Arguments  */
+    if (beta_c.getValue() > 0.0)
+    {
+      inputs->useCurvaturePenalty = 1;
+      inputs->beta_c = beta_c.getValue();
+      inputs->r_max = rmax.getValue();
+      inputs->ccostLoopDelay = em_loop_delay.getValue();
+    }
   }
   catch (TCLAP::ArgException &e)
   {

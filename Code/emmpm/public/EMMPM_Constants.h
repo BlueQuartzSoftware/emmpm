@@ -40,8 +40,7 @@ enum EMMPM_InitializationType
 {
   EMMPM_Basic = 0,
   EMMPM_UserInitArea,
-  EMMPM_ManualInit,
-  EMMPM_CurvaturePenalty
+  EMMPM_ManualInit
 };
 
 

@@ -103,7 +103,7 @@ int main(int argc,char *argv[])
   /* Parse the command line arguments */
   EMMPMInputParser parser;
   int err = parser.parseCLIArguments(argc, argv, data);
-#if 1 
+#if 1
   if (err < 0)
   {
     printf("Error trying to parse the arguments.\n");
@@ -147,14 +147,11 @@ int main(int argc,char *argv[])
   // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
-    case EMMPM_UserInitArea:
-      callbacks->EMMPM_InitializationFunc = EMMPM_UserDefinedAreasInitialization;
-      break;
     case EMMPM_Basic:
       callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
       break;
-    case EMMPM_CurvaturePenalty:
-      callbacks->EMMPM_InitializationFunc = EMMPM_CurvatureInitialization;
+    case EMMPM_UserInitArea:
+      callbacks->EMMPM_InitializationFunc = EMMPM_UserDefinedAreasInitialization;
       break;
     case EMMPM_ManualInit:
       callbacks->EMMPM_InitializationFunc = EMMPM_ManualInitialization;
