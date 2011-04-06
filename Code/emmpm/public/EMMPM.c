@@ -423,7 +423,10 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
-  data->rngVars = init_genrand(143542612ul);
+  unsigned long long millis = EMMPM_getMilliSeconds();
+  millis = millis << 32; // push off the high bits
+  millis = millis >> 32; // bring back the low bits
+  data->rngVars = init_genrand( (unsigned long)(millis));
 
   /* Check to make sure we have at least a basic initialization function setup */
   if (NULL == callbacks->EMMPM_InitializationFunc)
