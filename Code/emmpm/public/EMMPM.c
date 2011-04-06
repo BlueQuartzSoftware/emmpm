@@ -35,6 +35,7 @@
 #include "emmpm/common/entropy.h"
 #include "emmpm/common/random.h"
 #include "emmpm/common/EMMPM_Math.h"
+#include "emmpm/common/EMTime.h"
 #include "emmpm/public/ProgressFunctions.h"
 #include "emmpm/public/InitializationFunctions.h"
 #include "emmpm/private/curvature_em.h"
@@ -419,11 +420,12 @@ void printData(EMMPM_Data* data)
 void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   char msgbuff[256];
+  unsigned long long int millis = 0;
   memset(msgbuff, 0, 256);
 
   // Copy the input image into data->y arrays
   EMMPM_ConvertInputImageToWorkingImage(data, callbacks);
-  unsigned long long millis = EMMPM_getMilliSeconds();
+  millis = EMMPM_getMilliSeconds();
   millis = millis << 32; // push off the high bits
   millis = millis >> 32; // bring back the low bits
   data->rngVars = init_genrand( (unsigned long)(millis));
