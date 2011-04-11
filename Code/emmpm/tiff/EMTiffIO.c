@@ -83,7 +83,8 @@ int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     return -1;
   }
 
-  err = EMMPM_WriteGrayScaleTiff(data, callbacks, "Segmented with EM/MPM");
+ // err = EMMPM_WriteGrayScaleTiff(data, callbacks, "Segmented with EM/MPM");
+  err = EMMPM_WritePalettedImage(data, callbacks, "Paletted Image Segmented with EM/MPM");
   if (err < 0)
   {
     printf("Error writing Tiff file %s\n", data->output_file_name);
@@ -102,6 +103,10 @@ int EMMPM_ReadInputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int err = 0;
 
   data->inputImage = EMMPM_ReadTiffAsGrayScale(data, callbacks);
+  if (data->inputImage == NULL)
+  {
+    return -1;
+  }
   data->dims = 1;
   data->inputImageChannels = 1;
 
@@ -144,8 +149,10 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   if (in == NULL)
   {
     printf("Error Opening Tiff file with Absolute Path:\n %s\n", data->input_file_name);
-    exit(1);
+    return NULL;
   }
+//  FILE* tempFile = fopen("/tmp/out_copy.txt", "wb");
+//  TIFFPrintDirectory(in, tempFile, TIFFPRINT_COLORMAP);
 
   err = TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &width);
   data->columns = width;
@@ -239,8 +246,9 @@ int EMMPM_WriteGrayScaleImage(const char* filename, int rows, int columns,
      err = TIFFSetField(out, TIFFTAG_IMAGEDESCRIPTION, imageDescription);
    }
 
-   err = TIFFSetField(out, TIFFTAG_ORIENTATION, 1);
-   err = TIFFSetField(out, TIFFTAG_PHOTOMETRIC, 1);
+   err = TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+   err = TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+
 
  #if USE_LZW_COMPRESSION
    err = TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
@@ -287,6 +295,125 @@ int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
                               data->rows, data->columns,
                               imageDescription, data->outputImage);
 }
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+int EMMPM_WritePalettedImage(EMMPM_Data* data,
+                             EMMPM_CallbackFunctions* callbacks,
+                             char* imageDescription)
+{
+  int err;
+  unsigned char* raster;
+  size_t index, i;
+  TIFF *out;
+  char* dateTime;
+  char software[1024];
+  tsize_t area;
+  size_t totalPixels = 0;
+  uint16 *r, *g, *b;
+  int bitsPerSample = 8;
+  uint16 nColors = 1<<bitsPerSample;
+  totalPixels = data->columns * data->rows;
+
+  raster = EMMPM_AllocateTiffImageBuffer(data->columns, data->rows, data->dims);
+  // Copy the raw label map
+  memcpy(raster, data->xt, totalPixels);
+
+  if (NULL == raster)
+  {
+    return -1;
+  }
+  out = TIFFOpen(data->output_file_name, "w");
+  if (out == NULL)
+  {
+    printf("Could not open output file '%s' for writing.\n", data->output_file_name);
+    return -1;
+  }
+
+  err = 0;
+  // set the basic values
+  err = TIFFSetField(out, TIFFTAG_IMAGEWIDTH, (int)data->columns);
+  err = TIFFSetField(out, TIFFTAG_IMAGELENGTH, (int)data->rows);
+  err = TIFFSetField(out, TIFFTAG_BITSPERSAMPLE, bitsPerSample);
+  err = TIFFSetField(out, TIFFTAG_SAMPLESPERPIXEL, 1);
+  err = TIFFSetField(out, TIFFTAG_ROWSPERSTRIP, (int)data->rows); // 1 strip
+
+  dateTime = EMMPM_TiffDateTime();
+  err = TIFFSetField(out, TIFFTAG_DATETIME, dateTime);
+  // String based tags
+  if (NULL != data->output_file_name)
+  {
+    err = TIFFSetField(out, TIFFTAG_DOCUMENTNAME, data->output_file_name);
+  }
+  if (NULL != imageDescription)
+  {
+    err = TIFFSetField(out, TIFFTAG_IMAGEDESCRIPTION, imageDescription);
+  }
+
+  err = TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+  err = TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE);
+ // err = TIFFSetField(out, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); // single image plane
+
+  r = (uint16 *) _TIFFmalloc(sizeof(uint16) * nColors);
+  g = (uint16 *) _TIFFmalloc(sizeof(uint16) * nColors);
+  b = (uint16 *) _TIFFmalloc(sizeof(uint16) * nColors);
+  // Set the entire color table to Zeros
+  memset(r,0, sizeof(uint16) * nColors);
+  memset(g,0, sizeof(uint16) * nColors);
+  memset(b,0, sizeof(uint16) * nColors);
+
+  // Copy in the Gray_Table for the segmentation
+  for (i = 0; i < data->classes; i++) {
+    r[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
+    g[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
+    b[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
+  }
+
+  TIFFSetField(out, TIFFTAG_COLORMAP, r, g, b);
+
+#if USE_LZW_COMPRESSION
+  err = TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
+  err = TIFFSetField(image, TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
+#else
+  err = TIFFSetField(out, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+#endif
+
+  // Insert Resolution Units here if possible
+
+
+  memset(software, 0, 1024);
+  snprintf(software, 1024, "%s using libTIFF", EMMPM_PACKAGE_COMPLETE);
+
+  err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
+
+  err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
+
+  // Write the information to the file
+  area = (tsize_t)( data->columns *  data->rows);
+  err = TIFFWriteEncodedStrip(out, 0, raster, area);
+  if (err != area)
+  {
+    err = -1;
+  }
+  else
+  {
+    err = 1;
+  }
+
+  (void)TIFFClose(out);
+
+
+  // Release the temporary image buffer
+  _TIFFfree(raster);
+  // Release the color table
+  _TIFFfree(r);
+  _TIFFfree(g);
+  _TIFFfree(b);
+
+  return 1;
+}
+
 
 // -----------------------------------------------------------------------------
 //

@@ -75,6 +75,16 @@ EMMPM_EXPORT int EMMPM_WriteGrayScaleTiff(EMMPM_Data* data,
                           char* imageDescription);
 
 /**
+ * @brief Writes the label map (xt array) as a Tiff 8 Bit Indexed Paletted Image
+ * @param data The EMMPM_Data Structure. Must not be NULL.
+ * @param callbacks The Callbacks structure to provide information to the user.
+ * @param imageDescription Some descriptive text to store in the tiff image
+ * @return Zero Value or Negative on Error. Anything else is considered a success;
+ */
+EMMPM_EXPORT int EMMPM_WritePalettedImage(EMMPM_Data* data,
+                             EMMPM_CallbackFunctions* callbacks,
+                             char* imageDescription);
+/**
  * @brief Deallocates memory that is used to store image data. Typically allocated
  * with the _TIFFmalloc() function from libTif.
  * @param buffer A memory buffer that was allocated with _TIFFmalloc

@@ -188,7 +188,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
 {
   if ( NULL == inputs)
   {
-    printf("Either the EMMPM_Files pointer or the EMMPM_Inputs pointer was null. Returning early.\n");
+    printf("The EMMPM_Inputs pointer was null. Returning early.\n");
     return -1;
   }
 
@@ -220,7 +220,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   TCLAP::ValueArg<std::string> initcoords("", "coords", "The upper left (x,y) and lower right (x,y) pixel coordinate sets of each class to be used in the initialization algorithm where each set is separated by a colon ':'. An example is 487,192,507,212:0,332,60,392 for 2 class system.", false, "", "");
   cmd.add(initcoords);
 
-  TCLAP::ValueArg<std::string> graytable( "", "graytable", "Set a lookup table for the gray values associated with each class. This can be used to combine classes together at file writing time.", false, "", "");
+  TCLAP::ValueArg<std::string> graytable( "", "graytable", "Comma separated list of grayscale values for each class. This can be used to combine classes together at file writing time.", false, "", "");
   cmd.add(graytable);
 
   TCLAP::ValueArg<float> beta_e("", "beta_e", "Gradient Penalty Weight", false, 0.0, "");
