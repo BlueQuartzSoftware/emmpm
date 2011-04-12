@@ -84,7 +84,7 @@ int EMMPM_WriteOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   }
 
  // err = EMMPM_WriteGrayScaleTiff(data, callbacks, "Segmented with EM/MPM");
-  err = EMMPM_WritePalettedImage(data, callbacks, "Paletted Image Segmented with EM/MPM");
+  err = EMMPM_WritePalettedImage(data, callbacks, "Image Segmented with EM/MPM");
   if (err < 0)
   {
     printf("Error writing Tiff file %s\n", data->output_file_name);
@@ -305,7 +305,7 @@ int EMMPM_WritePalettedImage(EMMPM_Data* data,
 {
   int err;
   unsigned char* raster;
-  size_t index, i;
+  size_t i;
   TIFF *out;
   char* dateTime;
   char software[1024];
