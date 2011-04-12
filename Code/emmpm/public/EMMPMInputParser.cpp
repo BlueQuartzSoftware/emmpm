@@ -192,22 +192,22 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
     return -1;
   }
 
-  TCLAP::CmdLine cmd("EM/MPM", ' ', EMMPM::Version::Complete);
+  TCLAP::CmdLine cmd("", ' ', EMMPM::Version::Complete);
 
-  TCLAP::ValueArg<std::string> in_inputFile("i", "inputfile", "Image File to be used as input", false, "", "");
+  TCLAP::ValueArg<std::string> in_inputFile("i", "inputfile", "Image File to be used as input", true, "", "");
   cmd.add(in_inputFile);
-  TCLAP::ValueArg<std::string> in_outputFile("o", "outputfile", "The Image Output File", false, "", "");
+  TCLAP::ValueArg<std::string> in_outputFile("o", "outputfile", "The Image Output File", true, "", "");
   cmd.add(in_outputFile);
 
-  TCLAP::ValueArg<float> in_beta("b", "beta", "Beta Value", false, 1.0, "");
+  TCLAP::ValueArg<float> in_beta("b", "beta", "Beta Value", false, 1.0, "1.0");
   cmd.add(in_beta);
-  TCLAP::ValueArg<float> in_gamma("g", "gamma", "Gamma Value", false, 0.1f, "");
+  TCLAP::ValueArg<float> in_gamma("g", "gamma", "Gamma Value", false, 0.0f, "0.0");
   cmd.add(in_gamma);
-  TCLAP::ValueArg<int> in_emIter("e", "emIter", "Number of EM Iterations", false, 10, "");
+  TCLAP::ValueArg<int> in_emIter("e", "emIter", "Number of EM Iterations", false, 5, "5");
   cmd.add(in_emIter);
-  TCLAP::ValueArg<int> in_mpmIter("m", "mpmIter", "Number of MPM Iterations", false, 5, "");
+  TCLAP::ValueArg<int> in_mpmIter("m", "mpmIter", "Number of MPM Iterations", false, 5, "5");
   cmd.add(in_mpmIter);
-  TCLAP::ValueArg<int> in_numClasses("n", "numClasses", "The Number of classes or phases in the material", false, 2, "");
+  TCLAP::ValueArg<int> in_numClasses("n", "numClasses", "The Number of classes or phases in the material", false, 2, "2");
   cmd.add(in_numClasses);
   TCLAP::SwitchArg in_verbose("v", "verbose", "Verbose Output", false);
   cmd.add(in_verbose);
@@ -215,7 +215,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   TCLAP::SwitchArg simAnneal("s", "simanneal", "Use Simulated Annealing", false);
   cmd.add(simAnneal);
 
-  TCLAP::ValueArg<int> initType("z", "inittype", "The initialization algorithm that should be performed", false, 0, "");
+  TCLAP::ValueArg<int> initType("z", "inittype", "The initialization algorithm that should be performed", false, 0, "1");
   cmd.add(initType);
   TCLAP::ValueArg<std::string> initcoords("", "coords", "The upper left (x,y) and lower right (x,y) pixel coordinate sets of each class to be used in the initialization algorithm where each set is separated by a colon ':'. An example is 487,192,507,212:0,332,60,392 for 2 class system.", false, "", "");
   cmd.add(initcoords);
@@ -223,14 +223,14 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   TCLAP::ValueArg<std::string> graytable( "", "graytable", "Comma separated list of grayscale values for each class. This can be used to combine classes together at file writing time.", false, "", "");
   cmd.add(graytable);
 
-  TCLAP::ValueArg<float> beta_e("", "beta_e", "Gradient Penalty Weight", false, 0.0, "");
+  TCLAP::ValueArg<float> beta_e("", "beta_e", "Gradient Penalty Weight", false, 0.0, "0.0");
   cmd.add(beta_e);
 
-  TCLAP::ValueArg<float> beta_c("", "beta_c", "Curvature Penalty Weight", false, 0.0, "");
+  TCLAP::ValueArg<float> beta_c("", "beta_c", "Curvature Penalty Weight", false, 0.0, "0.0");
   cmd.add(beta_c);
-  TCLAP::ValueArg<float> rmax("", "rmax", "Maximum Radius for Curvature Morphalogical Filter", false, 15.0, "");
+  TCLAP::ValueArg<float> rmax("", "rmax", "Maximum Radius for Curvature Morphalogical Filter", false, 15.0, "15.0");
   cmd.add(rmax);
-  TCLAP::ValueArg<int> em_loop_delay("", "emLoopDelay", "Number of EM Loops to delay before applying the Morphological Filter", false, 1, "");
+  TCLAP::ValueArg<int> em_loop_delay("", "emLoopDelay", "Number of EM Loops to delay before applying the Morphological Filter", false, 1, "1");
   cmd.add(em_loop_delay);
 
 
@@ -238,11 +238,21 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   cmd.add(mv);
 
 
+  if (argc < 2)
+  {
+    std::cout << "EM/MPM Command Line Version " << cmd.getVersion() << std::endl;
+    std::vector<std::string> args;
+    args.push_back(argv[0]);
+    args.push_back("-h");
+    cmd.parse(args);
+    return -1;
+  }
+
+
   try
   {
     int error = 0;
     cmd.parse(argc, argv);
-
     inputs->in_beta = in_beta.getValue();
     for(int i = 0; i < EMMPM_MAX_CLASSES; i++) {
       inputs->w_gamma[i] = in_gamma.getValue();
