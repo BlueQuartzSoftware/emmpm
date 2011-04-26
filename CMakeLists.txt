@@ -30,6 +30,11 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   "Single Directory for all static libraries."
   )
 
+if (NOT DEFINED CMP_SOURCE_DIR)
+set(CMP_SOURCE_DIR ${emmpm_SOURCE_DIR}/Support/cmp)
+endif()
+
+
 SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
 SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
 SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
@@ -50,7 +55,7 @@ set (CMP_PROJECT_NAMESPACE "EMMPM")
 set (CMP_PROJECT_NAME "EMMPM")
 SET (CMP_INSTALL_FILES "1")
 set (CMP_ENABLE_PLUGINS "0")
-INCLUDE (${PROJECT_RESOURCES_DIR}/cmp/cmpProject.cmake)
+INCLUDE (${CMP_SOURCE_DIR}/cmpProject.cmake)
                
 # --------------------------------------------------------------------
 # Generate our ReadMe and License Files
