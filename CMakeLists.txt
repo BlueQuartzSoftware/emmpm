@@ -34,7 +34,6 @@ if (NOT DEFINED CMP_SOURCE_DIR)
 set(CMP_SOURCE_DIR ${emmpm_SOURCE_DIR}/Support/cmp)
 endif()
 
-
 SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
 SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
 SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
