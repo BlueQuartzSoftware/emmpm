@@ -235,7 +235,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
-          post[l] = exp(yk[lij] - (data->in_beta * (double)prior) - edge - (data->beta_c * ccost[lij]) - data->w_gamma[l]);
+          post[l] = exp(yk[lij] - (data->workingBeta * (double)prior) - edge - (data->beta_c * ccost[lij]) - data->w_gamma[l]);
           sum += post[l];
         }
         x = genrand_real2(data->rngVars);
