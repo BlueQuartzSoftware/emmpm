@@ -70,8 +70,10 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
   data->currentEMLoop = 0;
   data->currentMPMLoop = 0;
 
+  //Copy in the users Beta Value
   data->workingBeta = data->in_beta;
 
+  // If we are using Sim Anneal then create a ramped beta
   if (data->simulatedAnnealing != 0)
   {
     simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));
