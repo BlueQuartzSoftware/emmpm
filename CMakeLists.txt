@@ -38,7 +38,7 @@ SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
 SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
 SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
 SET (EXE_DEBUG_EXTENSION "_debug")
-SET (PROJECT_INSTALL_HEADERS "1")
+SET (PROJECT_INSTALL_HEADERS "0")
 SET (PROJECT_INSTALL_EXECUTABLES "1")
 
 #-------------------------------------------------------------------------------
