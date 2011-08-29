@@ -118,6 +118,7 @@ if (UNIX AND NOT APPLE)
     set (MATH_LIBRARY "m")
 endif()
 
+# --------------------------------------------------------------------
 # Prepend our own "FindTiff" code in front of what CMake itself provides
 set (EMMPM_TIFF_SUPPORT)
 FIND_PACKAGE(Tiff)
@@ -126,6 +127,19 @@ IF (NOT TIFF_FOUND)
 ENDIF (NOT TIFF_FOUND)
 set (EMMPM_TIFF_SUPPORT "1")
 INCLUDE_DIRECTORIES(${TIFF_INCLUDE_DIRS})
+
+
+# --------------------------------------------------------------------
+# Find the OpenCL Headers and Libraries
+FIND_PACKAGE( OpenCL REQUIRED )
+message(STATUS "OPENCL_FOUND: ${OPENCL_FOUND}")
+message(STATUS "OPENCL_INCLUDE_DIRS: ${OPENCL_INCLUDE_DIRS}")
+message(STATUS "OPENCL_LIBRARIES: ${OPENCL_LIBRARIES}")
+
+if (NOT OPENCL_FOUND)
+    message(FATAL_ERROR "OpenCL Headers and Libraries are NOT found and are required.")
+endif()
+
 
 # Include some directories for the compiler
 include_directories(${PROJECT_BINARY_DIR})

@@ -19,6 +19,7 @@ endMacro()
 
 Add_EMMPMLib_Dir(Public public)
 Add_EMMPMLib_Dir(Common common)
+Add_EMMPMLib_Dir(OCL ocl)
 Add_EMMPMLib_Dir(Tiff tiff)
 Add_EMMPMLib_Dir(Private private)
 
@@ -40,7 +41,13 @@ cmp_IDE_SOURCE_PROPERTIES("emmpm/common" "${EMMPMLib_CONFIGURED_HDRS}" "${EMMPML
 
 set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} )
 
+INCLUDE_DIRECTORIES( ${OPENCL_INCLUDE_DIRS} )
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
+
+if ( ${OPENCL_FOUND} )
+    set (MATH_LIBRARY ${MATH_LIBRARY} ${OPENCL_LIBRARIES})
+endif()
+
 target_link_libraries(EMMPMLib ${TIFF_LIBRARY} ${MATH_LIBRARY})
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
 INSTALL(TARGETS EMMPMLib 
@@ -59,3 +66,9 @@ CMP_COPY_DEPENDENT_LIBRARIES ("tiff")
 
 # Generate Install Rules for the DLL Libraries
 CMP_LIBRARIES_INSTALL_RULES ("tiff" "bin" )
+
+add_custom_command(TARGET EMMPMLib PRE_BUILD 
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EMMPM_OPENCL_SOURCES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+                    COMMENT "Copying OpenCL Programs into Build Directory"
+                    )
+

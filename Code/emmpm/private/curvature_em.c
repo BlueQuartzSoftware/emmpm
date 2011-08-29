@@ -110,7 +110,9 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     callbacks->EMMPM_ProgressFunc(msgbuff, 0);
   }
   /* Perform initial MPM - (Estimation) */
+ // ocl_acv_mpm(data, callbacks);
   acvmpm(data, callbacks);
+
 
   /* -----------------------------------------------------------
   *                Perform EM Loops

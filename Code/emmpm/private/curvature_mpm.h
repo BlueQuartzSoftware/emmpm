@@ -49,6 +49,8 @@ extern "C" {
  */
 EMMPM_EXPORT void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
+EMMPM_EXPORT void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+
 #ifdef __cplusplus
 }
 #endif

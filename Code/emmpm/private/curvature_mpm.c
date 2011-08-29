@@ -41,11 +41,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
+#include "emmpm/common/EMTime.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
+
+
 
 // -----------------------------------------------------------------------------
 //
@@ -107,6 +111,8 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     }
   }
 
+  unsigned long long int millis = EMMPM_getMilliSeconds();
+
   for (i = 0; i < rows; i++)
   {
     for (j = 0; j < cols; j++)
@@ -125,6 +131,9 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       }
     }
   }
+
+  printf("Serial Millis to complete initialization: %lu \n", EMMPM_getMilliSeconds() - millis);
+
 
   /* Perform the MPM loops */
   for (k = 0; k < data->mpmIterations; k++)
