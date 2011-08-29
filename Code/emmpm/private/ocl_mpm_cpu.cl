@@ -35,7 +35,4 @@ __kernel void mpm_init_yk(__global float* yk,
 
 
 
-
-
-
 }

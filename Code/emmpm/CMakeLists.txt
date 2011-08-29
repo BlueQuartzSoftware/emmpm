@@ -9,6 +9,14 @@ project (EMMPMLib)
 set (EMMPMLib_PROJECT_FILES "")
 
 
+add_executable(OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/ocl/OpenCLCodeToHeader.c)
+file(MAKE_DIRECTORY ${emmpm_BINARY_DIR}/emmpm/opencl/)
+add_custom_command(OUTPUT ${emmpm_BINARY_DIR}/emmpm/opencl/ocl_mpm_cpu.h 
+                    DEPENDS ${EMMPMLib_SOURCE_DIR}/private/ocl_mpm_cpu.cl 
+                    COMMAND OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/private/ocl_mpm_cpu.cl 
+                                        ${emmpm_BINARY_DIR}/emmpm/opencl/ocl_mpm_cpu.h 
+                    COMMENT "Creating Header from OpenCL file")
+
 # --------------------------------------------------------------------
 Macro(Add_EMMPMLib_Dir VarName Path)
     include(${EMMPMLib_SOURCE_DIR}/${Path}/SourceList.cmake)
@@ -39,7 +47,11 @@ set (EMMPMLib_CONFIGURED_SRCS
 )
 cmp_IDE_SOURCE_PROPERTIES("emmpm/common" "${EMMPMLib_CONFIGURED_HDRS}" "${EMMPMLib_CONFIGURED_SRCS}" "${CMP_INSTALL_FILES}")
 
-set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} )
+set (EMMPMLib_PROJECT_FILES 
+     ${EMMPMLib_PROJECT_FILES} 
+     ${EMMPMLib_CONFIGURED_HDRS}
+     ${emmpm_BINARY_DIR}/emmpm/opencl/ocl_mpm_cpu.h
+      )
 
 INCLUDE_DIRECTORIES( ${OPENCL_INCLUDE_DIRS} )
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
@@ -71,4 +83,7 @@ add_custom_command(TARGET EMMPMLib PRE_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EMMPM_OPENCL_SOURCES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
                     COMMENT "Copying OpenCL Programs into Build Directory"
                     )
+
+
+
 

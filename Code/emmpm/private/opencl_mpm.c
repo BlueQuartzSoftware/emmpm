@@ -11,7 +11,7 @@
 #include "emmpm/ocl/OpenCLUtils.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
-
+#include "emmpm/opencl/ocl_mpm_cpu.h"
 
 
 
@@ -94,12 +94,12 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   m_compute_units = threaded ? compute_units : 1;
   printf("CPU Init: m_compute_units: %d\n", m_compute_units);
 
+//
+//  return_value = LoadFileIntoString(EMMPM_OPENCL_SOURCE_FILE, &source, &src_len);
+//  if (return_value)
+//      return;
 
-  return_value = LoadFileIntoString(EMMPM_OPENCL_SOURCE_FILE, &source, &src_len);
-  if (return_value)
-      return;
-
-  m_compute_program = clCreateProgramWithSource(m_compute_context, 1, (const char**) & source, 0, &return_value);
+  m_compute_program = clCreateProgramWithSource(m_compute_context, 1, (const char**) & opencl_mpm_code, 0, &return_value);
   if (!m_compute_program)
       return;
 
