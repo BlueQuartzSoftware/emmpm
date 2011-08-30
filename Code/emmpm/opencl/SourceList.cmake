@@ -5,12 +5,14 @@
 #-- This code was partly written under US Air Force Contract FA8650-07-D-5800
 #--////////////////////////////////////////////////////////////////////////////
 set (EMMPM_OCL_SRCS
-    ${EMMPMLib_SOURCE_DIR}/ocl/OpenCLUtils.c
+    ${EMMPMLib_SOURCE_DIR}/opencl/OpenCLUtils.c
+    ${EMMPMLib_SOURCE_DIR}/opencl/opencl_mpm.c
 )
 
 set (EMMPM_OCL_HDRS
-    ${EMMPMLib_SOURCE_DIR}/ocl/OpenCLUtils.h
+    ${EMMPMLib_SOURCE_DIR}/opencl/OpenCLUtils.h
+    ${EMMPMLib_SOURCE_DIR}/opencl/opencl_mpm.c
 )
-cmp_IDE_SOURCE_PROPERTIES( "emmpm/ocl" "${EMMPM_OCL_HDRS}" "${EMMPM_OCL_SRCS}" "${CMP_INSTALL_FILES}")
+cmp_IDE_SOURCE_PROPERTIES( "emmpm/opencl" "${EMMPM_OCL_HDRS}" "${EMMPM_OCL_SRCS}" "${CMP_INSTALL_FILES}")
 
 

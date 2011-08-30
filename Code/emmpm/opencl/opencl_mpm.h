@@ -1,5 +1,5 @@
 /* ============================================================================
- * Copyright (c) 2010, Michael A. Jackson (BlueQuartz Software)
+ * Copyright (c) 2011, Michael A. Jackson (BlueQuartz Software)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,8 +27,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef CURVATURE_MPM_H_
-#define CURVATURE_MPM_H_
+
+#ifndef _opencl_mpm_h_
+#define _opencl_mpm_h_
 
 #include "emmpm/common/EMMPMTypes.h"
 #include "emmpm/public/EMMPM_Constants.h"
@@ -47,7 +48,7 @@ extern "C" {
  * @param data a non NULL EMMPM_Data pointer
  * @param callbacks a non NULL EMMPM_CallbackFunctions
  */
-EMMPM_EXPORT void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+EMMPM_EXPORT void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 #ifdef __cplusplus
 }
@@ -56,4 +57,5 @@ EMMPM_EXPORT void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
 
 
 
-#endif /* CURVATURE_MPM_H_ */
+
+#endif /* _opencl_mpm_h_  */

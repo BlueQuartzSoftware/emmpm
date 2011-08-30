@@ -113,6 +113,55 @@ void UpdateStats(EMMPM_Data* data)
 }
 
 
+void check(int xdim, int ydim, int index, int expected_x, int expected_y)
+{
+
+  std::cout << "xdim  ydim  index  Exp(X)/Cal(X)   Exp(Y)/Cal(Y)" << std::endl;
+
+  if (index == 0)
+  {
+    std::cout << "Check Complete - Index == 0" << std::endl;
+    return;
+  }
+  int x = index % xdim;
+  int y = index / xdim;
+
+  std::cout << xdim << "    " << ydim << "       " << index << "         "
+      << expected_x << "/" << x << "          "
+      << expected_y << "/" << y << std::endl;
+
+  if (x != expected_x) {
+    std::cout << "Calc's X does NOT match Expected X"<< std::endl;
+    exit(1);
+  }
+
+  if (y != expected_y) {
+    std::cout << "Calc's Y does NOT match Expected Y" << std::endl;
+    exit(1);
+  }
+
+}
+
+
+int main2(int argc, char **argv)
+{
+  int xdim = 13;
+  int ydim = 7;
+
+  check(xdim, ydim, 0, 0, 0);
+  check(xdim, ydim, 1, 1, 0);
+  check(xdim, ydim, 12, 12, 0);
+  check(xdim, ydim, 13, 0, 1);
+  check(xdim, ydim, 14, 1, 1);
+  check(xdim, ydim, 13, 0, 1);
+  check(xdim, ydim, 78, 0, 6);
+  check(xdim, ydim, 90, 12, 6);
+
+  return EXIT_FAILURE;
+}
+
+
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------

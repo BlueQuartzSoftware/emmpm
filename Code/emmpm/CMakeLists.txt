@@ -8,14 +8,19 @@ project (EMMPMLib)
 
 set (EMMPMLib_PROJECT_FILES "")
 
+#-- Add an executable which will convert the .cl files into C Header files
+add_executable(OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/opencl/OpenCLCodeToHeader.c)
 
-add_executable(OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/ocl/OpenCLCodeToHeader.c)
+
+#-- Make sure the output directory is created/exists
 file(MAKE_DIRECTORY ${emmpm_BINARY_DIR}/emmpm/opencl/)
+#-- Add a custom command to convert the .cl file into a header file
+#-- If we have multiple .cl files then we need to do this for each .cl file
 add_custom_command(OUTPUT ${emmpm_BINARY_DIR}/emmpm/opencl/ocl_mpm_cpu.h 
-                    DEPENDS ${EMMPMLib_SOURCE_DIR}/private/ocl_mpm_cpu.cl 
-                    COMMAND OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/private/ocl_mpm_cpu.cl 
+                    DEPENDS ${EMMPMLib_SOURCE_DIR}/opencl/ocl_mpm_cpu.cl 
+                    COMMAND OpenCLCodeToHeader ${EMMPMLib_SOURCE_DIR}/opencl/ocl_mpm_cpu.cl 
                                         ${emmpm_BINARY_DIR}/emmpm/opencl/ocl_mpm_cpu.h 
-                    COMMENT "Creating Header from OpenCL file")
+                    COMMENT "Creating Header File from OpenCL ${EMMPMLib_SOURCE_DIR}/opencl/ocl_mpm_cpu.cl")
 
 # --------------------------------------------------------------------
 Macro(Add_EMMPMLib_Dir VarName Path)
@@ -25,9 +30,10 @@ Macro(Add_EMMPMLib_Dir VarName Path)
                                         ${EMMPM_${VarName}_HDRS} )
 endMacro()
 
+
 Add_EMMPMLib_Dir(Public public)
 Add_EMMPMLib_Dir(Common common)
-Add_EMMPMLib_Dir(OCL ocl)
+Add_EMMPMLib_Dir(OCL opencl)
 Add_EMMPMLib_Dir(Tiff tiff)
 Add_EMMPMLib_Dir(Private private)
 
@@ -60,6 +66,9 @@ if ( ${OPENCL_FOUND} )
     set (MATH_LIBRARY ${MATH_LIBRARY} ${OPENCL_LIBRARIES})
 endif()
 
+message(STATUS "OPENCL_INCLUDE_DIRS: ${OPENCL_INCLUDE_DIRS}")
+
+
 target_link_libraries(EMMPMLib ${TIFF_LIBRARY} ${MATH_LIBRARY})
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
 INSTALL(TARGETS EMMPMLib 
@@ -78,12 +87,4 @@ CMP_COPY_DEPENDENT_LIBRARIES ("tiff")
 
 # Generate Install Rules for the DLL Libraries
 CMP_LIBRARIES_INSTALL_RULES ("tiff" "bin" )
-
-add_custom_command(TARGET EMMPMLib PRE_BUILD 
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EMMPM_OPENCL_SOURCES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-                    COMMENT "Copying OpenCL Programs into Build Directory"
-                    )
-
-
-
 

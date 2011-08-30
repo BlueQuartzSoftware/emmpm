@@ -8,13 +8,12 @@
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
 #include "emmpm/common/EMTime.h"
-#include "emmpm/ocl/OpenCLUtils.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
+
+#include "emmpm/opencl/OpenCLUtils.h"
+//-- Include the generated header that contains the kernel program
 #include "emmpm/opencl/ocl_mpm_cpu.h"
-
-
-
 
 
 
@@ -61,6 +60,11 @@ int LoadFileIntoString(const char *filename, char **text, size_t *len)
     return 0;
 }
 
+#define OCL_CREATE_BUFFER_SET_ARG(count, in_var, cl_var, mem_flags, arg)\
+    cl_mem cl_var = clCreateBuffer(m_compute_context,\
+                                        (cl_mem_flags)(mem_flags),\
+                                         count, in_var, &return_value);\
+    err  = clSetKernelArg(m_compute_kernel, arg, sizeof(cl_mem), &cl_var);
 
 // -----------------------------------------------------------------------------
 //
@@ -68,10 +72,36 @@ int LoadFileIntoString(const char *filename, char **text, size_t *len)
 void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
 
+  // Initialize the MPM Variables
+   float* m_host_yk;
+   float sqrt2pi, current, con[EMMPM_MAX_CLASSES];
+   float x, post[EMMPM_MAX_CLASSES], sum, edge;
+   int k, l, prior;
+   int i, j, d;
+   size_t ld, ijd, ij, lij, i1j1;
+   size_t probsSize = data->columns * data->rows * data->classes;
+
+   char msgbuff[256];
+   float totalLoops;
+   float currentLoopCount = 0.0;
+
+   size_t nsCols = data->columns - 1;
+   size_t ewCols = data->columns;
+   size_t swCols = data->columns - 1;
+   size_t nwCols = data->columns - 1;
+
+   memset(post, 0, EMMPM_MAX_CLASSES * sizeof(float));
+   memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(float));
+
+   totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
+   memset(msgbuff, 0, 256);
+   data->progress++;
+   sqrt2pi = sqrt(2.0 * M_PI);
+
   int return_value;
   int err;
-  char *source;
-  size_t src_len;
+
+  size_t src_len = 0;
   int vectorized = 1;
   unsigned int count = 0;
   int threaded = 1; // We want the maximum threads the CPU can handle
@@ -92,14 +122,26 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   clGetDeviceInfo(m_compute_device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(unsigned int), &compute_units,  &returned_size);
   m_compute_units = threaded ? compute_units : 1;
+  printf("Width x Height x Classes: %d x %d x %d \n", data->columns, data->rows, data->classes);
+  int toalPixelCount = data->rows * data->columns;
+  int workPixelCount = toalPixelCount/m_compute_units; // What if this does NOT divide evenly??
+  printf("Total Pixels: %d\n", toalPixelCount);
   printf("CPU Init: m_compute_units: %d\n", m_compute_units);
+  // How many pixels are we going to compute in each workgroup, which is to say , each CPU Core.
+  printf("Pixels Per Compute Unit: %d\n", workPixelCount);
+
+
 
 //
 //  return_value = LoadFileIntoString(EMMPM_OPENCL_SOURCE_FILE, &source, &src_len);
 //  if (return_value)
 //      return;
-
-  m_compute_program = clCreateProgramWithSource(m_compute_context, 1, (const char**) & opencl_mpm_code, 0, &return_value);
+  const char* program[1] = {opencl_mpm_code};
+  m_compute_program = clCreateProgramWithSource(m_compute_context,
+                                                1, // There is a single char array
+                                                (const char**)(&program),
+                                                NULL, // All strings are null terminated
+                                                &return_value);
   if (!m_compute_program)
       return;
 
@@ -117,54 +159,37 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   if (!m_compute_kernel)
       return;
 
-  free(source);
 
-  // Initialize the MPM Variables
-  float* m_host_yk;
-  float sqrt2pi, current, con[EMMPM_MAX_CLASSES];
-  float x, post[EMMPM_MAX_CLASSES], sum, edge;
-  int k, l, prior;
-  int i, j, d;
-  size_t ld, ijd, ij, lij, i1j1;
-
-  char msgbuff[256];
-  float totalLoops;
-  float currentLoopCount = 0.0;
-
-  size_t nsCols = data->columns - 1;
-  size_t ewCols = data->columns;
-  size_t swCols = data->columns - 1;
-  size_t nwCols = data->columns-1;
-
-  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(float));
-  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(float));
-
-  totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
-  memset(msgbuff, 0, 256);
-  data->progress++;
-  sqrt2pi = sqrt(2.0 * M_PI);
 
   unsigned long long int millis = EMMPM_getMilliSeconds();
 
+  // Initialize the 'con' variable
   for (l = 0; l < data->classes; l++)
   {
-    con[l] = 0;
-    for (d = 0; d < data->dims; d++)
-    {
-      ld = data->dims * l + d;
-      con[l] += -log(sqrt2pi * sqrt(data->v[ld]));
-    }
+   con[l] = 0;
+   for (d = 0; d < data->dims; d++)
+   {
+     ld = data->dims * l + d;
+     con[l] += -log(sqrt2pi * sqrt(data->v[ld]));
+   }
   }
+
+  // Initialize the probablities to Zero - This could probably be merged into the
+  // OpenCL code or we could try SSE4 based code
+  // initialize the random numbers:
+  size_t totalPixels = data->columns * data->rows;
+  float* rands = (float*)(malloc(sizeof(float) * totalPixels));
   for (i = 0; i < data->rows; i++)
   {
-    for (j = 0; j < data->columns; j++)
-    {
-      for (l = 0; l < data->classes; l++)
-      {
-        lij = (data->columns * data->rows * l) + (data->columns * i) + j;
-        data->probs[lij] = 0;
-      }
-    }
+   for (j = 0; j < data->columns; j++)
+   {
+     rands[(data->columns * i) + j] = genrand_real2(data->rngVars);
+     for (l = 0; l < data->classes; l++)
+     {
+       lij = (data->columns * data->rows * l) + (data->columns * i) + j;
+       data->probs[lij] = 0.0f;
+     }
+   }
   }
 
 
@@ -178,56 +203,45 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   global_dim[0] = m_compute_units;
   global_dim[1] = 1;
 
+
+
   count = data->dims * data->rows * data->columns * data->classes;
   m_host_yk = (float*)malloc(count* sizeof(float));
 
   // Create an OpenCL Device Buffer to store the yk values
-  cl_mem m_device_yk = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR),
-                                      sizeof(float) * count, m_host_yk, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 0, sizeof(cl_mem), &m_device_yk);
+  OCL_CREATE_BUFFER_SET_ARG(sizeof(float)*count, m_host_yk, m_device_yk, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 0);
 
   int m_host_meta[4] = {data->dims, data->rows, data->columns, data->classes};
-  cl_mem m_device_meta = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR),
-                                       4, m_host_meta, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 1, sizeof(cl_mem), &m_device_meta);
+  OCL_CREATE_BUFFER_SET_ARG(4*sizeof(int), m_host_meta, m_device_meta, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 1);
 
-  cl_mem m_device_con = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR),
-                                       EMMPM_MAX_CLASSES, con, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 2, sizeof(cl_mem), &m_device_con);
-
-  cl_mem m_device_y = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR),
-                                       EMMPM_MAX_CLASSES, data->y, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 3, sizeof(cl_mem), &m_device_y);
-
-  cl_mem m_device_m = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR),
-                                       EMMPM_MAX_CLASSES, data->m, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 4, sizeof(cl_mem), &m_device_m);
-
-  cl_mem m_device_v = clCreateBuffer(m_compute_context,
-                                      (cl_mem_flags)(CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR),
-                                       EMMPM_MAX_CLASSES, data->v, &return_value);
-  err  = clSetKernelArg(m_compute_kernel, 5, sizeof(cl_mem), &m_device_v);
-
-
-  // How many pixels are we going to compute in each workgroup, which is to say , each CPU Core.
-  int m_body_count_per_work_group = (data->columns * data->rows) / m_compute_units;
-  printf("m_body_count_per_work_group: %d\n", m_body_count_per_work_group);
+  OCL_CREATE_BUFFER_SET_ARG(EMMPM_MAX_CLASSES*sizeof(float), con, m_device_con, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 2);
+  OCL_CREATE_BUFFER_SET_ARG((data->dims*data->rows*data->columns), data->y, m_device_y, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 3);
+  OCL_CREATE_BUFFER_SET_ARG(data->dims*data->classes*sizeof(double), data->m, m_device_m, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 4);
+  OCL_CREATE_BUFFER_SET_ARG(data->dims*data->classes*sizeof(double), data->v, m_device_v, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 5);
+  OCL_CREATE_BUFFER_SET_ARG(4, &toalPixelCount, m_device_totalPixelCount, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 6);
+  OCL_CREATE_BUFFER_SET_ARG(4, &workPixelCount, m_device_workPixelCount, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 7);
 
 
 
-  err = clEnqueueNDRangeKernel(m_compute_command, m_compute_kernel,
-                               2, NULL, global_dim, local_dim, 0, NULL, NULL);
+  /* *** Put the program into the Queue to be executed */
+  err = clEnqueueNDRangeKernel(m_compute_command, m_compute_kernel, 2, NULL, global_dim, local_dim, 0, NULL, NULL);
 
+  /* ** Wait for the execution to complete */
   err |= clFinish(m_compute_command);
   if (err != CL_SUCCESS)
-      return;
+      { free(rands); free(m_host_yk); return; }
 
   printf("OpenCL Millis to complete initialization: %llu \n", EMMPM_getMilliSeconds() - millis);
+
+
+/* * -----------------------------------------------------------------------------
+     Start the OpenCL section for the main mpm loops
+  ----------------------------------------------------------------------------- */
+  // Create a new kernel for the loop
+  m_compute_kernel = clCreateKernel(m_compute_program, "mpm_loop", &return_value);
+  if (!m_compute_kernel)
+  { free(rands); free(m_host_yk); return; }
+
 
 
   /* Perform the MPM loops */
@@ -236,8 +250,39 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
      data->currentMPMLoop = k;
      if (data->cancel) { data->progress = 100.0; break; }
      data->inside_mpm_loop = 1;
+     millis = EMMPM_getMilliSeconds();
+#if 0
+     printf("OpenCL Starting MPM Loop.... \n");
+     OCL_CREATE_BUFFER_SET_ARG(4*sizeof(int), m_host_meta, m_device_meta, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 0);
+     OCL_CREATE_BUFFER_SET_ARG(data->columns*data->rows, data->xt, m_device_xt, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1);
+     OCL_CREATE_BUFFER_SET_ARG((data->columns-1)*data->rows*sizeof(double), data->ns, m_device_ns, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 2);
+     OCL_CREATE_BUFFER_SET_ARG((data->columns)*data->rows*sizeof(double), data->ew, m_device_ew, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 3);
+     OCL_CREATE_BUFFER_SET_ARG((data->columns-1)*data->rows*sizeof(double), data->sw, m_device_sw, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 4);
+     OCL_CREATE_BUFFER_SET_ARG((data->columns-1)*data->rows*sizeof(double), data->nw, m_device_nw, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 5);
+     OCL_CREATE_BUFFER_SET_ARG(sizeof(float)*count, m_host_yk, m_device_yk, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 6);
+     OCL_CREATE_BUFFER_SET_ARG(1*sizeof(float), &(data->workingBeta), m_device_workingBeta, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 7);
+     OCL_CREATE_BUFFER_SET_ARG(1*sizeof(float), &(data->beta_c), m_device_beta_c, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 8);
+     OCL_CREATE_BUFFER_SET_ARG((data->classes*data->rows*data->columns)*sizeof(double), data->ccost, m_device_ccost, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 9);
+     OCL_CREATE_BUFFER_SET_ARG(EMMPM_MAX_CLASSES*sizeof(double), data->w_gamma, m_device_w_gamma, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 10);
+     OCL_CREATE_BUFFER_SET_ARG((data->rows*data->columns*data->classes)*sizeof(double), data->probs, m_device_probs, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 11);
+     OCL_CREATE_BUFFER_SET_ARG((data->rows*data->columns)*sizeof(float), rands, m_device_rands, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 12);
+
+     /* *** Put the program into the Queue to be executed */
+     err = clEnqueueNDRangeKernel(m_compute_command, m_compute_kernel,
+                                  2, NULL, global_dim, local_dim, 0, NULL, NULL);
+     if (err != CL_SUCCESS)
+     {
+       printf("OpenCL Error Enqueueing Kernel\n");
+       break;
+     }
+     /* ** Wait for the execution to complete */
+     err |= clFinish(m_compute_command);
+     if (err != CL_SUCCESS)
+         { free(rands); free(m_host_yk); return; }
 
 
+#else
+     printf("Serial Starting MPM Loop.... \n");
      for (i = 0; i < data->rows; i++)
      {
        for (j = 0; j < data->columns; j++)
@@ -357,7 +402,8 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
          }
        }
      }
-
+#endif
+     printf("Millis to complete loop: %llu \n", EMMPM_getMilliSeconds() - millis);
      EMMPM_ConvertXtToOutputImage(data, callbacks);
      if (callbacks->EMMPM_ProgressFunc != NULL)
      {
@@ -393,6 +439,7 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
    /* Clean Up Memory */
    free(m_host_yk);
+   free(rands);
 
 
 }

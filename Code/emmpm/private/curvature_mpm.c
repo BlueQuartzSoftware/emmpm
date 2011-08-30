@@ -41,15 +41,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/stat.h>
 
 #include "emmpm/common/EMMPM_Math.h"
 #include "emmpm/common/random.h"
 #include "emmpm/common/EMTime.h"
 #include "emmpm/public/EMMPM.h"
 #include "emmpm/private/curvature_mpm.h"
-
-
 
 // -----------------------------------------------------------------------------
 //
@@ -101,6 +98,9 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   sqrt2pi = sqrt(2.0 * M_PI);
 
+  unsigned long long int millis = EMMPM_getMilliSeconds();
+
+
   for (l = 0; l < classes; l++)
   {
     con[l] = 0;
@@ -110,8 +110,6 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
       con[l] += -log(sqrt2pi * sqrt(v[ld]));
     }
   }
-
-  unsigned long long int millis = EMMPM_getMilliSeconds();
 
   for (i = 0; i < rows; i++)
   {
@@ -132,7 +130,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     }
   }
 
-  printf("Serial Millis to complete initialization: %lu \n", EMMPM_getMilliSeconds() - millis);
+  printf("Serial Millis to complete initialization: %llu \n", EMMPM_getMilliSeconds() - millis);
 
 
   /* Perform the MPM loops */
@@ -141,7 +139,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     data->currentMPMLoop = k;
     if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
-
+    millis = EMMPM_getMilliSeconds();
 
     for (i = 0; i < rows; i++)
     {
@@ -262,7 +260,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         }
       }
     }
-
+    printf("Millis to complete loop: %llu \n", EMMPM_getMilliSeconds() - millis);
     EMMPM_ConvertXtToOutputImage(data, callbacks);
     if (callbacks->EMMPM_ProgressFunc != NULL)
     {

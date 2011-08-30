@@ -36,7 +36,7 @@
 
 int main(int argc, char **argv)
 {
-  printf ("Starting OpenCLCodeToHeader.....\n");
+ // printf ("Starting OpenCLCodeToHeader.....\n");
   struct stat statbuf;
   FILE        *fh;
   int         file_len;
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
   fclose(fh);
 
-  printf("Generating: %s\n", argv[2]);
+//  printf("Generating: %s\n", argv[2]);
   fh = fopen(argv[2], "wb");
   if (fh == 0)
     return EXIT_FAILURE;
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 
   fclose(fh);
 
-  printf ("Ending OpenCLCodeToHeader.....\n");
+ // printf ("Ending OpenCLCodeToHeader.....\n");
 
   return EXIT_SUCCESS;
 

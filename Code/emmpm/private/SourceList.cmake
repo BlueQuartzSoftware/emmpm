@@ -10,7 +10,6 @@ set (EMMPM_Private_SRCS
     ${EMMPMLib_SOURCE_DIR}/private/curvature_em.c
     ${EMMPMLib_SOURCE_DIR}/private/curvature_mpm.c
     ${EMMPMLib_SOURCE_DIR}/private/morphFilt.c
-    ${EMMPMLib_SOURCE_DIR}/private/opencl_mpm.c
 )
 
 set (EMMPM_Private_HDRS
@@ -21,6 +20,3 @@ set (EMMPM_Private_HDRS
     ${EMMPMLib_SOURCE_DIR}/private/morphFilt.h
 )
 cmp_IDE_SOURCE_PROPERTIES( "emmpm/private" "${EMMPM_Private_HDRS}" "${EMMPM_Private_SRCS}" "${CMP_INSTALL_FILES}")
-
-set (EMMPM_OPENCL_SOURCES ${EMMPMLib_SOURCE_DIR}/private/ocl_mpm_cpu.cl)
-

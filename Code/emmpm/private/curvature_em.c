@@ -49,6 +49,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "emmpm/private/morphFilt.h"
 #include "emmpm/private/curvature_mpm.h"
 
+#include "emmpm/opencl/opencl_mpm.h"
+
 
 
 // -----------------------------------------------------------------------------
@@ -110,6 +112,7 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     callbacks->EMMPM_ProgressFunc(msgbuff, 0);
   }
   /* Perform initial MPM - (Estimation) */
+
  // ocl_acv_mpm(data, callbacks);
   acvmpm(data, callbacks);
 
@@ -173,7 +176,9 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 
     /* Perform MPM - (Estimation) */
+   // ocl_acv_mpm(data, callbacks);
     acvmpm(data, callbacks);
+
   } /* EM Loop End */
 
   EMMPM_ConvertXtToOutputImage(data, callbacks);
