@@ -51,7 +51,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "emmpm/opencl/opencl_mpm.h"
 
-
+<<<< Define the below to 1 and erase this message to enable OpenCL
+#define EMMPM_USE_OPEN_CL 0
 
 // -----------------------------------------------------------------------------
 //
@@ -112,9 +113,11 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     callbacks->EMMPM_ProgressFunc(msgbuff, 0);
   }
   /* Perform initial MPM - (Estimation) */
-
+#if EMMPM_USE_OPEN_CL
   ocl_acv_mpm(data, callbacks);
- // acvmpm(data, callbacks);
+#else
+  acvmpm(data, callbacks);
+#endif
 
 
   /* -----------------------------------------------------------
@@ -176,8 +179,11 @@ void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks
     }
 
     /* Perform MPM - (Estimation) */
-    ocl_acv_mpm(data, callbacks);
-   // acvmpm(data, callbacks);
+#if EMMPM_USE_OPEN_CL
+  ocl_acv_mpm(data, callbacks);
+#else
+  acvmpm(data, callbacks);
+#endif
 
   } /* EM Loop End */
 

@@ -34,7 +34,7 @@ cl_mem output;                      // device memory used for the output array
 
 #define OPEN_CL_CPU 0
 #define OPEN_CL_GPU 1
-#define EMMPM_OPENCL_SOURCE_FILE "ocl_mpm_cpu.cl"
+
 
 // -----------------------------------------------------------------------------
 //
@@ -104,7 +104,7 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 //  size_t src_len = 0;
 //  int vectorized = 1;
   unsigned int count = 0;
-  int threaded = 0; // We want the maximum threads the CPU can handle
+  int threaded = 1; // We want the maximum threads the CPU can handle
   return_value = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &m_compute_device_id, &m_device_count);
   if (return_value)
      return;
@@ -261,7 +261,7 @@ void ocl_acv_mpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
      if (data->cancel) { data->progress = 100.0; break; }
      data->inside_mpm_loop = 1;
      millis = EMMPM_getMilliSeconds();
-#if 1
+#if 0
      printf("OpenCL Starting MPM Loop.... \n");
      OCL_CREATE_BUFFER_SET_ARG(4*sizeof(int), m_host_meta, m_device_meta, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 0);
      OCL_CREATE_BUFFER_SET_ARG(data->columns*data->rows, data->xt, m_device_xt, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, 1);

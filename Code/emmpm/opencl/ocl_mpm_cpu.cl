@@ -1,3 +1,6 @@
+>>>>>> This code does NOT produce the correct results.
+
+
 __kernel void mpm_init_yk(__global float* yk,
                           __global int* meta,
                           __global float* con,
@@ -26,7 +29,7 @@ __kernel void mpm_init_yk(__global float* yk,
   int xEnd = meta[2];
 
 
-  printf("get_global_id: %d\n", index);
+//  printf("get_global_id: %d\n", index);
 //  printf(" rowStart: %d\n", rowStart);
 //  printf(" rowEnd: %d\n", rowEnd);
 //  printf(" xStart: %d\n", xStart);
@@ -66,13 +69,8 @@ __kernel void mpm_loop(__global int* meta,
                           __global double* w_gamma,
                           __global double* probs,
                           __global float* rands,
-                          int* rowStartValues
-                          )
+                          int* rowStartValues )
 {
-
-  /* We are running over the width x height dimensions so the index is the index
-   * into that type of array
-   */
   int index = get_global_id(0);
   float sum = 0;
   int l = 0;
@@ -103,9 +101,9 @@ __kernel void mpm_loop(__global int* meta,
   int xEnd = meta[2];
 
 
-  printf("get_global_id: %d\n", index);
-  printf(" rowStart: %d\n", rowStart);
-  printf(" rowEnd: %d\n", rowEnd);
+//  printf("get_global_id: %d\n", index);
+//  printf(" rowStart: %d\n", rowStart);
+//  printf(" rowEnd: %d\n", rowEnd);
 //  printf(" xStart: %d\n", xStart);
 //  printf(" xEnd: %d\n", xEnd);
 
@@ -190,9 +188,9 @@ __kernel void mpm_loop(__global int* meta,
            // printf("[%d] - mark5 (before) Starting row, column, class, i1j1 %d, %d, %d %d\n",index, i, j, l, i1j1);
             if(i == 118 && j == 839)
             {
-              printf("i1j1: %d\n", i1j1);
+             // printf("i1j1: %d\n", i1j1);
               current = xt[i1j1];
-              printf("Done\n");
+            //  printf("Done\n");
             }
             if(xt[i1j1] != l)
             {

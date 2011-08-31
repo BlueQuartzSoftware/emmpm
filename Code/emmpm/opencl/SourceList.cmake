@@ -12,6 +12,7 @@ set (EMMPM_OCL_SRCS
 set (EMMPM_OCL_HDRS
     ${EMMPMLib_SOURCE_DIR}/opencl/OpenCLUtils.h
     ${EMMPMLib_SOURCE_DIR}/opencl/opencl_mpm.c
+    ${EMMPMLib_SOURCE_DIR}/opencl/ocl_mpm_cpu.cl
 )
 cmp_IDE_SOURCE_PROPERTIES( "emmpm/opencl" "${EMMPM_OCL_HDRS}" "${EMMPM_OCL_SRCS}" "${CMP_INSTALL_FILES}")
 
