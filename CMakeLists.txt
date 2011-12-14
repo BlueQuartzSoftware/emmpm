@@ -78,7 +78,7 @@ ENDIF (BUILD_SHARED_LIBS)
 # --------------------------------------------------------------------
 # Possibly use a different Random Number Generator
 set(USE_MERSENNE_TWISTER)
-option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" OFF)
+option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
 if (EMMPM_USE_MT_RNG)
   set(USE_MERSENNE_TWISTER 1)
 endif()
