@@ -60,9 +60,13 @@ void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
   /* Allocate for edge images */
 
   data->ns = (double*)malloc(nsCols * nsRows * sizeof(double));
+  if (data->ns == NULL) { return; }
   data->ew = (double*)malloc(ewCols * ewRows * sizeof(double));
+  if (data->ew == NULL) { return; }
   data->sw = (double*)malloc(swCols * swRows * sizeof(double));
+  if (data->sw == NULL) { return; }
   data->nw = (double*)malloc(nwCols * nwRows * sizeof(double));
+  if (data->nw == NULL) { return; }
 
   /* Do edge detection for gradient penalty*/
   for (i = 0; i < data->rows; i++)
@@ -133,6 +137,7 @@ void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
   unsigned int i, j;
 
   data->ccost = (double*)malloc(data->classes * data->rows * data->columns * sizeof(double));
+  if (data->ccost == NULL) { return; }
 
   /* Initialize Curve Costs to zero */
   for (l = 0; l < data->classes; l++)
