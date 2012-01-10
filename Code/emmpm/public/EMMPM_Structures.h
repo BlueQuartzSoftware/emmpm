@@ -131,6 +131,15 @@ typedef struct
     //  in this structure
     // -----------------------------------------------------------------------------
     RNGVars*    rngVars;
+
+    // -----------------------------------------------------------------------------
+    // Some Critical TIFF related fields which are taken directly from the tifftags
+    //  of the input image. These really only appply for the command line version
+    // -----------------------------------------------------------------------------
+    char tiffResSet;
+    unsigned short xResolution;
+    unsigned short yResolution;
+    unsigned short resolutionUnits;
 } EMMPM_Data;
 
 /**

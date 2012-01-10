@@ -109,6 +109,11 @@ EMMPM_Data* EMMPM_CreateDataStructure()
   data->histograms = NULL;
 
   data->rngVars = NULL;
+
+  data->tiffResSet = 0;
+  data->xResolution = 0;
+  data->yResolution = 0;
+  data->resolutionUnits = 1;
   return data;
 }
 

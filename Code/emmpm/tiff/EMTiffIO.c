@@ -134,6 +134,9 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   unsigned short bitspersample;
   unsigned short photometric;
   unsigned short orientation;
+  unsigned short xRes;
+  unsigned short yRes;
+  unsigned short resUnits;
   int err;
   int width, height;
   unsigned char r, g, b;
@@ -162,6 +165,15 @@ unsigned char* EMMPM_ReadTiffAsGrayScale(EMMPM_Data* data, EMMPM_CallbackFunctio
   err = TIFFGetField(in, TIFFTAG_BITSPERSAMPLE, &bitspersample);
   err = TIFFGetField(in, TIFFTAG_PHOTOMETRIC, &photometric);
   err = TIFFGetField(in, TIFFTAG_ORIENTATION, &orientation);
+  err = TIFFGetField(in, TIFFTAG_XRESOLUTION, &xRes);
+  err = TIFFGetField(in, TIFFTAG_YRESOLUTION, &yRes);
+  err = TIFFGetField(in, TIFFTAG_RESOLUTIONUNIT, &resUnits);
+
+  data->tiffResSet = 1;
+  data->xResolution = xRes;
+  data->yResolution = yRes;
+  data->resolutionUnits = resUnits;
+
 
   totalBytes = data->columns * data->rows * 4;
   raster = (unsigned char*)_TIFFmalloc( totalBytes );
@@ -388,6 +400,13 @@ int EMMPM_WritePalettedImage(EMMPM_Data* data,
   err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
 
   err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
+
+  if (data->tiffResSet == 1)
+  {
+    err = TIFFSetField(out, TIFFTAG_XRESOLUTION, data->xResolution);
+    err = TIFFSetField(out, TIFFTAG_YRESOLUTION, data->yResolution);
+    err = TIFFSetField(out, TIFFTAG_RESOLUTIONUNIT, data->resolutionUnits);
+  }
 
   // Write the information to the file
   area = (tsize_t)( data->columns *  data->rows);
