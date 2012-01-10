@@ -42,20 +42,25 @@ set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS
 
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
 target_link_libraries(EMMPMLib ${TIFF_LIBRARY} ${MATH_LIBRARY})
+
+
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
-INSTALL(TARGETS EMMPMLib 
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin 
-        COMPONENT Applications)
-        
-set (lib_rt_dest lib)
-if (WIN32 AND BUILD_SHARED_LIBS)
-  set (lib_rt_dest bin)
+
+set(install_dir "tools")
+set(lib_install_dir "lib")
+if (WIN32)
+    set (install_dir ".")
+    set(lib_install_dir "")
 endif()
 
-# Copy DLL libraries into the correct build location on MSVC platforms
-CMP_COPY_DEPENDENT_LIBRARIES ("tiff")
 
-# Generate Install Rules for the DLL Libraries
-CMP_LIBRARIES_INSTALL_RULES ("tiff" "bin" )
+if (BUILD_SHARED_LIBS AND NOT APPLE)
+    INSTALL(TARGETS ${PROJECT_NAME}  
+        COMPONENT Applications
+        RUNTIME DESTINATION ${install_dir}
+        LIBRARY DESTINATION ${lib_install_dir}
+        ARCHIVE DESTINATION ${lib_install_dir}       
+        BUNDLE DESTINATION "."
+    ) 
+endif() 
+

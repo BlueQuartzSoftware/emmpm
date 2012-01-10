@@ -23,7 +23,7 @@ cmp_IDE_SOURCE_PROPERTIES("emmpm/apps" "${emmpm_HDRS}" "${emmpm_SRCS}"  "${CMP_I
 # Setup the install rules for the various platforms
 set(install_dir "tools")
 if (WIN32)
-    set (install_dir "bin")
+    set (install_dir ".")
 endif()
 
 BuildToolBundle(

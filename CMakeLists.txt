@@ -52,7 +52,7 @@ set (CMP_VERSION_HEADER_FILE_NAME "EMMPMVersion.h")
 set (CMP_EXTRA_CONFIGURATION_FILE "EMMPMConfiguration.h")
 set (CMP_PROJECT_NAMESPACE "EMMPM")
 set (CMP_PROJECT_NAME "EMMPM")
-SET (CMP_INSTALL_FILES "1")
+SET (CMP_INSTALL_FILES "0")
 set (CMP_ENABLE_PLUGINS "0")
 INCLUDE (${CMP_SOURCE_DIR}/cmpProject.cmake)
                
@@ -78,7 +78,7 @@ ENDIF (BUILD_SHARED_LIBS)
 # --------------------------------------------------------------------
 # Possibly use a different Random Number Generator
 set(USE_MERSENNE_TWISTER)
-option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" OFF)
+option(EMMPM_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
 if (EMMPM_USE_MT_RNG)
   set(USE_MERSENNE_TWISTER 1)
 endif()
@@ -125,6 +125,11 @@ IF (NOT TIFF_FOUND)
 ENDIF (NOT TIFF_FOUND)
 set (EMMPM_TIFF_SUPPORT "1")
 INCLUDE_DIRECTORIES(${TIFF_INCLUDE_DIRS})
+# Copy DLL libraries into the correct build location on MSVC platforms
+if (HAVE_TIFF_DLL)
+CMP_COPY_DEPENDENT_LIBRARIES ("tiff")
+CMP_LIBRARIES_INSTALL_RULES ("tiff" "." )
+endif()
 
 # Include some directories for the compiler
 include_directories(${PROJECT_BINARY_DIR})
