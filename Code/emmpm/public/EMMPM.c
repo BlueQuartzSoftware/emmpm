@@ -444,27 +444,39 @@ void EMMPM_Run(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
 
   /* Initialize the Curvature Penalty variables:  */
-  EMMPM_InitCurvatureVariables(data);
-  if (data->ccost == NULL) {
-    if (callbacks->EMMPM_ProgressFunc != NULL)
-    {
-      snprintf(msgbuff, 256, "Error Allocating Memory");
-      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+  data->ccost = NULL;
+  if (data->useCurvaturePenalty)
+  {
+    EMMPM_InitCurvatureVariables(data);
+    if (data->ccost == NULL) {
+      if (callbacks->EMMPM_ProgressFunc != NULL)
+      {
+        snprintf(msgbuff, 256, "Error Allocating Memory");
+        callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+      }
+      freeRandStruct(data->rngVars);
+      return;
     }
-    freeRandStruct(data->rngVars);
-    return;
   }
 
+
   /* Initialize the Edge Gradient Penalty variables */
-  EMMPM_InitializeGradientVariables(data);
-  if (data->ns == NULL || data->ew == NULL || data->nw == NULL || data->sw == NULL) {
-    if (callbacks->EMMPM_ProgressFunc != NULL)
-    {
-      snprintf(msgbuff, 256, "Error Allocating Memory");
-      callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+  data->nw = NULL;
+  data->ew = NULL;
+  data->sw = NULL;
+  data->nw = NULL;
+  if (data->useGradientPenalty)
+  {
+    EMMPM_InitializeGradientVariables(data);
+    if (data->ns == NULL || data->ew == NULL || data->nw == NULL || data->sw == NULL) {
+      if (callbacks->EMMPM_ProgressFunc != NULL)
+      {
+        snprintf(msgbuff, 256, "Error Allocating Memory");
+        callbacks->EMMPM_ProgressFunc(msgbuff, data->progress);
+      }
+      freeRandStruct(data->rngVars);
+      return;
     }
-    freeRandStruct(data->rngVars);
-    return;
   }
 
 

@@ -154,7 +154,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               {
                 prior++;
                 i1j1 = (swCols*(i-1))+j-1;
-                edge += sw[i1j1];
+                if (data->useGradientPenalty) edge += sw[i1j1];
               }
             }
 
@@ -164,7 +164,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (ewCols*(i-1))+j;
-              edge += ew[i1j1];
+              if (data->useGradientPenalty) edge += ew[i1j1];
             }
             //mark2
             if (j + 1 < cols)
@@ -174,7 +174,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               {
                 prior++;
                 i1j1 = (nwCols*(i-1))+j;
-                edge += nw[i1j1];
+                if (data->useGradientPenalty) edge += nw[i1j1];
               }
             }
           }
@@ -189,7 +189,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               {
                 prior++;
                 i1j1 = (nwCols*(i))+j-1;
-                edge += nw[i1j1];
+                if (data->useGradientPenalty) edge += nw[i1j1];
               }
             }
             //mark4
@@ -198,7 +198,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (ewCols*(i))+j;
-              edge += ew[i1j1];
+              if (data->useGradientPenalty) edge += ew[i1j1];
             }
             //mark5
             if (j + 1 < cols)
@@ -208,7 +208,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
               {
                 prior++;
                 i1j1 = (swCols*(i))+j;
-                edge += sw[i1j1];
+                if (data->useGradientPenalty) edge += sw[i1j1];
               }
             }
           }
@@ -220,7 +220,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (nsCols*(i))+j-1;
-              edge += ns[i1j1];
+              if (data->useGradientPenalty) edge += ns[i1j1];
             }
           }
           //mark7
@@ -231,11 +231,16 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             {
               prior++;
               i1j1 = (nsCols*(i))+j;
-              edge += ns[i1j1];
+              if (data->useGradientPenalty) edge += ns[i1j1];
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
-          post[l] = exp(yk[lij] - (data->workingBeta * (double)prior) - edge - (data->beta_c * ccost[lij]) - data->w_gamma[l]);
+          double curvature_value = 0.0;
+          if (data->useCurvaturePenalty)
+          {
+            curvature_value = data->beta_c * ccost[lij];
+          }
+          post[l] = exp(yk[lij] - (data->workingBeta * (double)prior) - (edge) - (curvature_value) - data->w_gamma[l]);
           sum += post[l];
         }
         x = genrand_real2(data->rngVars);
