@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 #include <iostream>
@@ -37,6 +38,7 @@
 #include <fstream>
 #include <string>
 
+#include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 #include "EMMPMLib/EMMPMLibTypes.h"
 #include "EMMPMLib/public/EMMPM_Structures.h"

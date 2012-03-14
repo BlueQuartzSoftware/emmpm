@@ -12,6 +12,7 @@
 #define _EMMPM_DLL_EXPORT_H_
 
 
+#if 0
 #if defined (_MSC_VER)
   #pragma warning(disable: 4251)
   #pragma warning(disable: 4710)
@@ -23,6 +24,7 @@
   #pragma warning(disable: 4996)
   #pragma warning(disable: 4548)
 #endif
+#endif
 
 /* Cmake will define EMMPMLib_EXPORTS on Windows when it
 configures to build a shared library. If you are going to use
@@ -31,7 +33,7 @@ projects by hand you need to define EMMPMLib_EXPORTS when
 building the MXADatModel DLL on windows.
 */
 
-#if defined (EMMPM_BUILT_AS_DYNAMIC_LIB)
+#if defined (EMMPMLib_BUILT_AS_DYNAMIC_LIB)
 
   #if defined (EMMPMLib_EXPORTS)  /* Compiling the MXA DLL/Dylib */
     #if defined (_MSC_VER)  /* MSVC Compiler Case */
@@ -56,7 +58,7 @@ building the MXADatModel DLL on windows.
 #if 0
 #if defined (_WIN32) || defined __CYGWIN__
 
-  #if defined (EMMPM_BUILT_AS_DYNAMIC_LIB)
+  #if defined (EMMPMLib_BUILT_AS_DYNAMIC_LIB)
     #if defined(EMMPMLib_EXPORTS)
       #define  EMMPM_EXPORT __declspec(dllexport)
     #else

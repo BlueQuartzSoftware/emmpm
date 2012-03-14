@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
+#include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 #include "EMMPMLib/common/random.h"
 #include "EMMPMLib/public/EMMPM.h"
@@ -86,6 +87,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   size_t nwCols = data->columns-1;
 //  size_t nwRows = data->rows-1;
 
+  real_t curvature_value = (real_t)0.0;
   memset(post, 0, EMMPM_MAX_CLASSES * sizeof(real_t));
   memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(real_t));
 
@@ -235,7 +237,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
-          real_t curvature_value = 0.0;
+          curvature_value = 0.0;
           if (data->useCurvaturePenalty)
           {
             curvature_value = data->beta_c * ccost[lij];
