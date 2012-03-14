@@ -40,7 +40,7 @@
 #include "EMMPMLib/public/EMMPM_Constants.h"
 
 
-typedef double real_t;
+typedef float real_t;
 
 /**
  * @struct EMMPM_Data emmpm/public/EMMPM_Structures.h EMMPM_Structures.h
