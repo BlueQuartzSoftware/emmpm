@@ -52,9 +52,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -----------------------------------------------------------------------------
 void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
-  double* yk;
-  double sqrt2pi, current, con[EMMPM_MAX_CLASSES];
-  double x, post[EMMPM_MAX_CLASSES], sum, edge;
+  real_t* yk;
+  real_t sqrt2pi, current, con[EMMPM_MAX_CLASSES];
+  real_t x, post[EMMPM_MAX_CLASSES], sum, edge;
   int k, l, prior;
   int i, j, d;
   size_t ld, ijd, ij, lij, i1j1;
@@ -64,18 +64,18 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   int classes = data->classes;
   unsigned char* y = data->y;
   unsigned char* xt = data->xt;
-  double* probs = data->probs;
-  double* m = data->m;
-  double* v = data->v;
-  double* ccost = data->ccost;
-  double* ns = data->ns;
-  double* ew = data->ew;
-  double* sw = data->sw;
-  double* nw = data->nw;
+  real_t* probs = data->probs;
+  real_t* m = data->m;
+  real_t* v = data->v;
+  real_t* ccost = data->ccost;
+  real_t* ns = data->ns;
+  real_t* ew = data->ew;
+  real_t* sw = data->sw;
+  real_t* nw = data->nw;
   char msgbuff[256];
   float totalLoops;
   float currentLoopCount = 0.0;
-//  double local_beta;
+//  real_t local_beta;
 
   size_t nsCols = data->columns - 1;
  // size_t nsRows = data->rows;
@@ -86,14 +86,14 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
   size_t nwCols = data->columns-1;
 //  size_t nwRows = data->rows-1;
 
-  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(double));
-  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(double));
+  memset(post, 0, EMMPM_MAX_CLASSES * sizeof(real_t));
+  memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(real_t));
 
   totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
   memset(msgbuff, 0, 256);
   data->progress++;
 
-  yk = (double*)malloc(cols * rows * classes * sizeof(double));
+  yk = (real_t*)malloc(cols * rows * classes * sizeof(real_t));
 
   sqrt2pi = sqrt(2.0 * M_PI);
 
@@ -235,12 +235,12 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
             }
           }
           lij = (cols * rows * l) + (cols * i) + j;
-          double curvature_value = 0.0;
+          real_t curvature_value = 0.0;
           if (data->useCurvaturePenalty)
           {
             curvature_value = data->beta_c * ccost[lij];
           }
-          post[l] = exp(yk[lij] - (data->workingBeta * (double)prior) - (edge) - (curvature_value) - data->w_gamma[l]);
+          post[l] = exp(yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l]);
           sum += post[l];
         }
         x = genrand_real2(data->rngVars);
@@ -286,7 +286,7 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
         for (l = 0; l < classes; l++)
         {
           lij = (cols * rows * l) + (cols * i) + j;
-          data->probs[lij] = data->probs[lij] / (double)data->mpmIterations;
+          data->probs[lij] = data->probs[lij] / (real_t)data->mpmIterations;
         }
       }
     }

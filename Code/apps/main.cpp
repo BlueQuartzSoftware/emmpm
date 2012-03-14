@@ -76,14 +76,14 @@ void UpdateStats(EMMPM_Data* data)
       std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
     }
 #if 0
-    double hist[EMMPM_MAX_CLASSES][256];
+    real_t hist[EMMPM_MAX_CLASSES][256];
     // Generate a gaussian curve for each class based off the mu and sigma for that class
     for (int c = 0; c < data->classes; ++c)
     {
-      double mu = data->m[c];
-      double sig = data->v[c];
-      double twoSigSqrd = sig * sig * 2.0f;
-      double constant = 1.0f / (sig * sqrtf(2.0f * M_PI));
+      real_t mu = data->m[c];
+      real_t sig = data->v[c];
+      real_t twoSigSqrd = sig * sig * 2.0f;
+      real_t constant = 1.0f / (sig * sqrtf(2.0f * M_PI));
       for (size_t x = 0; x < 256; ++x)
       {
         hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));

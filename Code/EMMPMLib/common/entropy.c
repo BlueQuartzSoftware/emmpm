@@ -30,12 +30,14 @@
 
 
 #include <stdio.h>
+
+#include "entropy.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 
-void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes)
+void entropy(real_t ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes)
 {
 	unsigned int l, i, j;
-	double entr;
+	real_t entr;
 
 	for(i = 0; i < rows; i++)
 	{

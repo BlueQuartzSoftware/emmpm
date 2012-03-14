@@ -31,11 +31,13 @@
 #ifndef ENTROPY_H_
 #define ENTROPY_H_
 
+#include "EMMPMLib/public/EMMPM_Structures.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void entropy(double ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes);
+void entropy(real_t ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes);
 
 #ifdef __cplusplus
 }

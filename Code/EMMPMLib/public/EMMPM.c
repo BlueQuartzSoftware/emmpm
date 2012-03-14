@@ -128,16 +128,16 @@ int EMMPM_AllocateDataStructureMemory(EMMPM_Data* data)
   if (NULL == data->xt) { data->xt = (unsigned char*)malloc(data->columns * data->rows * sizeof(unsigned char));}
   if (NULL == data->xt) return -1;
 
-  if (NULL == data->m) { data->m = (double*)malloc(data->classes * data->dims * sizeof(double));}
+  if (NULL == data->m) { data->m = (real_t*)malloc(data->classes * data->dims * sizeof(real_t));}
   if (NULL == data->m) return -1;
 
-  if (NULL == data->v) { data->v = (double*)malloc(data->classes * data->dims * sizeof(double)); }
+  if (NULL == data->v) { data->v = (real_t*)malloc(data->classes * data->dims * sizeof(real_t)); }
   if (NULL == data->v) return -1;
 
-  if (NULL == data->probs) { data->probs = (double*)malloc(data->classes * data->columns * data->rows * sizeof(double));}
+  if (NULL == data->probs) { data->probs = (real_t*)malloc(data->classes * data->columns * data->rows * sizeof(real_t));}
   if (NULL == data->probs) return -1;
 
-  if (NULL == data->histograms) { data->histograms = (double*)malloc(data->classes * data->dims * 256 * sizeof(double)); }
+  if (NULL == data->histograms) { data->histograms = (real_t*)malloc(data->classes * data->dims * 256 * sizeof(real_t)); }
   if (NULL == data->histograms) return -1;
 
   return 0;
@@ -263,11 +263,11 @@ void EMMPM_ConvertXtToOutputImage(EMMPM_Data* data, EMMPM_CallbackFunctions* cal
   size_t* classCounts = NULL;
   size_t x = 0;
 
-  double mu = 0.0;
-  double stdDev = 0.0;
-  double twoSigSqrd = 0.0f;
-  double constant = 0.0;
-  double variance = 0.0;
+  real_t mu = 0.0;
+  real_t stdDev = 0.0;
+  real_t twoSigSqrd = 0.0f;
+  real_t constant = 0.0;
+  real_t variance = 0.0;
 
   float sqrt2pi = sqrtf(2.0f * (float)M_PI);
   size_t histIdx = 0;

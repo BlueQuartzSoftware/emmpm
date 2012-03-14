@@ -148,7 +148,7 @@ void multiSE(EMMPM_Data* data)
   int ii, jj, ri;
   unsigned char* se = NULL;
   unsigned char* curve = NULL;
-  double r, r_sq, pnlty;
+  real_t r, r_sq, pnlty;
   size_t ij, lij, iirijjri;
   size_t se_cols;
   size_t se_rows;
@@ -157,7 +157,7 @@ void multiSE(EMMPM_Data* data)
   int cols = data->columns;
   int classes = data->classes;
 
-  pnlty = 1 / (double)NUM_SES;
+  pnlty = 1 / (real_t)NUM_SES;
 
   curve = (unsigned char*)malloc(cols * rows * sizeof(unsigned char));
 

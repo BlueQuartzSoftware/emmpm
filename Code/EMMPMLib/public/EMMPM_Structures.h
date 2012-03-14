@@ -40,7 +40,7 @@
 #include "EMMPMLib/public/EMMPM_Constants.h"
 
 
-
+typedef double real_t;
 
 /**
  * @struct EMMPM_Data emmpm/public/EMMPM_Structures.h EMMPM_Structures.h
@@ -55,7 +55,7 @@ typedef struct
     // -----------------------------------------------------------------------------
     int emIterations; /**<  */
     int mpmIterations; /**<  */
-    double in_beta; /**<  */
+    real_t in_beta; /**<  */
     int classes; /**<  */
     unsigned int rows; /**< The height of the image.  Applicable for both input and output images */
     unsigned int columns; /**< The width of the image. Applicable for both input and output images */
@@ -64,7 +64,7 @@ typedef struct
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
     char simulatedAnnealing; /**<  */
     unsigned int grayTable[EMMPM_MAX_CLASSES];
-    double min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
+    real_t min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
     char verbose; /**<  */
     char inside_em_loop;
     char inside_mpm_loop;
@@ -84,12 +84,12 @@ typedef struct
     unsigned char* y; /**< height*width*dims array of bytes */
     unsigned char* xt; /**< width*height array of bytes */
 
-    double w_gamma[EMMPM_MAX_CLASSES]; /**<  */
-    double* m; /**< classes * dims array (classes is slowest moving dimension)*/
-    double* v; /**< classes * dims array */
-    double N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
-    double* probs; /**< classes * rows * cols (slowest to fastest)*/
-    double workingBeta; /**<  */
+    real_t w_gamma[EMMPM_MAX_CLASSES]; /**<  */
+    real_t* m; /**< classes * dims array (classes is slowest moving dimension)*/
+    real_t* v; /**< classes * dims array */
+    real_t N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
+    real_t* probs; /**< classes * rows * cols (slowest to fastest)*/
+    real_t workingBeta; /**<  */
 
     // -----------------------------------------------------------------------------
     //  Curvature Penalty Function Related variables
@@ -97,14 +97,14 @@ typedef struct
     char   useCurvaturePenalty; /**<  Use the curvature Penalty function */
     char   useGradientPenalty; /**< Use the Gradient Penalty function */
     size_t ccostLoopDelay; /**<  How many em loops until the Curvature Penalty is calculated   */
-    double beta_e; /**<  */
-    double beta_c; /**<  */
-    double r_max; /**<  */
-    double* ccost; /**< classes * rows * cols (slowest to fastest)*/
-    double* ns; /**<  */
-    double* ew; /**<  */
-    double* sw; /**<  */
-    double* nw; /**<  */
+    real_t beta_e; /**<  */
+    real_t beta_c; /**<  */
+    real_t r_max; /**<  */
+    real_t* ccost; /**< classes * rows * cols (slowest to fastest)*/
+    real_t* ns; /**<  */
+    real_t* ew; /**<  */
+    real_t* sw; /**<  */
+    real_t* nw; /**<  */
 
 
     // -----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ typedef struct
     // -----------------------------------------------------------------------------
     //  Variables to hold the histograms for each class weighted by area fraction
     // -----------------------------------------------------------------------------
-    double* histograms; /**< classes * dims * 256 */
+    real_t* histograms; /**< classes * dims * 256 */
 
     // -----------------------------------------------------------------------------
     //  User defined Pointer that can point to anything

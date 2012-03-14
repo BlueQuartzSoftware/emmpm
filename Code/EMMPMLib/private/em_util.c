@@ -206,7 +206,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 {
   size_t k, i;
   int emiter = data->emIterations;
-  double* simAnnealBetas = NULL;
+  real_t* simAnnealBetas = NULL;
 
   float totalLoops = data->emIterations * data->mpmIterations;
   float currentLoopCount = 0.0;
@@ -220,7 +220,7 @@ void EMMPM_PerformEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   if (data->simulatedAnnealing != 0)
   {
-    simAnnealBetas=(double*)(malloc(sizeof(double)*data->emIterations));
+    simAnnealBetas=(real_t*)(malloc(sizeof(real_t)*data->emIterations));
     for (i = 0; i < data->emIterations; ++i)
     {
       simAnnealBetas[i] = data->in_beta + pow(i/(data->emIterations-1.0), 8) * (10.0*data->in_beta - data->in_beta);

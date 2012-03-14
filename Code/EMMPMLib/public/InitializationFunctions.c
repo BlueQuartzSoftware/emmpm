@@ -55,17 +55,17 @@ void EMMPM_InitializeGradientVariables(EMMPM_Data* data)
   size_t nwRows = data->rows - 1;
 
   int dims = data->dims;
-  double x;
+  real_t x;
 
   /* Allocate for edge images */
 
-  data->ns = (double*)malloc(nsCols * nsRows * sizeof(double));
+  data->ns = (real_t*)malloc(nsCols * nsRows * sizeof(real_t));
   if (data->ns == NULL) { return; }
-  data->ew = (double*)malloc(ewCols * ewRows * sizeof(double));
+  data->ew = (real_t*)malloc(ewCols * ewRows * sizeof(real_t));
   if (data->ew == NULL) { return; }
-  data->sw = (double*)malloc(swCols * swRows * sizeof(double));
+  data->sw = (real_t*)malloc(swCols * swRows * sizeof(real_t));
   if (data->sw == NULL) { return; }
-  data->nw = (double*)malloc(nwCols * nwRows * sizeof(double));
+  data->nw = (real_t*)malloc(nwCols * nwRows * sizeof(real_t));
   if (data->nw == NULL) { return; }
 
   /* Do edge detection for gradient penalty*/
@@ -136,7 +136,7 @@ void EMMPM_InitCurvatureVariables(EMMPM_Data* data)
   int l, lij;
   unsigned int i, j;
 
-  data->ccost = (double*)malloc(data->classes * data->rows * data->columns * sizeof(double));
+  data->ccost = (real_t*)malloc(data->classes * data->rows * data->columns * sizeof(real_t));
   if (data->ccost == NULL) { return; }
 
   /* Initialize Curve Costs to zero */
@@ -215,7 +215,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
 {
   //FIXME: This needs to be adapted for vector images (dims > 1)
   unsigned int i, k, l;
-  double mu, sigma;
+  real_t mu, sigma;
   char msgbuff[256];
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
@@ -244,7 +244,7 @@ void EMMPM_BasicInitialization(EMMPM_Data* data)
   }
 
   sigma /= (rows * cols);
-  sigma = sqrt((double)sigma);
+  sigma = sqrt((real_t)sigma);
 
   if (classes % 2 == 0)
   {
@@ -278,7 +278,7 @@ void EMMPM_UserDefinedAreasInitialization(EMMPM_Data* data)
   unsigned int i, j;
   size_t index;
   int c, l;
-  double mu, sigma;
+  real_t mu, sigma;
   unsigned int rows = data->rows;
   unsigned int cols = data->columns;
   char msgbuff[256];

@@ -131,12 +131,12 @@ int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_D
   std::string::size_type pos = values.find(":", 0);
 
   inputs->dims = 1; // FORCING A GRAY SCALE IMAGE TO BE USED
-  inputs->m = (double*)malloc(inputs->classes * inputs->dims * sizeof(double));
-  inputs->v = (double*)malloc(inputs->classes * inputs->dims * sizeof(double));
+  inputs->m = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
+  inputs->v = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
 
   size_t index = 0;
-  double* mPtr = inputs->m;
-  double* vPtr = inputs->v;
+  real_t* mPtr = inputs->m;
+  real_t* vPtr = inputs->v;
 
   int n = sscanf(values.substr(0, pos).c_str(), "%lf,%lf", mPtr, vPtr );
   if (n != 2)
