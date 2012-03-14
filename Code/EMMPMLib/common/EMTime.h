@@ -9,7 +9,8 @@
 #ifndef _EMTime_h_
 #define _EMTime_h_
 
-#include "EMMPMLib/EMMPMLibTypes.h"
+#include "EMMPMLib/EMMPMLib.h"
+
 #if CMP_HAVE_TIME_H
 #include <time.h>
 #endif

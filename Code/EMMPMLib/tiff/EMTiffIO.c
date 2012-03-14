@@ -273,11 +273,11 @@ int EMMPM_WriteGrayScaleImage(const char* filename, int rows, int columns,
 
 
    memset(software, 0, 1024);
-   snprintf(software, 1024, "%s using libTif", EMMPM_PACKAGE_COMPLETE);
+   snprintf(software, 1024, "%s using libTif", EMMPMLib_PACKAGE_COMPLETE);
 
    err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
 
-   err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
+ //  err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
 
    // Write the information to the file
    area = (tsize_t)( columns *  rows);
@@ -395,11 +395,11 @@ int EMMPM_WritePalettedImage(EMMPM_Data* data,
 
 
   memset(software, 0, 1024);
-  snprintf(software, 1024, "%s using libTIFF", EMMPM_PACKAGE_COMPLETE);
+  snprintf(software, 1024, "%s using libTIFF", EMMPMLib_PACKAGE_COMPLETE);
 
   err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
 
-  err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
+//  err = TIFFSetField(out, TIFFTAG_HOSTCOMPUTER, EMMPM_SYSTEM);
 
   if (data->tiffResSet == 1)
   {
