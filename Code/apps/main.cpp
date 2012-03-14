@@ -37,14 +37,14 @@
 #include <fstream>
 #include <string>
 
-#include "emmpm/common/EMMPM_Math.h"
-#include "emmpm/common/EMMPMTypes.h"
-#include "emmpm/public/EMMPM_Structures.h"
-#include "emmpm/public/EMMPM.h"
-#include "emmpm/public/EMMPMInputParser.h"
-#include "emmpm/public/ProgressFunctions.h"
-#include "emmpm/public/InitializationFunctions.h"
-#include "emmpm/tiff/EMTiffIO.h"
+#include "EMMPMLib/common/EMMPM_Math.h"
+#include "EMMPMLib/EMMPMLibTypes.h"
+#include "EMMPMLib/public/EMMPM_Structures.h"
+#include "EMMPMLib/public/EMMPM.h"
+#include "EMMPMLib/public/EMMPMInputParser.h"
+#include "EMMPMLib/public/ProgressFunctions.h"
+#include "EMMPMLib/public/InitializationFunctions.h"
+#include "EMMPMLib/tiff/EMTiffIO.h"
 
 // -----------------------------------------------------------------------------
 //

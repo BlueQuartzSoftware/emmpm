@@ -17,7 +17,7 @@ set(emmpm_HDRS
 set(emmpm_PROJECT_SRCS
   ${emmpm_SRCS} ${emmpm_HDRS} 
 )
-cmp_IDE_SOURCE_PROPERTIES("emmpm/apps" "${emmpm_HDRS}" "${emmpm_SRCS}"  "${CMP_INSTALL_FILES}")
+cmp_IDE_SOURCE_PROPERTIES("emmpm/apps" "${emmpm_HDRS}" "${emmpm_SRCS}"  "${PROJECT_INSTALL_HEADERS}")
 
 # --------------------------------------------------------------------
 # Setup the install rules for the various platforms
