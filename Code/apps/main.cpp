@@ -38,7 +38,7 @@
 #include <fstream>
 #include <string>
 
-#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 #include "EMMPMLib/EMMPMLibTypes.h"
 #include "EMMPMLib/public/EMMPM_Structures.h"

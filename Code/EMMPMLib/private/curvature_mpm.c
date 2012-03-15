@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
-#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 #include "EMMPMLib/common/random.h"
 #include "EMMPMLib/public/EMMPM.h"

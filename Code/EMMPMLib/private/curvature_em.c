@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "curvature_em.h"
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
 #include "EMMPMLib/public/EMMPM_Constants.h"
 #include "EMMPMLib/public/EMMPM_Structures.h"

@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/entropy.h"
 #include "EMMPMLib/common/random.h"
 #include "EMMPMLib/common/EMMPM_Math.h"

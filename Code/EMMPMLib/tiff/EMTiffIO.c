@@ -50,7 +50,7 @@
 #include <tiffio.h>
 
 #include "EMMPMLib/EMMPMLibVersion.h"
-#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMTime.h"
 
 #define PIXEL8_TO_GREYVALUE(pal, palIndex, out)\
