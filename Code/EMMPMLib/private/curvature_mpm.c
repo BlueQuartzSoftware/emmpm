@@ -42,8 +42,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
-#include <omp.h>
-
 
 #include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
@@ -234,22 +232,17 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
 
   int rowEnd = rows/2;
   unsigned char* y = data->y;
-//  unsigned char* xt = data->xt;
   real_t* probs = data->probs;
   real_t* m = data->m;
   real_t* v = data->v;
-//  real_t* ccost = data->ccost;
-//  real_t* ns = data->ns;
-//  real_t* ew = data->ew;
-//  real_t* sw = data->sw;
-//  real_t* nw = data->nw;
+
   char msgbuff[256];
   float totalLoops;
 
   int currentLoopCount;
 
+  real_t curvature_value = (real_t)0.0;
 
-//  real_t curvature_value = (real_t)0.0;
   memset(post, 0, EMMPM_MAX_CLASSES * sizeof(real_t));
   memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(real_t));
 
@@ -298,133 +291,6 @@ void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
     data->inside_mpm_loop = 1;
 
     calcLoop(data, callbacks, 0, rows, 0, cols, yk);
-
-#if 0
-    for (i = 0; i < rows; i++)
-    {
-      for (j = 0; j < cols; j++)
-      {
-        ij = (cols * i) + j;
-        sum = 0;
-        for (l = 0; l < classes; l++)
-        {
-          /* edge penalties (in both x and y) */
-          prior = 0;
-          edge = 0;
-          if (i - 1 >= 0)
-          {
-            if (j - 1 >= 0)
-            {
-              i1j1 = (cols*(i-1))+j-1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (swCols*(i-1))+j-1;
-                if (data->useGradientPenalty) edge += sw[i1j1];
-              }
-            }
-
-            //Mark1
-            i1j1 = (cols*(i-1))+j;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (ewCols*(i-1))+j;
-              if (data->useGradientPenalty) edge += ew[i1j1];
-            }
-            //mark2
-            if (j + 1 < cols)
-            {
-              i1j1 = (cols*(i-1))+j+1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (nwCols*(i-1))+j;
-                if (data->useGradientPenalty) edge += nw[i1j1];
-              }
-            }
-          }
-
-          //mark3
-          if (i + 1 < rows)
-          {
-            if (j - 1 >= 0)
-            {
-              i1j1 = (cols*(i+1))+j-1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (nwCols*(i))+j-1;
-                if (data->useGradientPenalty) edge += nw[i1j1];
-              }
-            }
-            //mark4
-            i1j1 = (cols*(i+1))+j;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (ewCols*(i))+j;
-              if (data->useGradientPenalty) edge += ew[i1j1];
-            }
-            //mark5
-            if (j + 1 < cols)
-            {
-              i1j1 = (cols*(i+1))+j+1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (swCols*(i))+j;
-                if (data->useGradientPenalty) edge += sw[i1j1];
-              }
-            }
-          }
-          //mark6
-          if (j - 1 >= 0)
-          {
-            i1j1 = (cols*(i))+j-1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (nsCols*(i))+j-1;
-              if (data->useGradientPenalty) edge += ns[i1j1];
-            }
-          }
-          //mark7
-          if (j + 1 < cols)
-          {
-            i1j1 = (cols*(i))+j+1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (nsCols*(i))+j;
-              if (data->useGradientPenalty) edge += ns[i1j1];
-            }
-          }
-          lij = (cols * rows * l) + (cols * i) + j;
-          curvature_value = 0.0;
-          if (data->useCurvaturePenalty)
-          {
-            curvature_value = data->beta_c * ccost[lij];
-          }
-          post[l] = exp(yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l]);
-          sum += post[l];
-        }
-        x = genrand_real2(data->rngVars);
-        current = 0;
-        for (l = 0; l < classes; l++)
-        {
-          lij = (cols * rows * l) + (cols * i) + j;
-          ij = (cols*i)+j;
-          if ((x >= current) && (x <= (current + post[l] / sum)))
-          {
-            xt[ij] = l;
-            probs[lij] += 1.0;
-          }
-          current += post[l] / sum;
-        }
-      }
-    }
-#endif
 
     EMMPM_ConvertXtToOutputImage(data, callbacks);
     if (callbacks->EMMPM_ProgressFunc != NULL)
