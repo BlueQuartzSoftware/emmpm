@@ -15,6 +15,9 @@
 /* define to 1 if we are using parallel algorithms */
 #cmakedefine EMMPMLib_USE_PARALLEL_ALGORITHMS @EMMPMLib_USE_PARALLEL_ALGORITHMS@
 
+/* Use the Mersenne Twister Random Number Generator */
+#cmakedefine USE_MERSENNE_TWISTER @USE_MERSENNE_TWISTER@
+
 /* Include the Overall Configuration header file */
 #include "@PROJECT_NAME@/@CMP_CONFIGURATION_FILE_NAME@"
 
@@ -22,7 +25,7 @@
 #include "@PROJECT_NAME@/@CMP_TYPES_FILE_NAME@"
 
 /* Include the DLL export preprocessor defines */
-#include "EMMPMLib/Common/EMMPMLibDLLExport.h"
+#include "EMMPMLib/common/EMMPMLibDLLExport.h"
 
 /* We are going to disable some warnings just to get a grip on all the warnings that get produced
 * during an MSVC build */

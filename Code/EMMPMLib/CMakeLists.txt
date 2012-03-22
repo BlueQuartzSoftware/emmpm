@@ -59,7 +59,7 @@ Add_EMMPMLib_Dir(Common common)
 Add_EMMPMLib_Dir(Tiff tiff)
 Add_EMMPMLib_Dir(Private private)
 
-if (EMMPM_USE_MT_RNG)
+if (EMMPMLib_USE_MT_RNG)
     Add_EMMPMLib_Dir(mt mt)
 endif()
 # --------------------------------------------------------------------

@@ -28,6 +28,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
 #include "EMMPMLib/tiff/EMTiffIO.h"
 
 #ifdef CMP_HAVE_STDLIB_H
@@ -49,6 +50,7 @@
 #include <tiffio.h>
 
 #include "EMMPMLib/EMMPMLibVersion.h"
+#include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMTime.h"
 
 #define PIXEL8_TO_GREYVALUE(pal, palIndex, out)\
