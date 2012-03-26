@@ -34,9 +34,9 @@
 #include "MXA/Common/MXASetGetMacros.h"
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/common/Observable.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/public/EMMPM.h"
+#include "EMMPMLib/Common/Observable.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/EMMPM.h"
 
 class EMMPM_EXPORT TiffUtilities : public Observable
 {

@@ -32,11 +32,11 @@
 #define CURVATUREEM_H_
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/common/Observable.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/public/EMMPM_Constants.h"
-#include "EMMPMLib/public/EMMPM.h"
-#include "EMMPMLib/public/StatsDelegate.h"
+#include "EMMPMLib/Common/Observable.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Common/StatsDelegate.h"
 
 
 

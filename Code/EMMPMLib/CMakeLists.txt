@@ -54,8 +54,7 @@ Macro(Add_EMMPMLib_Dir VarName Path)
                                         ${EMMPM_${VarName}_HDRS} )
 endMacro()
 
-Add_EMMPMLib_Dir(Public public)
-Add_EMMPMLib_Dir(Common common)
+Add_EMMPMLib_Dir(Common Common)
 Add_EMMPMLib_Dir(Tiff tiff)
 Add_EMMPMLib_Dir(Curvature Curvature)
 

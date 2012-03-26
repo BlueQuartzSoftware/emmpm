@@ -40,8 +40,8 @@
 #define MAXPRIME  2147483647       /*  MAXPRIME = (2^31)-1     */
 /* #define PI        3.14159265358979323846 */
 
-#include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/common/random.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
+#include "EMMPMLib/Common/random.h"
 
 /* PORTABILITY 1:  The functions in this file assume that a long is 32 bits
       and a short is 16 bits.  These conventions are machine dependent and

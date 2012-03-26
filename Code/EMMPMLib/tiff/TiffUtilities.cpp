@@ -29,7 +29,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-#include "EMMPMLib/tiff/EMTiffIO.h"
+#include "TiffUtilities.h"
 
 #ifdef CMP_HAVE_STDLIB_H
 #include <stdlib.h>
@@ -50,8 +50,8 @@
 #include <tiffio.h>
 
 #include "EMMPMLib/EMMPMLibVersion.h"
-#include "EMMPMLib/common/MSVCDefines.h"
-#include "EMMPMLib/common/EMTime.h"
+#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/EMTime.h"
 
 #define PIXEL8_TO_GREYVALUE(pal, palIndex, out)\
     r = pal[0][palIndex]; g = pal[1][palIndex]; b = pal[2][palIndex];\

@@ -40,15 +40,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CurvatureEM.h"
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/common/MSVCDefines.h"
-#include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/public/EMMPM_Constants.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/public/InitializationFunctions.h"
+#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
+#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/InitializationFunctions.h"
 
-#include "EMMPMLib/private/EMMPMUtilities.h"
-#include "EMMPMLib/private/morphFilt.h"
-#include "EMMPMLib/private/CurvatureMPM.h"
+#include "EMMPMLib/Common/EMMPMUtilities.h"
+#include "EMMPMLib/Curvature/morphFilt.h"
+#include "EMMPMLib/Curvature/CurvatureMPM.h"
 
 // -----------------------------------------------------------------------------
 //

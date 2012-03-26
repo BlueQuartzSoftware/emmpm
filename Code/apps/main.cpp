@@ -39,15 +39,15 @@
 #include <string>
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/common/MSVCDefines.h"
-#include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/common/Observer.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/public/EMMPM.h"
-#include "EMMPMLib/public/EMMPMInputParser.h"
-#include "EMMPMLib/public/StatsDelegate.h"
-#include "EMMPMLib/public/InitializationFunctions.h"
-#include "EMMPMLib/tiff/EMTiffIO.h"
+#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
+#include "EMMPMLib/Common/Observer.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Common/EMMPMInputParser.h"
+#include "EMMPMLib/Common/StatsDelegate.h"
+#include "EMMPMLib/Common/InitializationFunctions.h"
+#include "EMMPMLib/tiff/TiffUtilities.h"
 
 class CLIStatsDelegate : public StatsDelegate
 {

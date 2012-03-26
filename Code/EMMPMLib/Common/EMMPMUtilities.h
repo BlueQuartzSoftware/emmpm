@@ -32,8 +32,8 @@
 #define EM_H_
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/public/EMMPM_Constants.h"
-#include "EMMPMLib/public/EMMPM.h"
+#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Common/EMMPM.h"
 
 class EMMPM_EXPORT EMMPMUtilities
 {

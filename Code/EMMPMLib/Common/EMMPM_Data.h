@@ -39,8 +39,8 @@
 
 // emmpm includes
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/public/EMMPM_Constants.h"
-#include "EMMPMLib/common/random.h"
+#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Common/random.h"
 
 typedef float real_t;
 

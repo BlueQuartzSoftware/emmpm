@@ -37,10 +37,10 @@
 #include "MXA/Common/MXASetGetMacros.h"
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/common/Observable.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/public/InitializationFunctions.h"
-#include "EMMPMLib/public/StatsDelegate.h"
+#include "EMMPMLib/Common/Observable.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/InitializationFunctions.h"
+#include "EMMPMLib/Common/StatsDelegate.h"
 
 
 

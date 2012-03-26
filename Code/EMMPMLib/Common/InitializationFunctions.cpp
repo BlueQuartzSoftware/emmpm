@@ -33,10 +33,10 @@
 #include <string.h>
 
 #include "InitializationFunctions.h"
-#include "EMMPMLib/common/MSVCDefines.h"
-#include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/common/random.h"
-#include "EMMPMLib/public/EMMPM.h"
+#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
+#include "EMMPMLib/Common/random.h"
+#include "EMMPMLib/Common/EMMPM.h"
 
 
 

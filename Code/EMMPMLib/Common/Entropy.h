@@ -32,7 +32,7 @@
 #define ENTROPY_H_
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
 
 
 class EMMPM_EXPORT EMMPMEntropy

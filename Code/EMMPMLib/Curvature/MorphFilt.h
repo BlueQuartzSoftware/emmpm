@@ -34,9 +34,9 @@
 #include "MXA/MXA.h"
 #include "MXA/Common/MXASetGetMacros.h"
 
-#include "EMMPMLib/public/EMMPM_Constants.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
-#include "EMMPMLib/common/Observable.h"
+#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Common/Observable.h"
 
 class EMMPM_EXPORT MorphFilter : public Observable
 {

@@ -31,7 +31,7 @@
 #include "EMMPM_Data.h"
 
 
-#include "EMMPMLib/tiff/EMTiffIO.h"
+#include "EMMPMLib/tiff/TiffUtilities.h"
 
 
 #define EMMPM_FREE_POINTER(ptr)\

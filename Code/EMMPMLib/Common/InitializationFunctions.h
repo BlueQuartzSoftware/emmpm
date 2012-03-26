@@ -37,7 +37,7 @@
 
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/public/EMMPM_Data.h"
+#include "EMMPMLib/Common/EMMPM_Data.h"
 
 /**
  * @brief

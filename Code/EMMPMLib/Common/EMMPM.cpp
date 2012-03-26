@@ -34,15 +34,16 @@
 
 #include "EMMPM.h"
 
-#include "EMMPMLib/common/MSVCDefines.h"
-#include "EMMPMLib/common/entropy.h"
-#include "EMMPMLib/common/random.h"
-#include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/common/EMTime.h"
-#include "EMMPMLib/public/InitializationFunctions.h"
-#include "EMMPMLib/private/CurvatureEM.h"
-#include "EMMPMLib/tiff/EMTiffIO.h"
-#include "EMMPMLib/private/EMMPMUtilities.h"
+#include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/entropy.h"
+#include "EMMPMLib/Common/random.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
+#include "EMMPMLib/Common/EMTime.h"
+#include "EMMPMLib/Common/InitializationFunctions.h"
+#include "EMMPMLib/Common/EMMPMUtilities.h"
+#include "EMMPMLib/Curvature/CurvatureEM.h"
+#include "EMMPMLib/tiff/TiffUtilities.h"
+
 
 // -----------------------------------------------------------------------------
 //

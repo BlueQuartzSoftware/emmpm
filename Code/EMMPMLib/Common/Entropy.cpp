@@ -32,7 +32,7 @@
 #include <stdio.h>
 
 #include "Entropy.h"
-#include "EMMPMLib/common/EMMPM_Math.h"
+#include "EMMPMLib/Common/EMMPM_Math.h"
 
 void EMMPMEntropy::entropy(real_t ***probs, unsigned char **output,
                            unsigned int rows, unsigned int cols, unsigned int classes)
