@@ -57,7 +57,7 @@ endMacro()
 Add_EMMPMLib_Dir(Public public)
 Add_EMMPMLib_Dir(Common common)
 Add_EMMPMLib_Dir(Tiff tiff)
-Add_EMMPMLib_Dir(Private private)
+Add_EMMPMLib_Dir(Curvature Curvature)
 
 if (EMMPMLib_USE_MT_RNG)
     Add_EMMPMLib_Dir(mt mt)
@@ -78,7 +78,7 @@ cmp_IDE_SOURCE_PROPERTIES("emmpm/common" "${EMMPMLib_CONFIGURED_HDRS}" "${EMMPML
 set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} )
 
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
-target_link_libraries(EMMPMLib ${TIFF_LIBRARY} ${MATH_LIBRARY})
+target_link_libraries(EMMPMLib MXA ${TIFF_LIBRARY} ${MATH_LIBRARY})
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
 
 set(install_dir "tools")

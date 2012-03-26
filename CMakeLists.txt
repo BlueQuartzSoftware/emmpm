@@ -201,7 +201,18 @@ if(EMMPMLib_BUILD_API_DOCS)
 endif()
 
 
+
+
+if (NOT DEFINED MXA_SOURCE_DIR)
+    set(MXA_SOURCE_DIR ${EMMPMProj_SOURCE_DIR}/Support/MXA)
+endif()
+add_subdirectory(${MXA_SOURCE_DIR} ${EMMPMProj_BINARY_DIR}/MXA)
+
+include_directories(${MXA_SOURCE_DIR}/..)
+include_directories(${EMMPMProj_BINARY_DIR}/)
+
 add_subdirectory(${PROJECT_CODE_DIR}/EMMPMLib ${EMMPMProj_BINARY_DIR}/EMMPMLib)
+
 add_subdirectory(${PROJECT_CODE_DIR}/apps ${EMMPMProj_BINARY_DIR}/apps)
 
 include(${PROJECT_RESOURCES_DIR}/CPack/PackageProject.cmake)

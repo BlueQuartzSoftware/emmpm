@@ -38,81 +38,93 @@
 #include <fstream>
 #include <string>
 
+#include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/common/MSVCDefines.h"
 #include "EMMPMLib/common/EMMPM_Math.h"
-#include "EMMPMLib/EMMPMLibTypes.h"
-#include "EMMPMLib/public/EMMPM_Structures.h"
+#include "EMMPMLib/common/Observer.h"
+#include "EMMPMLib/public/EMMPM_Data.h"
 #include "EMMPMLib/public/EMMPM.h"
 #include "EMMPMLib/public/EMMPMInputParser.h"
-#include "EMMPMLib/public/ProgressFunctions.h"
+#include "EMMPMLib/public/StatsDelegate.h"
 #include "EMMPMLib/public/InitializationFunctions.h"
 #include "EMMPMLib/tiff/EMTiffIO.h"
+
+class CLIStatsDelegate : public StatsDelegate
+{
+  public:
+    CLIStatsDelegate(){}
+    virtual ~CLIStatsDelegate() {};
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void UpdateStats(EMMPM_Data* data)
-{
-  // Check to make sure we are at the end of an em loop
-  if ( data->inside_mpm_loop == 0 && NULL != data->outputImage)
-  {
-    char buff[256];
-    memset(buff, 0, 256);
+    virtual void reportProgress(EMMPM_Data::Pointer data)
+    {
+      // Check to make sure we are at the end of an em loop
+      if ( data->inside_mpm_loop == 0 && NULL != data->outputImage)
+      {
+        char buff[256];
+        memset(buff, 0, 256);
 #if (_WIN32)
-    snprintf(buff, 256, "C:\\Data\\emmpm_out_%d.tif", data->currentEMLoop);
+        snprintf(buff, 256, "C:\\Data\\emmpm_out_%d.tif", data->currentEMLoop);
 #else
-    snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
+        snprintf(buff, 256, "/tmp/emmpm_out_%d.tif", data->currentEMLoop);
 #endif
-    std::cout << "Writing Image: " << buff << std::endl;
-    int err = EMMPM_WriteGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
-    if (err < 0)
-    {
-      std::cout << "Error writing intermediate tiff image." << std::endl;
-    }
+        std::cout << "Writing Image: " << buff << std::endl;
+        TiffUtilities tifUtil;
+        int err = tifUtil.writeGrayScaleImage(buff, data->rows, data->columns, "Intermediate Image", data->outputImage);
+        if (err < 0)
+        {
+          std::cout << "Error writing intermediate tiff image." << std::endl;
+        }
 
-    std::cout << "Class\tMu\tSigma" << std::endl;
-    for (int l = 0; l < data->classes; l++)
-    {
-      //    snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
-      //    EMMPM_ShowProgress(msgbuff, data->progress);
-      std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
-    }
+        std::cout << "Class\tMu\tSigma" << std::endl;
+        for (int l = 0; l < data->classes; l++)
+        {
+          //    snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
+          //    EMMPM_ShowProgress(msgbuff, data->progress);
+          std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
+        }
 #if 0
-    real_t hist[EMMPM_MAX_CLASSES][256];
-    // Generate a gaussian curve for each class based off the mu and sigma for that class
-    for (int c = 0; c < data->classes; ++c)
-    {
-      real_t mu = data->m[c];
-      real_t sig = data->v[c];
-      real_t twoSigSqrd = sig * sig * 2.0f;
-      real_t constant = 1.0f / (sig * sqrtf(2.0f * M_PI));
-      for (size_t x = 0; x < 256; ++x)
-      {
-        hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
-      }
-    }
-
-
-    memset(buff, 0, 256);
-    snprintf(buff, 256, "/tmp/emmpm_hist_%d.csv", data->currentEMLoop);
-    std::ofstream file(buff, std::ios::out | std::ios::binary);
-    if (file.is_open())
-    {
-      for (size_t x = 0; x < 256; ++x)
-      {
-        file << x;
+        real_t hist[EMMPM_MAX_CLASSES][256];
+        // Generate a gaussian curve for each class based off the mu and sigma for that class
         for (int c = 0; c < data->classes; ++c)
         {
-          file << ", " << hist[c][x];
+          real_t mu = data->m[c];
+          real_t sig = data->v[c];
+          real_t twoSigSqrd = sig * sig * 2.0f;
+          real_t constant = 1.0f / (sig * sqrtf(2.0f * M_PI));
+          for (size_t x = 0; x < 256; ++x)
+          {
+            hist[c][x] = constant * exp(-1.0f * ((x - mu) * (x - mu)) / (twoSigSqrd));
+          }
         }
-        file << std::endl;
-      }
-    }
+
+        memset(buff, 0, 256);
+        snprintf(buff, 256, "/tmp/emmpm_hist_%d.csv", data->currentEMLoop);
+        std::ofstream file(buff, std::ios::out | std::ios::binary);
+        if (file.is_open())
+        {
+          for (size_t x = 0; x < 256; ++x)
+          {
+            file << x;
+            for (int c = 0; c < data->classes; ++c)
+            {
+              file << ", " << hist[c][x];
+            }
+            file << std::endl;
+          }
+        }
 #endif
 
-  }
+      }
 
-}
+    }
+
+  private:
+    CLIStatsDelegate(const CLIStatsDelegate&); // Copy Constructor Not Implemented
+    void operator=(const CLIStatsDelegate&); // Operator '=' Not Implemented
+};
 
 
 // -----------------------------------------------------------------------------
@@ -122,12 +134,12 @@ int main(int argc,char *argv[])
 {
 
   int err = 0;
-  EMMPM_Data* data = EMMPM_CreateDataStructure();
-  EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
+  EMMPM_Data::Pointer data = EMMPM_Data::New();
+//  EMMPM_CallbackFunctions* callbacks = EMMPM_AllocateCallbackFunctionStructure();
 #if 1
   /* Parse the command line arguments */
   EMMPMInputParser parser;
-  err = parser.parseCLIArguments(argc, argv, data);
+  err = parser.parseCLIArguments(argc, argv, data.get());
 
   if (err < 0)
   {
@@ -164,56 +176,60 @@ int main(int argc,char *argv[])
 
 
   /* Set the Callback functions to provide feedback */
-  callbacks->EMMPM_ProgressFunc = &EMMPM_PrintfProgress;
-  callbacks->EMMPM_ProgressStatsFunc = &UpdateStats;
+  Observer obs;
+  CLIStatsDelegate::Pointer statsDelegate = CLIStatsDelegate::New();
+
 
   // Get our input image from the Image IO functions
-  err = EMMPM_ReadInputImage(data, callbacks);
+  TiffUtilities tifUtil;
+  err = tifUtil.readInputImage(data);
   if (err < 0)
   {
     printf("Error Reading the input image.\n");
     return 0;
   }
 
+  InitializationFunction::Pointer initFunction = InitializationFunction::New();
+
   // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
     case EMMPM_Basic:
-      callbacks->EMMPM_InitializationFunc = EMMPM_BasicInitialization;
+      initFunction = BasicInitialization::New();
       break;
     case EMMPM_UserInitArea:
-      callbacks->EMMPM_InitializationFunc = EMMPM_UserDefinedAreasInitialization;
-      break;
-    case EMMPM_ManualInit:
-      callbacks->EMMPM_InitializationFunc = EMMPM_ManualInitialization;
+      initFunction = UserDefinedAreasInitialization::New();
       break;
     default:
       break;
   }
 
-  std::cout << "EM/MPM Starting.... " << std::endl;
+  obs.updateProgressAndMessage("EM/MPM Starting.... ", 0);
 
   // Allocate all the memory here
+  data->allocateDataStructureMemory();
 
-  err = EMMPM_AllocateDataStructureMemory(data);
   if (err)
   {
     printf("Error allocating memory for the EMMPM Data Structure.\n   %s(%d)\n", __FILE__, __LINE__);
     return 1;
   }
 
+  EMMPM::Pointer emmpm = EMMPM::New();
+  emmpm->addObserver(&obs);
+  emmpm->setData(data);
+  emmpm->setStatsDelegate(statsDelegate);
+  emmpm->setInitializationFunction(initFunction);
+  emmpm->execute();
 
-  EMMPM_Run(data, callbacks);
 
 
-  err = EMMPM_WriteOutputImage(data, callbacks);
+  err = tifUtil.writeOutputImage(data);
   if (err < 0)
   {
     return 0;
   }
 
-  EMMPM_FreeDataStructure(data);
-  EMMPM_FreeCallbackFunctionStructure(callbacks);
 
   std::cout << "EM/MPM Ending" << std::endl;
 
