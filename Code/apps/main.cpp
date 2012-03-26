@@ -38,8 +38,11 @@
 #include <fstream>
 #include <string>
 
+
+
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
+#include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/Observer.h"
 #include "EMMPMLib/Common/EMMPM_Data.h"
@@ -48,6 +51,10 @@
 #include "EMMPMLib/Common/StatsDelegate.h"
 #include "EMMPMLib/Common/InitializationFunctions.h"
 #include "EMMPMLib/tiff/TiffUtilities.h"
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#include <tbb/task_scheduler_init.h>
+#endif
 
 class CLIStatsDelegate : public StatsDelegate
 {
@@ -132,6 +139,13 @@ class CLIStatsDelegate : public StatsDelegate
 // -----------------------------------------------------------------------------
 int main(int argc,char *argv[])
 {
+
+  unsigned long long int millis = EMMPM_getMilliSeconds();
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+  tbb::task_scheduler_init init;
+  std::cout << "Default Number of Threads: " << init.default_num_threads() << std::endl;
+#endif
 
   int err = 0;
   EMMPM_Data::Pointer data = EMMPM_Data::New();
@@ -229,8 +243,12 @@ int main(int argc,char *argv[])
   {
     return 0;
   }
-
-
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+  std::cout << "Parrallel Time to Complete:";
+#else
+  std::cout << "Serial Time To Complete: ";
+#endif
+  std::cout  << (EMMPM_getMilliSeconds() - millis) << std::endl;
   std::cout << "EM/MPM Ending" << std::endl;
 
 	return 1;

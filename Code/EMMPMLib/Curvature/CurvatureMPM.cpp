@@ -37,27 +37,248 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* acvmpm.c */
 
 /* Modified by Joel Dumke on 1/30/09 */
+#include "CurvatureMPM.h"
+
+
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
 
-#include "CurvatureMPM.h"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/smart_ptr/detail/atomic_count.hpp>
 
+
+#include "EMMPMLib/Common/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/random.h"
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPMUtilities.h"
 
 
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range2d.h>
+#include <tbb/partitioner.h>
+#include <tbb/task_scheduler_init.h>
+
+#endif
+
+static boost::detail::atomic_count counter(0);
+
+class ParallelCalcLoop
+{
+  public:
+    ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr) :
+    data(dPtr),
+    yk(ykPtr)
+    {}
+    virtual ~ParallelCalcLoop(){}
+
+
+    void calcLoop(int rowStart, int rowEnd,
+                  int colStart, int colEnd) const
+    {
+      ++counter;
+      const float rangeMin = 0;
+      const float rangeMax = 1.0f;
+      typedef boost::uniform_real<> NumberDistribution;
+      typedef boost::mt19937 RandomNumberGenerator;
+      typedef boost::variate_generator<RandomNumberGenerator&,
+                                       NumberDistribution> Generator;
+
+      NumberDistribution distribution(rangeMin, rangeMax);
+      RandomNumberGenerator generator;
+      Generator numberGenerator(generator, distribution);
+      generator.seed(EMMPM_getMilliSeconds()); // seed with the current time
+
+     // std::cout << numberGenerator() << std::endl;
+
+      int l, prior;
+      int i, j;
+      size_t ij, lij, i1j1;
+    //  int dims = data->dims;
+      int rows = data->rows;
+      int cols = data->columns;
+      int classes = data->classes;
+
+      real_t current;
+      real_t x, post[EMMPM_MAX_CLASSES], sum, edge;
+
+      size_t nsCols = data->columns - 1;
+      size_t ewCols = data->columns;
+      size_t swCols = data->columns - 1;
+      size_t nwCols = data->columns - 1;
+
+
+    //  unsigned char* y = data->y;
+      unsigned char* xt = data->xt;
+      real_t* probs = data->probs;
+    //  real_t* m = data->m;
+    //  real_t* v = data->v;
+      real_t* ccost = data->ccost;
+      real_t* ns = data->ns;
+      real_t* ew = data->ew;
+      real_t* sw = data->sw;
+      real_t* nw = data->nw;
+      real_t curvature_value = (real_t)0.0;
+
+      for (i = rowStart; i < rowEnd; i++)
+      {
+        for (j = colStart; j < colEnd; j++)
+        {
+          ij = (cols * i) + j;
+          sum = 0;
+          for (l = 0; l < classes; l++)
+          {
+            /* edge penalties (in both x and y) */
+            prior = 0;
+            edge = 0;
+            if (i - 1 >= 0)
+            {
+              if (j - 1 >= 0)
+              {
+                i1j1 = (cols*(i-1))+j-1;
+                if (xt[i1j1] != l)
+                {
+                  prior++;
+                  i1j1 = (swCols*(i-1))+j-1;
+                  if (data->useGradientPenalty) edge += sw[i1j1];
+                }
+              }
+
+              //Mark1
+              i1j1 = (cols*(i-1))+j;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+                i1j1 = (ewCols*(i-1))+j;
+                if (data->useGradientPenalty) edge += ew[i1j1];
+              }
+              //mark2
+              if (j + 1 < cols)
+              {
+                i1j1 = (cols*(i-1))+j+1;
+                if (xt[i1j1] != l)
+                {
+                  prior++;
+                  i1j1 = (nwCols*(i-1))+j;
+                  if (data->useGradientPenalty) edge += nw[i1j1];
+                }
+              }
+            }
+
+            //mark3
+            if (i + 1 < rows)
+            {
+              if (j - 1 >= 0)
+              {
+                i1j1 = (cols*(i+1))+j-1;
+                if (xt[i1j1] != l)
+                {
+                  prior++;
+                  i1j1 = (nwCols*(i))+j-1;
+                  if (data->useGradientPenalty) edge += nw[i1j1];
+                }
+              }
+              //mark4
+              i1j1 = (cols*(i+1))+j;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+                i1j1 = (ewCols*(i))+j;
+                if (data->useGradientPenalty) edge += ew[i1j1];
+              }
+              //mark5
+              if (j + 1 < cols)
+              {
+                i1j1 = (cols*(i+1))+j+1;
+                if (xt[i1j1] != l)
+                {
+                  prior++;
+                  i1j1 = (swCols*(i))+j;
+                  if (data->useGradientPenalty) edge += sw[i1j1];
+                }
+              }
+            }
+            //mark6
+            if (j - 1 >= 0)
+            {
+              i1j1 = (cols*(i))+j-1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+                i1j1 = (nsCols*(i))+j-1;
+                if (data->useGradientPenalty) edge += ns[i1j1];
+              }
+            }
+            //mark7
+            if (j + 1 < cols)
+            {
+              i1j1 = (cols*(i))+j+1;
+              if (xt[i1j1] != l)
+              {
+                prior++;
+                i1j1 = (nsCols*(i))+j;
+                if (data->useGradientPenalty) edge += ns[i1j1];
+              }
+            }
+            lij = (cols * rows * l) + (cols * i) + j;
+            curvature_value = 0.0;
+            if (data->useCurvaturePenalty)
+            {
+              curvature_value = data->beta_c * ccost[lij];
+            }
+            float arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
+//            if (arg < -708.3964)
+//            {
+//              hit++;
+//            }
+            post[l] = expf(arg);
+            sum += post[l];
+          }
+//          x = genrand_real2(data->rngVars);
+          x = numberGenerator();
+          current = 0;
+          for (l = 0; l < classes; l++)
+          {
+            lij = (cols * rows * l) + ij;
+            //ij = (cols*i)+j;
+            real_t arg = post[l]/sum;
+            if ((x >= current) && (x <= (current + arg)))
+            {
+              xt[ij] = l;
+              probs[lij] += 1.0;
+            }
+            current += arg;
+          }
+        }
+      }
+
+    }
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    void operator()(const tbb::blocked_range2d<int> &r) const
+    {
+      calcLoop(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+    }
+#endif
+
+
+private:
+    const EMMPM_Data* data;
+    const real_t* yk;
+};
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 CurvatureMPM::CurvatureMPM()
 {
-
 }
 
 // -----------------------------------------------------------------------------
@@ -65,175 +286,7 @@ CurvatureMPM::CurvatureMPM()
 // -----------------------------------------------------------------------------
 CurvatureMPM::~CurvatureMPM()
 {
-
 }
-
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void CurvatureMPM::calcLoop(int rowStart, int rowEnd,
-              int colStart, int colEnd,
-              real_t* yk)
-{
-  EMMPM_Data* data = m_Data.get();
-  int l, prior;
-  int i, j;
-  size_t ij, lij, i1j1;
-//  int dims = data->dims;
-  int rows = data->rows;
-  int cols = data->columns;
-  int classes = data->classes;
-
-  real_t current;
-  real_t x, post[EMMPM_MAX_CLASSES], sum, edge;
-
-  size_t nsCols = data->columns - 1;
-  size_t ewCols = data->columns;
-  size_t swCols = data->columns - 1;
-  size_t nwCols = data->columns - 1;
-
-
-//  unsigned char* y = data->y;
-  unsigned char* xt = data->xt;
-  real_t* probs = data->probs;
-//  real_t* m = data->m;
-//  real_t* v = data->v;
-  real_t* ccost = data->ccost;
-  real_t* ns = data->ns;
-  real_t* ew = data->ew;
-  real_t* sw = data->sw;
-  real_t* nw = data->nw;
-  real_t curvature_value = (real_t)0.0;
-
-  for (i = rowStart; i < rowEnd; i++)
-  {
-    for (j = colStart; j < colEnd; j++)
-    {
-      ij = (cols * i) + j;
-      sum = 0;
-      for (l = 0; l < classes; l++)
-      {
-        /* edge penalties (in both x and y) */
-        prior = 0;
-        edge = 0;
-        if (i - 1 >= 0)
-        {
-          if (j - 1 >= 0)
-          {
-            i1j1 = (cols*(i-1))+j-1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (swCols*(i-1))+j-1;
-              if (data->useGradientPenalty) edge += sw[i1j1];
-            }
-          }
-
-          //Mark1
-          i1j1 = (cols*(i-1))+j;
-          if (xt[i1j1] != l)
-          {
-            prior++;
-            i1j1 = (ewCols*(i-1))+j;
-            if (data->useGradientPenalty) edge += ew[i1j1];
-          }
-          //mark2
-          if (j + 1 < cols)
-          {
-            i1j1 = (cols*(i-1))+j+1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (nwCols*(i-1))+j;
-              if (data->useGradientPenalty) edge += nw[i1j1];
-            }
-          }
-        }
-
-        //mark3
-        if (i + 1 < rows)
-        {
-          if (j - 1 >= 0)
-          {
-            i1j1 = (cols*(i+1))+j-1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (nwCols*(i))+j-1;
-              if (data->useGradientPenalty) edge += nw[i1j1];
-            }
-          }
-          //mark4
-          i1j1 = (cols*(i+1))+j;
-          if (xt[i1j1] != l)
-          {
-            prior++;
-            i1j1 = (ewCols*(i))+j;
-            if (data->useGradientPenalty) edge += ew[i1j1];
-          }
-          //mark5
-          if (j + 1 < cols)
-          {
-            i1j1 = (cols*(i+1))+j+1;
-            if (xt[i1j1] != l)
-            {
-              prior++;
-              i1j1 = (swCols*(i))+j;
-              if (data->useGradientPenalty) edge += sw[i1j1];
-            }
-          }
-        }
-        //mark6
-        if (j - 1 >= 0)
-        {
-          i1j1 = (cols*(i))+j-1;
-          if (xt[i1j1] != l)
-          {
-            prior++;
-            i1j1 = (nsCols*(i))+j-1;
-            if (data->useGradientPenalty) edge += ns[i1j1];
-          }
-        }
-        //mark7
-        if (j + 1 < cols)
-        {
-          i1j1 = (cols*(i))+j+1;
-          if (xt[i1j1] != l)
-          {
-            prior++;
-            i1j1 = (nsCols*(i))+j;
-            if (data->useGradientPenalty) edge += ns[i1j1];
-          }
-        }
-        lij = (cols * rows * l) + (cols * i) + j;
-        curvature_value = 0.0;
-        if (data->useCurvaturePenalty)
-        {
-          curvature_value = data->beta_c * ccost[lij];
-        }
-        post[l] = exp(yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l]);
-        sum += post[l];
-      }
-      x = genrand_real2(data->rngVars);
-      current = 0;
-      for (l = 0; l < classes; l++)
-      {
-        lij = (cols * rows * l) + (cols * i) + j;
-        ij = (cols*i)+j;
-        if ((x >= current) && (x <= (current + post[l] / sum)))
-        {
-          xt[ij] = l;
-          probs[lij] += 1.0;
-        }
-        current += post[l] / sum;
-      }
-    }
-  }
-
-}
-
-
 
 // -----------------------------------------------------------------------------
 //
@@ -246,15 +299,15 @@ void CurvatureMPM::execute()
   real_t sqrt2pi, con[EMMPM_MAX_CLASSES];
   real_t post[EMMPM_MAX_CLASSES];
 
-  int k, l;
-  int i, j, d;
+  // int k, l;
+ // unsigned int i, j, d;
   size_t ld, ijd, lij;
-  int dims = data->dims;
-  int rows = data->rows;
-  int cols = data->columns;
-  int classes = data->classes;
+  unsigned int dims = data->dims;
+  unsigned int rows = data->rows;
+  unsigned int cols = data->columns;
+  unsigned int classes = data->classes;
 
-  int rowEnd = rows/2;
+//  int rowEnd = rows/2;
   unsigned char* y = data->y;
   real_t* probs = data->probs;
   real_t* m = data->m;
@@ -265,7 +318,7 @@ void CurvatureMPM::execute()
 
   int currentLoopCount;
 
-  real_t curvature_value = (real_t)0.0;
+//  real_t curvature_value = (real_t)0.0;
 
   memset(post, 0, EMMPM_MAX_CLASSES * sizeof(real_t));
   memset(con, 0,  EMMPM_MAX_CLASSES * sizeof(real_t));
@@ -278,26 +331,26 @@ void CurvatureMPM::execute()
 
   sqrt2pi = sqrt(2.0 * M_PI);
 
-  for (l = 0; l < classes; l++)
+  for (uint32_t l = 0; l < classes; l++)
   {
     con[l] = 0;
-    for (d = 0; d < dims; d++)
+    for (uint32_t d = 0; d < dims; d++)
     {
       ld = dims * l + d;
       con[l] += -log(sqrt2pi * sqrt(v[ld]));
     }
   }
 
-  for (i = 0; i < rows; i++)
+  for (uint32_t i = 0; i < rows; i++)
   {
-    for (j = 0; j < cols; j++)
+    for (uint32_t j = 0; j < cols; j++)
     {
-      for (l = 0; l < classes; l++)
+      for (uint32_t l = 0; l < classes; l++)
       {
         lij = (cols * rows * l) + (cols * i) + j;
         probs[lij] = 0;
         yk[lij] = con[l];
-        for (d = 0; d < dims; d++)
+        for (uint32_t d = 0; d < dims; d++)
         {
           ld = dims * l + d;
           ijd = (dims * cols * i) + (dims * j) + d;
@@ -307,15 +360,26 @@ void CurvatureMPM::execute()
     }
   }
 
+  unsigned long long int millis = EMMPM_getMilliSeconds();
   /* Perform the MPM loops */
-  for (k = 0; k < data->mpmIterations; k++)
+  for (int32_t k = 0; k < data->mpmIterations; k++)
   {
+    millis = EMMPM_getMilliSeconds();
     data->currentMPMLoop = k;
     if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
+  //  hit = 0;
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    tbb::task_scheduler_init init;
+    int threads = init.default_num_threads();
 
-    calcLoop(0, rows, 0, cols, yk);
+    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelCalcLoop(data, yk), tbb::simple_partitioner());
+#else
+    ParallelCalcLoop pcl(data, yk);
+    pcl.calcLoop(0, rows, 0, cols);
+#endif
 
+    std::cout << "Counter: " << counter << std::endl;
     EMMPMUtilities::ConvertXtToOutputImage(getData());
 
     data->currentMPMLoop = k;
@@ -327,17 +391,24 @@ void CurvatureMPM::execute()
 
     notify("", data->progress, UpdateProgressValue);
 
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+  std::cout << "Parrallel MPM Loop Time to Complete:";
+#else
+  std::cout << "Serial MPM Loop Time To Complete: ";
+#endif
+  std::cout  << (EMMPM_getMilliSeconds() - millis) << std::endl;
+
   }
   data->inside_mpm_loop = 0;
 
   if (!data->cancel)
   {
   /* Normalize probabilities */
-    for (i = 0; i < data->rows; i++)
+    for (uint32_t i = 0; i < data->rows; i++)
     {
-      for (j = 0; j < data->columns; j++)
+      for (uint32_t j = 0; j < data->columns; j++)
       {
-        for (l = 0; l < classes; l++)
+        for (uint32_t l = 0; l < classes; l++)
         {
           lij = (cols * rows * l) + (cols * i) + j;
           data->probs[lij] = data->probs[lij] / (real_t)data->mpmIterations;
