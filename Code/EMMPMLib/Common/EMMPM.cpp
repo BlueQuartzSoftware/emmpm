@@ -188,10 +188,10 @@ void EMMPM::execute()
   if (data->useCurvaturePenalty)
   {
     CurvatureInitialization::Pointer curvatureInit = CurvatureInitialization::New();
-    curvatureInit->initialize(m_Data);
+    curvatureInit->initCurvatureVariables(m_Data);
 
     if (data->ccost == NULL) {
-      notify("Error Allocating Memory", 0, UpdateErrorMessage);
+      notify("Error Allocating Curvature Variables Memory", 0, UpdateErrorMessage);
      // freeRandStruct(data->rngVars);
       return;
     }
@@ -209,13 +209,11 @@ void EMMPM::execute()
     gradientInit->initialize(m_Data);
 
     if (data->ns == NULL || data->ew == NULL || data->nw == NULL || data->sw == NULL) {
-      notify("Error Allocating Memory", 0, UpdateErrorMessage);
+      notify("Error Allocating Gradient Variables Memory", 0, UpdateErrorMessage);
      // freeRandStruct(data->rngVars);
       return;
     }
   }
-
-
 
   /* Initialization of parameter estimation */
   m_InitializationFunction->initialize(m_Data);
