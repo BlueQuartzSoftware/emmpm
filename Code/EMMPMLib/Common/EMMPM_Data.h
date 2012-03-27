@@ -124,9 +124,9 @@ class EMMPM_EXPORT EMMPM_Data
     // -----------------------------------------------------------------------------
     //  Variables that Functions may need to present progress information to the user
     // -----------------------------------------------------------------------------
-    int           currentEMLoop; /**< The current EM Loop  */
-    int           currentMPMLoop; /**< The current MPM Loop  */
-    float         progress; /**< A Percentage to indicate how far along the algorthm is.*/
+    int    currentEMLoop; /**< The current EM Loop  */
+    int    currentMPMLoop; /**< The current MPM Loop  */
+    float  progress; /**< A Percentage to indicate how far along the algorthm is.*/
 
 
     // -----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ class EMMPM_EXPORT EMMPM_Data
     // Some Critical TIFF related fields which are taken directly from the tifftags
     //  of the input image. These really only appply for the command line version
     // -----------------------------------------------------------------------------
-    char tiffResSet;
+    char           tiffResSet;
     unsigned short xResolution;
     unsigned short yResolution;
     unsigned short resolutionUnits;
