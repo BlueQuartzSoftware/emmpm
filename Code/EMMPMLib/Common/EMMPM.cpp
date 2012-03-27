@@ -36,7 +36,7 @@
 
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/entropy.h"
-#include "EMMPMLib/Common/random.h"
+
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/InitializationFunctions.h"
@@ -48,7 +48,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EMMPM::EMMPM()
+EMMPM::EMMPM() :
+m_StatsDelegate(NULL)
 {
 
 }
@@ -177,7 +178,7 @@ void EMMPM::execute()
   millis = EMMPM_getMilliSeconds();
   millis = millis << 32; // push off the high bits
   millis = millis >> 32; // bring back the low bits
-  data->rngVars = init_genrand( (unsigned long)(millis));
+  //data->rngVars = init_genrand( (unsigned long)(millis));
 
   if (data->cancel) { data->progress = 100.0; return; }
 
@@ -191,7 +192,7 @@ void EMMPM::execute()
 
     if (data->ccost == NULL) {
       notify("Error Allocating Memory", 0, UpdateErrorMessage);
-      freeRandStruct(data->rngVars);
+     // freeRandStruct(data->rngVars);
       return;
     }
   }
@@ -209,7 +210,7 @@ void EMMPM::execute()
 
     if (data->ns == NULL || data->ew == NULL || data->nw == NULL || data->sw == NULL) {
       notify("Error Allocating Memory", 0, UpdateErrorMessage);
-      freeRandStruct(data->rngVars);
+     // freeRandStruct(data->rngVars);
       return;
     }
   }
@@ -251,8 +252,8 @@ void EMMPM::execute()
   notify("", data->progress, UpdateProgressValue);
   notify("EM/MPM Completed.", 100, UpdateProgressValueAndMessage);
 
-  freeRandStruct(data->rngVars);
-  data->rngVars = NULL;
+//  freeRandStruct(data->rngVars);
+//  data->rngVars = NULL;
 
 }
 

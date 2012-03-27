@@ -58,9 +58,6 @@ Add_EMMPMLib_Dir(Common Common)
 Add_EMMPMLib_Dir(Tiff tiff)
 Add_EMMPMLib_Dir(Curvature Curvature)
 
-if (EMMPMLib_USE_MT_RNG)
-    Add_EMMPMLib_Dir(mt mt)
-endif()
 # --------------------------------------------------------------------
 # Add in the configured headers
 

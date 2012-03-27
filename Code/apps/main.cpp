@@ -232,7 +232,7 @@ int main(int argc,char *argv[])
   EMMPM::Pointer emmpm = EMMPM::New();
   emmpm->addObserver(&obs);
   emmpm->setData(data);
-  emmpm->setStatsDelegate(statsDelegate);
+  emmpm->setStatsDelegate(statsDelegate.get());
   emmpm->setInitializationFunction(initFunction);
   emmpm->execute();
 

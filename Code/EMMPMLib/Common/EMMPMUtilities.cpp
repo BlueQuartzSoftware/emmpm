@@ -175,9 +175,9 @@ void EMMPMUtilities::ResetModelParameters(EMMPM_Data::Pointer dt)
 {
   EMMPM_Data* data = dt.get();
 
-  size_t l, d, ld;
+  size_t d, ld;
   /* Reset model parameters to zero */
-  for (l = 0; l < data->classes; l++)
+  for (int l = 0; l < data->classes; l++)
   {
     for (d = 0; d < data->dims; d++)
     {
@@ -189,6 +189,137 @@ void EMMPMUtilities::ResetModelParameters(EMMPM_Data::Pointer dt)
   }
 }
 
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range2d.h>
+#include <tbb/partitioner.h>
+#include <tbb/task_scheduler_init.h>
+#endif
+
+class ParallelEstimateMeans
+{
+  public:
+    ParallelEstimateMeans(EMMPM_Data* dPtr, size_t l)
+    {
+      this->l = l;
+      this->data = dPtr;
+    }
+    virtual ~ParallelEstimateMeans(){};
+
+    void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
+    {
+      int dims = data->dims;
+      int rows = data->rows;
+      int cols = data->columns;
+      int32_t k_, k2_, lij, ld, ijd;
+      real_t* m = data->m;
+      unsigned char* y = data->y;
+      real_t* probs = data->probs;
+      real_t* N = data->N;
+
+
+      for (int i = rowStart; i < rowEnd; i++)
+      {
+        k_ = (cols * rows * l) + (cols * i);
+
+        for (int j = colStart; j < colEnd; j++)
+        {
+          k2_ = (dims * cols * i) + ( dims * j);
+          lij = k_ + j;
+          data->N[l] += data->probs[lij]; // denominator of (20)
+          for (int d = 0; d < dims; d++)
+          {
+            ld = dims * l + d;
+            ijd = k2_ + d;
+            m[ld] += y[ijd] * probs[lij]; // numerator of (20)
+          }
+        }
+      }
+      if (N[l] != 0)
+      {
+        for (int d = 0; d < dims; d++)
+        {
+          ld = dims * l + d;
+          m[ld] = m[ld] / N[l];
+        }
+      }
+    }
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    void operator()(const tbb::blocked_range2d<int> &r) const
+    {
+      calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+    }
+#endif
+  private:
+    size_t l;
+    EMMPM_Data* data;
+};
+
+
+class ParallelEstimateVariance
+{
+  public:
+    ParallelEstimateVariance(EMMPM_Data* dPtr, size_t l)
+    {
+      this->l = l;
+      this->data = dPtr;
+    }
+    virtual ~ParallelEstimateVariance(){};
+
+    void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
+    {
+      int dims = data->dims;
+      int rows = data->rows;
+      int cols = data->columns;
+      int32_t k_, k2_, lij, ld, ijd;
+      real_t* m = data->m;
+      unsigned char* y = data->y;
+      real_t* probs = data->probs;
+      real_t* N = data->N;
+      real_t res = 0.0f;
+
+      for (int i = rowStart; i < rowEnd; i++)
+      {
+        k_ = (cols * rows * l) + (cols * i);
+
+        for (int j = colStart; j < colEnd; j++)
+        {
+          k2_ = (dims * cols * i) + ( dims * j);
+          // numerator of (21)
+          lij = k_ + j;
+          for (int d = 0; d < dims; d++)
+          {
+            ld = dims * l + d;
+            ijd = k2_ + d;
+            res = y[ijd] - m[ld];
+            res = res * res;
+            data->v[ld] += (res) * probs[lij];
+          }
+        }
+      }
+
+      if(N[l] != 0)
+      {
+        for (int d = 0; d < dims; d++)
+        {
+          ld = dims * l + d;
+          data->v[ld] = data->v[ld] / data->N[l];
+        }
+      }
+    }
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    void operator()(const tbb::blocked_range2d<int> &r) const
+    {
+      calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+    }
+#endif
+  private:
+    size_t l;
+    EMMPM_Data* data;
+};
+
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -196,70 +327,48 @@ void EMMPMUtilities::UpdateMeansAndVariances(EMMPM_Data::Pointer dt)
 {
   EMMPM_Data* data = dt.get();
 
-  size_t l, i, j, d, ld, ijd, lij;
-  size_t dims = data->dims;
+  size_t l;
+ // size_t dims = data->dims;
   size_t rows = data->rows;
   size_t cols = data->columns;
   size_t classes = data->classes;
+
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    tbb::task_scheduler_init init;
+    int threads = init.default_num_threads();
+#endif
 
   /*** Some efficiency was sacrificed for readability below ***/
   /* Update estimates for mean of each class - (Maximization) */
   for (l = 0; l < classes; l++)
   {
-    for (i = 0; i < rows; i++)
-    {
-      for (j = 0; j < cols; j++)
-      {
-        lij = (cols * rows * l) + (cols * i) + j;
-        data->N[l] += data->probs[lij]; // denominator of (20)
-        for (d = 0; d < dims; d++)
-        {
-          ld = dims * l + d;
-          ijd = (dims * cols * i) + ( dims * j) + d;
-          data->m[ld] += data->y[ijd] * data->probs[lij]; // numerator of (20)
-        }
-      }
-    }
-    if (data->N[l] != 0)
-    {
-      for (d = 0; d < dims; d++)
-      {
-        ld = dims * l + d;
-        data->m[ld] = data->m[ld] / data->N[l];
-      }
-    }
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+//    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelEstimateMeans(data, l), tbb::simple_partitioner());
+//#else
+    ParallelEstimateMeans pcl(data, l);
+    pcl.calc(0, rows, 0, cols);
+#endif
   }
 
   // Eq. (20)}
   /* Update estimates of variance of each class */
   for (l = 0; l < classes; l++)
   {
-    for (i = 0; i < rows; i++)
-    {
-      for (j = 0; j < cols; j++)
-      {
-        // numerator of (21)
-        lij = (cols * rows * l) + (cols * i) + j;
-        for (d = 0; d < dims; d++)
-        {
-          ld = dims * l + d;
-          ijd = (dims * cols * i) + ( dims * j) + d;
-          data->v[ld] += (data->y[ijd] - data->m[ld]) * (data->y[ijd] - data->m[ld]) * data->probs[lij];
-        }
-      }
-    }
-    if (data->N[l] != 0) for (d = 0; d < dims; d++)
-    {
-      ld = dims * l + d;
-      data->v[ld] = data->v[ld] / data->N[l];
-    }
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+//    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelEstimateVariance(data, l), tbb::simple_partitioner());
+//#else
+    ParallelEstimateVariance pcl(data, l);
+    pcl.calc(0, rows, 0, cols);
+#endif
   }
 
   for (l = 0; l < classes; l++)
-   {
-     if (data->v[l] < data->min_variance[l])
-       data->v[l] = data->min_variance[l];
-   }
+  {
+    if(data->v[l] < data->min_variance[l])
+    {
+      data->v[l] = data->min_variance[l];
+    }
+  }
 
 }
 

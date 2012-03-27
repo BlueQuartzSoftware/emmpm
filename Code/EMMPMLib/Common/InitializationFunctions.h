@@ -31,11 +31,12 @@
 #ifndef INITIALIZATIONFUNCTIONS_H_
 #define INITIALIZATIONFUNCTIONS_H_
 
+//-- MXA Includes
 #include "MXA/MXA.h"
 #include "MXA/Common/MXASetGetMacros.h"
 
 
-
+//-- EM/MPM Lib Includes
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/EMMPM_Data.h"
 

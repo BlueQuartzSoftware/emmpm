@@ -28,16 +28,25 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+
+#include "InitializationFunctions.h"
+//-- C Includes
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "InitializationFunctions.h"
+
+//-- Boost Includes
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/variate_generator.hpp>
+
+
+//-- EMMMPM Lib Includes
+#include "EMMPMLib/Common/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
-#include "EMMPMLib/Common/random.h"
-#include "EMMPMLib/Common/EMMPM.h"
-
+#include "EMMPMLib/Common/EMTime.h"
 
 
 // -----------------------------------------------------------------------------
@@ -242,16 +251,26 @@ XtArrayInitialization::~XtArrayInitialization()
 // -----------------------------------------------------------------------------
 void XtArrayInitialization::initialize(EMMPM_Data::Pointer data)
 {
-
-  int i, l;
   size_t total;
 
   total = data->rows * data->columns;
+
+  const float rangeMin = 0;
+  const float rangeMax = 1.0f;
+  typedef boost::uniform_real<> NumberDistribution;
+  typedef boost::mt19937 RandomNumberGenerator;
+  typedef boost::variate_generator<RandomNumberGenerator&,
+                                   NumberDistribution> Generator;
+
+  NumberDistribution distribution(rangeMin, rangeMax);
+  RandomNumberGenerator generator;
+  Generator numberGenerator(generator, distribution);
+  generator.seed(EMMPM_getMilliSeconds()); // seed with the current time
+
   /* Initialize classification of each pixel randomly with a uniform disribution */
-  for (i = 0; i < total; i++)
+  for (size_t i = 0; i < total; i++)
   {
-      l = genrand_real2(data->rngVars) * data->classes;
-      data->xt[i] = l;
+      data->xt[i] = numberGenerator() * data->classes;
   }
 
 }
@@ -277,7 +296,7 @@ GradientVariablesInitialization::~GradientVariablesInitialization()
 // -----------------------------------------------------------------------------
 void GradientVariablesInitialization::initialize(EMMPM_Data::Pointer data)
 {
-  size_t ijd, ij, ijd1, i, j, d;
+  size_t ijd, ij, ijd1;
 
   size_t nsCols = data->columns - 1;
   size_t nsRows = data->rows;
@@ -303,12 +322,12 @@ void GradientVariablesInitialization::initialize(EMMPM_Data::Pointer data)
   if (data->nw == NULL) { return; }
 
   /* Do edge detection for gradient penalty*/
-  for (i = 0; i < data->rows; i++)
+  for (uint32_t i = 0; i < data->rows; i++)
   {
-    for (j = 0; j < nwCols; j++)
+    for (uint32_t j = 0; j < nwCols; j++)
     {
       x = 0;
-      for (d = 0; d < dims; d++)
+      for (int32_t d = 0; d < dims; d++)
       {
         ijd = (dims * nwCols * i) + (dims * j) + d;
         ijd1 = (dims * nwCols * (i)) + (dims * (j + 1)) + d;
@@ -318,12 +337,12 @@ void GradientVariablesInitialization::initialize(EMMPM_Data::Pointer data)
       data->ns[ij] = data->beta_e * atan((10 - sqrt(x)) / 5);
     }
   }
-  for (i = 0; i < nwRows; i++)
+  for (uint32_t i = 0; i < nwRows; i++)
   {
-    for (j = 0; j < data->columns; j++)
+    for (uint32_t j = 0; j < data->columns; j++)
     {
       x = 0;
-      for (d = 0; d < dims; d++)
+      for (int32_t d = 0; d < dims; d++)
       {
         ijd = (dims * data->columns * i) + (dims * j) + d;
         ijd1 = (dims * data->columns * (i + 1)) + (dims * (j)) + d;
@@ -335,12 +354,12 @@ void GradientVariablesInitialization::initialize(EMMPM_Data::Pointer data)
   }
   nwCols = data->columns - 1;
   nwRows = data->rows - 1;
-  for (i = 0; i < nwRows; i++)
+  for (uint32_t i = 0; i < nwRows; i++)
   {
-    for (j = 0; j < nwCols; j++)
+    for (uint32_t j = 0; j < nwCols; j++)
     {
       x = 0;
-      for (d = 0; d < data->dims; d++)
+      for (uint32_t d = 0; d < data->dims; d++)
       {
         ijd = (dims * data->columns * i) + (dims * j) + d;
         ijd1 = (dims * data->columns * (i + 1)) + (dims * (j + 1)) + d;
@@ -349,7 +368,7 @@ void GradientVariablesInitialization::initialize(EMMPM_Data::Pointer data)
       ij = (nwCols * i) + j;
       data->sw[ij] = data->beta_e * atan((10 - sqrt(0.5 * x)) / 5);
       x = 0;
-      for (d = 0; d < data->dims; d++)
+      for (uint32_t d = 0; d < data->dims; d++)
       {
         ijd = (dims * data->columns * (i + 1)) + (dims * (j)) + d;
         ijd1 = (dims * data->columns * (i)) + (dims * (j + 1)) + d;

@@ -53,7 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureEM::CurvatureEM()
+CurvatureEM::CurvatureEM() :
+m_StatsDelegate(NULL)
 {
 
 }
@@ -137,7 +138,7 @@ void CurvatureEM::execute()
     /* Send back the Progress Stats and the segmented image. If we never get into this loop because
     * emiter == 0 then we will still send back the stats just after the end of the EM Loops */
     EMMPMUtilities::ConvertXtToOutputImage(getData());
-    if (m_StatsDelegate.get() != NULL)
+    if (m_StatsDelegate != NULL)
     {
       m_StatsDelegate->reportProgress(getData());
     }

@@ -51,7 +51,7 @@ class EMMPM_EXPORT CurvatureMPM : public Observable
     virtual ~CurvatureMPM();
 
     MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data)
-    MXA_INSTANCE_PROPERTY(StatsDelegate::Pointer, StatsDelegate);
+    MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
 
     /**
      * @fn void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);

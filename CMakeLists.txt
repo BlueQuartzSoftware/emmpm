@@ -97,15 +97,6 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # --------------------------------------------------------------------
-# Possibly use a different Random Number Generator
-set(USE_MERSENNE_TWISTER)
-option(EMMPMLib_USE_MT_RNG "Use the Mersenne Twister Random Number Generator" ON)
-if (EMMPMLib_USE_MT_RNG)
-  set(USE_MERSENNE_TWISTER 1)
-endif()
-
-
-# --------------------------------------------------------------------
 # Should we use Intel Threading Building Blocks
 # --------------------------------------------------------------------
 set (EMMPMLib_USE_PARALLEL_ALGORITHMS "")

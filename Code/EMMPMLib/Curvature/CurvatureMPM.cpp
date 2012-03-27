@@ -48,13 +48,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/smart_ptr/detail/atomic_count.hpp>
+//#include <boost/smart_ptr/detail/atomic_count.hpp>
 
 
 #include "EMMPMLib/Common/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
-#include "EMMPMLib/Common/random.h"
+
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPMUtilities.h"
 
@@ -65,61 +65,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tbb/blocked_range2d.h>
 #include <tbb/partitioner.h>
 #include <tbb/task_scheduler_init.h>
-
 #endif
 
-static boost::detail::atomic_count counter(0);
+//static boost::detail::atomic_count counter(0);
 
 class ParallelCalcLoop
 {
   public:
-    ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr) :
+    ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr, real_t* rnd) :
     data(dPtr),
-    yk(ykPtr)
+    yk(ykPtr),
+    rnd(rnd)
     {}
     virtual ~ParallelCalcLoop(){}
 
 
-    void calcLoop(int rowStart, int rowEnd,
+    void calc(int rowStart, int rowEnd,
                   int colStart, int colEnd) const
     {
-      ++counter;
-      const float rangeMin = 0;
-      const float rangeMax = 1.0f;
-      typedef boost::uniform_real<> NumberDistribution;
-      typedef boost::mt19937 RandomNumberGenerator;
-      typedef boost::variate_generator<RandomNumberGenerator&,
-                                       NumberDistribution> Generator;
-
-      NumberDistribution distribution(rangeMin, rangeMax);
-      RandomNumberGenerator generator;
-      Generator numberGenerator(generator, distribution);
-      generator.seed(EMMPM_getMilliSeconds()); // seed with the current time
-
-     // std::cout << numberGenerator() << std::endl;
+    //  ++counter;
 
       int l, prior;
-      int i, j;
-      size_t ij, lij, i1j1;
+
+      int32_t ij, lij, i1j1;
     //  int dims = data->dims;
       int rows = data->rows;
       int cols = data->columns;
       int classes = data->classes;
 
-      real_t current;
-      real_t x, post[EMMPM_MAX_CLASSES], sum, edge;
+      real_t x, current;
+      real_t post[EMMPM_MAX_CLASSES], sum, edge;
 
       size_t nsCols = data->columns - 1;
       size_t ewCols = data->columns;
       size_t swCols = data->columns - 1;
       size_t nwCols = data->columns - 1;
 
-
-    //  unsigned char* y = data->y;
       unsigned char* xt = data->xt;
       real_t* probs = data->probs;
-    //  real_t* m = data->m;
-    //  real_t* v = data->v;
       real_t* ccost = data->ccost;
       real_t* ns = data->ns;
       real_t* ew = data->ew;
@@ -127,11 +110,21 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
-      for (i = rowStart; i < rowEnd; i++)
+      // These are just going to be loop constants that are only calc'ed once
+      int32_t colsij;
+      int32_t colsim1j;
+      int32_t colsip1j;
+      int32_t colsrows = cols * rows;
+
+      for (int32_t i = rowStart; i < rowEnd; i++)
       {
-        for (j = colStart; j < colEnd; j++)
+        for (int32_t j = colStart; j < colEnd; j++)
         {
-          ij = (cols * i) + j;
+          colsij = (cols * i) + j;
+          colsim1j = (cols*(i-1))+j;
+          colsip1j = (cols*(i+1))+j;
+
+          ij = colsij;
           sum = 0;
           for (l = 0; l < classes; l++)
           {
@@ -142,7 +135,7 @@ class ParallelCalcLoop
             {
               if (j - 1 >= 0)
               {
-                i1j1 = (cols*(i-1))+j-1;
+                i1j1 = colsim1j-1;
                 if (xt[i1j1] != l)
                 {
                   prior++;
@@ -152,7 +145,7 @@ class ParallelCalcLoop
               }
 
               //Mark1
-              i1j1 = (cols*(i-1))+j;
+              i1j1 = colsim1j;
               if (xt[i1j1] != l)
               {
                 prior++;
@@ -162,7 +155,7 @@ class ParallelCalcLoop
               //mark2
               if (j + 1 < cols)
               {
-                i1j1 = (cols*(i-1))+j+1;
+                i1j1 = colsim1j+1;
                 if (xt[i1j1] != l)
                 {
                   prior++;
@@ -177,7 +170,7 @@ class ParallelCalcLoop
             {
               if (j - 1 >= 0)
               {
-                i1j1 = (cols*(i+1))+j-1;
+                i1j1 = colsip1j-1;
                 if (xt[i1j1] != l)
                 {
                   prior++;
@@ -186,7 +179,7 @@ class ParallelCalcLoop
                 }
               }
               //mark4
-              i1j1 = (cols*(i+1))+j;
+              i1j1 = colsip1j;
               if (xt[i1j1] != l)
               {
                 prior++;
@@ -196,7 +189,7 @@ class ParallelCalcLoop
               //mark5
               if (j + 1 < cols)
               {
-                i1j1 = (cols*(i+1))+j+1;
+                i1j1 = colsip1j+1;
                 if (xt[i1j1] != l)
                 {
                   prior++;
@@ -208,7 +201,7 @@ class ParallelCalcLoop
             //mark6
             if (j - 1 >= 0)
             {
-              i1j1 = (cols*(i))+j-1;
+              i1j1 = colsip1j-1;
               if (xt[i1j1] != l)
               {
                 prior++;
@@ -219,7 +212,7 @@ class ParallelCalcLoop
             //mark7
             if (j + 1 < cols)
             {
-              i1j1 = (cols*(i))+j+1;
+              i1j1 = colsip1j+1;
               if (xt[i1j1] != l)
               {
                 prior++;
@@ -227,7 +220,7 @@ class ParallelCalcLoop
                 if (data->useGradientPenalty) edge += ns[i1j1];
               }
             }
-            lij = (cols * rows * l) + (cols * i) + j;
+            lij = (colsrows * l) + colsij;
             curvature_value = 0.0;
             if (data->useCurvaturePenalty)
             {
@@ -242,17 +235,16 @@ class ParallelCalcLoop
             sum += post[l];
           }
 //          x = genrand_real2(data->rngVars);
-          x = numberGenerator();
+          x = rnd[colsij];
           current = 0;
           for (l = 0; l < classes; l++)
           {
-            lij = (cols * rows * l) + ij;
-            //ij = (cols*i)+j;
+            lij = (colsrows * l) + ij;
             real_t arg = post[l]/sum;
             if ((x >= current) && (x <= (current + arg)))
             {
               xt[ij] = l;
-              probs[lij] += 1.0;
+              probs[lij] += 1.0f;
             }
             current += arg;
           }
@@ -264,7 +256,7 @@ class ParallelCalcLoop
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     void operator()(const tbb::blocked_range2d<int> &r) const
     {
-      calcLoop(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+      calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
     }
 #endif
 
@@ -272,12 +264,14 @@ class ParallelCalcLoop
 private:
     const EMMPM_Data* data;
     const real_t* yk;
+    const real_t* rnd;
 };
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureMPM::CurvatureMPM()
+CurvatureMPM::CurvatureMPM() :
+m_StatsDelegate(NULL)
 {
 }
 
@@ -360,6 +354,26 @@ void CurvatureMPM::execute()
     }
   }
 
+  const float rangeMin = 0;
+  const float rangeMax = 1.0f;
+  typedef boost::uniform_real<real_t> NumberDistribution;
+  typedef boost::mt19937 RandomNumberGenerator;
+  typedef boost::variate_generator<RandomNumberGenerator&,
+                                   NumberDistribution> Generator;
+
+  NumberDistribution distribution(rangeMin, rangeMax);
+  RandomNumberGenerator generator;
+  Generator numberGenerator(generator, distribution);
+  generator.seed(EMMPM_getMilliSeconds()); // seed with the current time
+
+  // Generate all the numbers up front
+  size_t total = rows * cols;
+  std::vector<real_t> rndNumbers(total);
+  for(size_t i = 0; i < total; ++i)
+  {
+    rndNumbers[i] = numberGenerator();
+  }
+
   unsigned long long int millis = EMMPM_getMilliSeconds();
   /* Perform the MPM loops */
   for (int32_t k = 0; k < data->mpmIterations; k++)
@@ -373,30 +387,34 @@ void CurvatureMPM::execute()
     tbb::task_scheduler_init init;
     int threads = init.default_num_threads();
 
-    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelCalcLoop(data, yk), tbb::simple_partitioner());
+    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelCalcLoop(data, yk, &(rndNumbers.front())), tbb::simple_partitioner());
 #else
-    ParallelCalcLoop pcl(data, yk);
-    pcl.calcLoop(0, rows, 0, cols);
+    ParallelCalcLoop pcl(data, yk, &(rndNumbers.front()));
+    pcl.calc(0, rows, 0, cols);
 #endif
 
-    std::cout << "Counter: " << counter << std::endl;
+    //std::cout << "Counter: " << counter << std::endl;
     EMMPMUtilities::ConvertXtToOutputImage(getData());
 
     data->currentMPMLoop = k;
-    snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
-    notify(msgbuff, 0, UpdateProgressMessage);
+   // snprintf(msgbuff, 256, "MPM Loop %d", data->currentMPMLoop);
+   // notify(msgbuff, 0, UpdateProgressMessage);
 
     currentLoopCount = data->mpmIterations * data->currentEMLoop + data->currentMPMLoop;
     data->progress = currentLoopCount / totalLoops * 100.0;
 
-    notify("", data->progress, UpdateProgressValue);
+   // notify("", data->progress, UpdateProgressValue);
+    if (m_StatsDelegate != NULL)
+    {
+      m_StatsDelegate->reportProgress(m_Data);
+    }
 
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-  std::cout << "Parrallel MPM Loop Time to Complete:";
+  #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    std::cout << "Parrallel MPM Loop Time to Complete:";
 #else
-  std::cout << "Serial MPM Loop Time To Complete: ";
+    std::cout << "Serial MPM Loop Time To Complete: ";
 #endif
-  std::cout  << (EMMPM_getMilliSeconds() - millis) << std::endl;
+    std::cout << (EMMPM_getMilliSeconds() - millis) << std::endl;
 
   }
   data->inside_mpm_loop = 0;

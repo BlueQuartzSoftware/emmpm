@@ -50,7 +50,7 @@ class EMMPM_EXPORT CurvatureEM : public Observable
     virtual ~CurvatureEM();
 
     MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data);
-    MXA_INSTANCE_PROPERTY(StatsDelegate::Pointer, StatsDelegate);
+    MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
 
     /**
      * @fn void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)

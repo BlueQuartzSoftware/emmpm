@@ -81,7 +81,7 @@ EMMPM_Data::~EMMPM_Data()
   EMMPM_FREE_POINTER(this->sw)
   EMMPM_FREE_POINTER(this->nw)
   EMMPM_FREE_POINTER(this->histograms);
-  EMMPM_FREE_POINTER(this->rngVars);
+//  EMMPM_FREE_POINTER(this->rngVars);
 
 }
 
@@ -194,7 +194,7 @@ void EMMPM_Data::initVariables()
 
   this->histograms = NULL;
 
-  this->rngVars = NULL;
+  //this->rngVars = NULL;
 
   this->tiffResSet = 0;
   this->xResolution = 0;

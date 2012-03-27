@@ -330,7 +330,7 @@ int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
 {
   int err;
   unsigned char* raster;
-  size_t i;
+ // size_t i;
   TIFF *out;
   char* dateTime;
   char software[1024];
@@ -389,7 +389,7 @@ int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
   memset(b,0, sizeof(uint16) * nColors);
 
   // Copy in the Gray_Table for the segmentation
-  for (i = 0; i < data->classes; i++) {
+  for (int32_t i = 0; i < data->classes; i++) {
     r[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
     g[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
     b[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);

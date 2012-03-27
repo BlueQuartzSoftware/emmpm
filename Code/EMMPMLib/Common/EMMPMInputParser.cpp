@@ -138,7 +138,7 @@ int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_D
   real_t* mPtr = inputs->m;
   real_t* vPtr = inputs->v;
 
-  int n = sscanf(values.substr(0, pos).c_str(), "%lf,%lf", mPtr, vPtr );
+  int n = sscanf(values.substr(0, pos).c_str(), "%f,%f", mPtr, vPtr );
   if (n != 2)
   {
     *mPtr = 0.0;
@@ -151,7 +151,7 @@ int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_D
   {
     mPtr++;
     vPtr++;
-    n = sscanf(values.substr(pos+1).c_str(), "%lf,%lf", &(mPtr[0]), &(vPtr[0]) );
+    n = sscanf(values.substr(pos+1).c_str(), "%f,%f", &(mPtr[0]), &(vPtr[0]) );
     pos = values.find(":", pos+1);
     ++index;
   }

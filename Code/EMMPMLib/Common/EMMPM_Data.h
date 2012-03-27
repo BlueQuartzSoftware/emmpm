@@ -40,7 +40,7 @@
 // emmpm includes
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/EMMPM_Constants.h"
-#include "EMMPMLib/Common/random.h"
+
 
 typedef float real_t;
 
@@ -144,7 +144,7 @@ class EMMPM_EXPORT EMMPM_Data
     //  These are for a per-thread storage for once-global variables that are now held
     //  in this structure
     // -----------------------------------------------------------------------------
-    RNGVars*    rngVars;
+    //RNGVars*    rngVars;
 
     // -----------------------------------------------------------------------------
     // Some Critical TIFF related fields which are taken directly from the tifftags

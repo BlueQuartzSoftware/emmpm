@@ -56,7 +56,7 @@ class EMMPM_EXPORT EMMPM : public Observable
 
     MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data);
     MXA_INSTANCE_PROPERTY(InitializationFunction::Pointer, InitializationFunction)
-    MXA_INSTANCE_PROPERTY(StatsDelegate::Pointer, StatsDelegate);
+    MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
 
 
     /**
