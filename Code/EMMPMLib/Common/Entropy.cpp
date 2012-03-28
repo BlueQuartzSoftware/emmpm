@@ -49,7 +49,7 @@ void EMMPMEntropy::entropy(real_t ***probs, unsigned char **output,
 			for(l = 0; l < classes; l++)
 			{
 				if(probs[l][i][j] > 0)
-					entr -= probs[l][i][j] * (log10(probs[l][i][j]) / log10(2));
+					entr -= probs[l][i][j] * (log10(probs[l][i][j]) / log10(2.0f));
 			}
 			output[i][j] = (unsigned char)(entr + 0.5);
 		}
