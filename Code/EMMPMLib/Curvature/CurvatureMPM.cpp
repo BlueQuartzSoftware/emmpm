@@ -388,14 +388,14 @@ void CurvatureMPM::execute()
     {
       m_StatsDelegate->reportProgress(m_Data);
     }
-
+#if 0
   #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     std::cout << "Parrallel MPM Loop Time to Complete:";
 #else
     std::cout << "Serial MPM Loop Time To Complete: ";
 #endif
     std::cout << (EMMPM_getMilliSeconds() - millis) << std::endl;
-
+#endif
   }
   data->inside_mpm_loop = 0;
 

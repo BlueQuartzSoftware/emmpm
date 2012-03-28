@@ -244,14 +244,9 @@ void EMMPM::execute()
   em->setStatsDelegate(getStatsDelegate());
   em->execute();
 
-
-
   data->progress = 100.0;
-  notify("", data->progress, UpdateProgressValue);
-  notify("EM/MPM Completed.", 100, UpdateProgressValueAndMessage);
-
-//  freeRandStruct(data->rngVars);
-//  data->rngVars = NULL;
-
+  m_StatsDelegate->reportProgress(getData());
+//  notify("", data->progress, UpdateProgressValue);
+//  notify("EM/MPM Completed.", 100, UpdateProgressValueAndMessage);
 }
 
