@@ -203,13 +203,13 @@ int main(int argc,char *argv[])
     return 0;
   }
 
-  InitializationFunction::Pointer initFunction = InitializationFunction::New();
+  InitializationFunction::Pointer initFunction = BasicInitialization::New();
 
   // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
-    case EMMPM_Basic:
-      initFunction = BasicInitialization::New();
+    case EMMPM_ManualInit:
+      initFunction = InitializationFunction::New();
       break;
     case EMMPM_UserInitArea:
       initFunction = UserDefinedAreasInitialization::New();

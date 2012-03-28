@@ -255,7 +255,7 @@ void XtArrayInitialization::initialize(EMMPM_Data::Pointer data)
 
   total = data->rows * data->columns;
 
-  const float rangeMin = 0;
+  const float rangeMin = 0.0f;
   const float rangeMax = 1.0f;
   typedef boost::uniform_real<> NumberDistribution;
   typedef boost::mt19937 RandomNumberGenerator;

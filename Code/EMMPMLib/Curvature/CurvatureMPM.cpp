@@ -48,16 +48,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-//#include <boost/smart_ptr/detail/atomic_count.hpp>
 
 
 #include "EMMPMLib/Common/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
-
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPMUtilities.h"
-
 
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
@@ -67,7 +64,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tbb/task_scheduler_init.h>
 #endif
 
-//static boost::detail::atomic_count counter(0);
 
 class ParallelCalcLoop
 {
@@ -83,12 +79,9 @@ class ParallelCalcLoop
     void calc(int rowStart, int rowEnd,
                   int colStart, int colEnd) const
     {
-    //  ++counter;
-
       int l, prior;
 
       int32_t ij, lij, i1j1;
-    //  int dims = data->dims;
       int rows = data->rows;
       int cols = data->columns;
       int classes = data->classes;
@@ -110,12 +103,16 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
+      int32_t k1 = 0;
+      int32_t k2 = 0;
 
       for (int32_t i = rowStart; i < rowEnd; i++)
        {
          for (int32_t j = colStart; j < colEnd; j++)
          {
            ij = (cols * i) + j;
+           k1 = (cols * (i - 1)) + j;
+           k2 = (cols * (i + 1)) + j;
            sum = 0;
            for (l = 0; l < classes; l++)
            {
@@ -126,31 +123,31 @@ class ParallelCalcLoop
              {
                if (j - 1 >= 0)
                {
-                 i1j1 = (cols*(i-1))+j-1;
+                 i1j1 = k1 - 1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols*(i-1))+j-1;
+                   i1j1 = (swCols * (i - 1)) + j - 1;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
 
                //Mark1
-               i1j1 = (cols*(i-1))+j;
+               i1j1 = k1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols*(i-1))+j;
+                 i1j1 = (ewCols * (i - 1)) + j;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark2
                if (j + 1 < cols)
                {
-                 i1j1 = (cols*(i-1))+j+1;
+                 i1j1 = k1 + 1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols*(i-1))+j;
+                   i1j1 = (nwCols * (i - 1)) + j;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
@@ -161,30 +158,30 @@ class ParallelCalcLoop
              {
                if (j - 1 >= 0)
                {
-                 i1j1 = (cols*(i+1))+j-1;
+                 i1j1 = k1 - 1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols*(i))+j-1;
+                   i1j1 = (nwCols * (i)) + j - 1;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
                //mark4
-               i1j1 = (cols*(i+1))+j;
+               i1j1 = k1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols*(i))+j;
+                 i1j1 = (ewCols * (i)) + j;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark5
                if (j + 1 < cols)
                {
-                 i1j1 = (cols*(i+1))+j+1;
+                 i1j1 = k1 + 1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols*(i))+j;
+                   i1j1 = (swCols * (i)) + j;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
@@ -192,46 +189,41 @@ class ParallelCalcLoop
              //mark6
              if (j - 1 >= 0)
              {
-               i1j1 = (cols*(i))+j-1;
+               i1j1 = ij - 1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols*(i))+j-1;
+                 i1j1 = (nsCols * (i)) + j - 1;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
              //mark7
              if (j + 1 < cols)
              {
-               i1j1 = (cols*(i))+j+1;
+               i1j1 = ij + 1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols*(i))+j;
+                 i1j1 = (nsCols * (i)) + j;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
-             lij = (cols * rows * l) + (cols * i) + j;
+             lij = (cols * rows * l) + ij;
              curvature_value = 0.0;
              if (data->useCurvaturePenalty)
              {
                curvature_value = data->beta_c * ccost[lij];
              }
-             float arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
- //            if (arg < -708.3964)
- //            {
- //              hit++;
- //            }
+             real_t arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
              post[l] = expf(arg);
              sum += post[l];
            }
            x = rnd[ij];
-           current = 0;
+           current = 0.0;
            for (l = 0; l < classes; l++)
            {
              lij = (cols * rows * l) + ij;
-             //ij = (cols*i)+j;
-             real_t arg = post[l]/sum;
+             real_t arg = post[l] / sum;
              if ((x >= current) && (x <= (current + arg)))
              {
                xt[ij] = l;
