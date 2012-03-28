@@ -110,148 +110,140 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
-      // These are just going to be loop constants that are only calc'ed once
-      int32_t colsij;
-      int32_t colsim1j;
-      int32_t colsip1j;
-      int32_t colsrows = cols * rows;
 
       for (int32_t i = rowStart; i < rowEnd; i++)
-      {
-        for (int32_t j = colStart; j < colEnd; j++)
-        {
-          colsij = (cols * i) + j;
-          colsim1j = (cols*(i-1))+j;
-          colsip1j = (cols*(i+1))+j;
+       {
+         for (int32_t j = colStart; j < colEnd; j++)
+         {
+           ij = (cols * i) + j;
+           sum = 0;
+           for (l = 0; l < classes; l++)
+           {
+             /* edge penalties (in both x and y) */
+             prior = 0;
+             edge = 0;
+             if (i - 1 >= 0)
+             {
+               if (j - 1 >= 0)
+               {
+                 i1j1 = (cols*(i-1))+j-1;
+                 if (xt[i1j1] != l)
+                 {
+                   prior++;
+                   i1j1 = (swCols*(i-1))+j-1;
+                   if (data->useGradientPenalty) edge += sw[i1j1];
+                 }
+               }
 
-          ij = colsij;
-          sum = 0;
-          for (l = 0; l < classes; l++)
-          {
-            /* edge penalties (in both x and y) */
-            prior = 0;
-            edge = 0;
-            if (i - 1 >= 0)
-            {
-              if (j - 1 >= 0)
-              {
-                i1j1 = colsim1j-1;
-                if (xt[i1j1] != l)
-                {
-                  prior++;
-                  i1j1 = (swCols*(i-1))+j-1;
-                  if (data->useGradientPenalty) edge += sw[i1j1];
-                }
-              }
+               //Mark1
+               i1j1 = (cols*(i-1))+j;
+               if (xt[i1j1] != l)
+               {
+                 prior++;
+                 i1j1 = (ewCols*(i-1))+j;
+                 if (data->useGradientPenalty) edge += ew[i1j1];
+               }
+               //mark2
+               if (j + 1 < cols)
+               {
+                 i1j1 = (cols*(i-1))+j+1;
+                 if (xt[i1j1] != l)
+                 {
+                   prior++;
+                   i1j1 = (nwCols*(i-1))+j;
+                   if (data->useGradientPenalty) edge += nw[i1j1];
+                 }
+               }
+             }
 
-              //Mark1
-              i1j1 = colsim1j;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (ewCols*(i-1))+j;
-                if (data->useGradientPenalty) edge += ew[i1j1];
-              }
-              //mark2
-              if (j + 1 < cols)
-              {
-                i1j1 = colsim1j+1;
-                if (xt[i1j1] != l)
-                {
-                  prior++;
-                  i1j1 = (nwCols*(i-1))+j;
-                  if (data->useGradientPenalty) edge += nw[i1j1];
-                }
-              }
-            }
+             //mark3
+             if (i + 1 < rows)
+             {
+               if (j - 1 >= 0)
+               {
+                 i1j1 = (cols*(i+1))+j-1;
+                 if (xt[i1j1] != l)
+                 {
+                   prior++;
+                   i1j1 = (nwCols*(i))+j-1;
+                   if (data->useGradientPenalty) edge += nw[i1j1];
+                 }
+               }
+               //mark4
+               i1j1 = (cols*(i+1))+j;
+               if (xt[i1j1] != l)
+               {
+                 prior++;
+                 i1j1 = (ewCols*(i))+j;
+                 if (data->useGradientPenalty) edge += ew[i1j1];
+               }
+               //mark5
+               if (j + 1 < cols)
+               {
+                 i1j1 = (cols*(i+1))+j+1;
+                 if (xt[i1j1] != l)
+                 {
+                   prior++;
+                   i1j1 = (swCols*(i))+j;
+                   if (data->useGradientPenalty) edge += sw[i1j1];
+                 }
+               }
+             }
+             //mark6
+             if (j - 1 >= 0)
+             {
+               i1j1 = (cols*(i))+j-1;
+               if (xt[i1j1] != l)
+               {
+                 prior++;
+                 i1j1 = (nsCols*(i))+j-1;
+                 if (data->useGradientPenalty) edge += ns[i1j1];
+               }
+             }
+             //mark7
+             if (j + 1 < cols)
+             {
+               i1j1 = (cols*(i))+j+1;
+               if (xt[i1j1] != l)
+               {
+                 prior++;
+                 i1j1 = (nsCols*(i))+j;
+                 if (data->useGradientPenalty) edge += ns[i1j1];
+               }
+             }
+             lij = (cols * rows * l) + (cols * i) + j;
+             curvature_value = 0.0;
+             if (data->useCurvaturePenalty)
+             {
+               curvature_value = data->beta_c * ccost[lij];
+             }
+             float arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
+ //            if (arg < -708.3964)
+ //            {
+ //              hit++;
+ //            }
+             post[l] = expf(arg);
+             sum += post[l];
+           }
+           x = rnd[ij];
+           current = 0;
+           for (l = 0; l < classes; l++)
+           {
+             lij = (cols * rows * l) + ij;
+             //ij = (cols*i)+j;
+             real_t arg = post[l]/sum;
+             if ((x >= current) && (x <= (current + arg)))
+             {
+               xt[ij] = l;
+               probs[lij] += 1.0;
+             }
+             current += arg;
+           }
+         }
+       }
 
-            //mark3
-            if (i + 1 < rows)
-            {
-              if (j - 1 >= 0)
-              {
-                i1j1 = colsip1j-1;
-                if (xt[i1j1] != l)
-                {
-                  prior++;
-                  i1j1 = (nwCols*(i))+j-1;
-                  if (data->useGradientPenalty) edge += nw[i1j1];
-                }
-              }
-              //mark4
-              i1j1 = colsip1j;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (ewCols*(i))+j;
-                if (data->useGradientPenalty) edge += ew[i1j1];
-              }
-              //mark5
-              if (j + 1 < cols)
-              {
-                i1j1 = colsip1j+1;
-                if (xt[i1j1] != l)
-                {
-                  prior++;
-                  i1j1 = (swCols*(i))+j;
-                  if (data->useGradientPenalty) edge += sw[i1j1];
-                }
-              }
-            }
-            //mark6
-            if (j - 1 >= 0)
-            {
-              i1j1 = colsip1j-1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (nsCols*(i))+j-1;
-                if (data->useGradientPenalty) edge += ns[i1j1];
-              }
-            }
-            //mark7
-            if (j + 1 < cols)
-            {
-              i1j1 = colsip1j+1;
-              if (xt[i1j1] != l)
-              {
-                prior++;
-                i1j1 = (nsCols*(i))+j;
-                if (data->useGradientPenalty) edge += ns[i1j1];
-              }
-            }
-            lij = (colsrows * l) + colsij;
-            curvature_value = 0.0;
-            if (data->useCurvaturePenalty)
-            {
-              curvature_value = data->beta_c * ccost[lij];
-            }
-            float arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
-//            if (arg < -708.3964)
-//            {
-//              hit++;
-//            }
-            post[l] = expf(arg);
-            sum += post[l];
-          }
-//          x = genrand_real2(data->rngVars);
-          x = rnd[colsij];
-          current = 0;
-          for (l = 0; l < classes; l++)
-          {
-            lij = (colsrows * l) + ij;
-            real_t arg = post[l]/sum;
-            if ((x >= current) && (x <= (current + arg)))
-            {
-              xt[ij] = l;
-              probs[lij] += 1.0f;
-            }
-            current += arg;
-          }
-        }
-      }
+     }
 
-    }
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     void operator()(const tbb::blocked_range2d<int> &r) const
