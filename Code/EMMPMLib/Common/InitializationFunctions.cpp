@@ -255,7 +255,7 @@ void XtArrayInitialization::initialize(EMMPM_Data::Pointer data)
 
   total = data->rows * data->columns;
 
-  const float rangeMin = 0;
+  const float rangeMin = 0.0f;
   const float rangeMax = 1.0f;
   typedef boost::uniform_real<> NumberDistribution;
   typedef boost::mt19937 RandomNumberGenerator;
@@ -404,34 +404,6 @@ CurvatureInitialization::~CurvatureInitialization()
 // -----------------------------------------------------------------------------
 void CurvatureInitialization::initialize(EMMPM_Data::Pointer data)
 {
-
-  unsigned int d;
-  size_t ld;
-  int l;
-  int dims = data->dims;
-  int classes = data->classes;
-
-  /***  Choose initial conditions by placing means randomly
-   and setting variances to 20 in each dimension (unless scalar image) ***/
-  d = 0;
-  for (l = 0; l < classes; l++)
-  {
-    if (dims == 1)
-    {
-      ld = dims * l + d;
-      data->m[ld] = (128 + 255 * l) / classes;
-      data->v[ld] = 20;
-    }
-    else
-    {
-      for (d = 0; d < data->dims; d++)
-      {
-        ld = dims * l + d;
-        data->m[ld] = rand() % 256;
-        data->v[ld] = 20;
-      }
-    }
-  }
 
 }
 

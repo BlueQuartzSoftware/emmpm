@@ -50,6 +50,7 @@
 #include "EMMPMLib/Common/EMMPMInputParser.h"
 #include "EMMPMLib/Common/StatsDelegate.h"
 #include "EMMPMLib/Common/InitializationFunctions.h"
+#include "EMMPMLib/Common/EMMPMUtilities.h"
 #include "EMMPMLib/tiff/TiffUtilities.h"
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
@@ -203,13 +204,13 @@ int main(int argc,char *argv[])
     return 0;
   }
 
-  InitializationFunction::Pointer initFunction = InitializationFunction::New();
+  InitializationFunction::Pointer initFunction = BasicInitialization::New();
 
   // Set the initialization function based on the command line arguments
   switch(data->initType)
   {
-    case EMMPM_Basic:
-      initFunction = BasicInitialization::New();
+    case EMMPM_ManualInit:
+      initFunction = InitializationFunction::New();
       break;
     case EMMPM_UserInitArea:
       initFunction = UserDefinedAreasInitialization::New();
@@ -243,12 +244,17 @@ int main(int argc,char *argv[])
   {
     return 0;
   }
+#if 0
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
   std::cout << "Parrallel Time to Complete:";
 #else
   std::cout << "Serial Time To Complete: ";
 #endif
   std::cout  << (EMMPM_getMilliSeconds() - millis) << std::endl;
+#endif
+
+  EMMPMUtilities::MonitorMeansAndVariances(data);
+
   std::cout << "EM/MPM Ending" << std::endl;
 
 	return 1;
