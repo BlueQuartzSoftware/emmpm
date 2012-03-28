@@ -103,16 +103,12 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
-      int32_t k1 = 0;
-      int32_t k2 = 0;
 
       for (int32_t i = rowStart; i < rowEnd; i++)
        {
          for (int32_t j = colStart; j < colEnd; j++)
          {
            ij = (cols * i) + j;
-           k1 = (cols * (i - 1)) + j;
-           k2 = (cols * (i + 1)) + j;
            sum = 0;
            for (l = 0; l < classes; l++)
            {
@@ -123,31 +119,31 @@ class ParallelCalcLoop
              {
                if (j - 1 >= 0)
                {
-                 i1j1 = k1 - 1;
+                 i1j1 = (cols*(i-1))+j-1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols * (i - 1)) + j - 1;
+                   i1j1 = (swCols*(i-1))+j-1;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
 
                //Mark1
-               i1j1 = k1;
+               i1j1 = (cols*(i-1))+j;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols * (i - 1)) + j;
+                 i1j1 = (ewCols*(i-1))+j;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark2
                if (j + 1 < cols)
                {
-                 i1j1 = k1 + 1;
+                 i1j1 = (cols*(i-1))+j+1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols * (i - 1)) + j;
+                   i1j1 = (nwCols*(i-1))+j;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
@@ -158,30 +154,30 @@ class ParallelCalcLoop
              {
                if (j - 1 >= 0)
                {
-                 i1j1 = k1 - 1;
+                 i1j1 = (cols*(i+1))+j-1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols * (i)) + j - 1;
+                   i1j1 = (nwCols*(i))+j-1;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
                //mark4
-               i1j1 = k1;
+               i1j1 = (cols*(i+1))+j;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols * (i)) + j;
+                 i1j1 = (ewCols*(i))+j;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark5
                if (j + 1 < cols)
                {
-                 i1j1 = k1 + 1;
+                 i1j1 = (cols*(i+1))+j+1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols * (i)) + j;
+                   i1j1 = (swCols*(i))+j;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
@@ -189,26 +185,26 @@ class ParallelCalcLoop
              //mark6
              if (j - 1 >= 0)
              {
-               i1j1 = ij - 1;
+               i1j1 = (cols*(i))+j-1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols * (i)) + j - 1;
+                 i1j1 = (nsCols*(i))+j-1;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
              //mark7
              if (j + 1 < cols)
              {
-               i1j1 = ij + 1;
+               i1j1 = (cols*(i))+j+1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols * (i)) + j;
+                 i1j1 = (nsCols*(i))+j;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
-             lij = (cols * rows * l) + ij;
+             lij = (cols * rows * l) + (cols * i) + j;
              curvature_value = 0.0;
              if (data->useCurvaturePenalty)
              {
