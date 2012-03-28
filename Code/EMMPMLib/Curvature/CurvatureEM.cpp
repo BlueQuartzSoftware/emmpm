@@ -91,7 +91,7 @@ void CurvatureEM::execute()
   data->workingBeta = data->in_beta;
 
   // If we are using Sim Anneal then create a ramped beta
-  if (data->simulatedAnnealing != 0 && data->emIterations > 0)
+  if (data->simulatedAnnealing != 0 && data->emIterations > 1)
   {
     simAnnealBetas=(real_t*)(malloc(sizeof(real_t)*data->emIterations));
     for (int i = 0; i < data->emIterations; ++i)
@@ -106,14 +106,11 @@ void CurvatureEM::execute()
    * idea and is a good idea.  */
   k = 0; // Simulate first loop of EM by setting k=0;
   // Possibly update the beta value due to simulated Annealing
-  if (data->simulatedAnnealing != 0 && data->emIterations > 0)
+  if (data->simulatedAnnealing != 0 && data->emIterations > 1)
   {
     data->workingBeta = simAnnealBetas[k];
   }
-  else
-  {
-    data->workingBeta = data->in_beta;
-  }
+
 
   MorphFilter::Pointer morphFilt = MorphFilter::New();
 
@@ -181,7 +178,8 @@ void CurvatureEM::execute()
 #endif
 
     // Possibly update the beta value due to simulated Annealing
-    if (data->simulatedAnnealing)  {
+    if (data->simulatedAnnealing != 0 && data->emIterations > 1)
+    {
      data->workingBeta = simAnnealBetas[k];
     }
 
