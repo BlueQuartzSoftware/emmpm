@@ -99,9 +99,9 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 # --------------------------------------------------------------------
 # Should we use Intel Threading Building Blocks
 # --------------------------------------------------------------------
-set (EMMPMLib_USE_PARALLEL_ALGORITHMS "")
-option(EMMPMLib_USE_MULTITHREADED_ALGOS "Use MultiThreaded Algorithms where possible" OFF)
-if (EMMPMLib_USE_MULTITHREADED_ALGOS)
+#set (EMMPMLib_USE_PARALLEL_ALGORITHMS "")
+option(EMMPMLib_USE_PARALLEL_ALGORITHMS "Use MultiThreaded Algorithms where possible" ON)
+if (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     find_package(TBB)
     if (TBB_FOUND)
         include_directories(${TBB_INCLUDE_DIRS} )

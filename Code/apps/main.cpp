@@ -37,8 +37,11 @@
 #include <ostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 
-
+#include "MXA/MXA.h"
+#include "MXA/Utilities/MXADir.h"
+#include "MXA/Utilities/MXAFileInfo.h"
 
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
@@ -141,7 +144,7 @@ class CLIStatsDelegate : public StatsDelegate
 int main(int argc,char *argv[])
 {
 
-  unsigned long long int millis = EMMPM_getMilliSeconds();
+//  unsigned long long int millis = EMMPM_getMilliSeconds();
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
   tbb::task_scheduler_init init;
@@ -254,6 +257,25 @@ int main(int argc,char *argv[])
 #endif
 
   EMMPMUtilities::MonitorMeansAndVariances(data);
+
+  // Write the stats file
+  std::stringstream ss;
+  ss << data->output_file_name << "_Stats.txt";
+
+  std::cout << "StatsFile: " << ss.str() << std::endl;
+
+
+  FILE* f = fopen(ss.str().c_str(), "wb");
+  fprintf(f, "InputFile:%s\n", data->input_file_name);
+  fprintf(f, "SegmentedFile:%s\n" , data->output_file_name);
+  fprintf(f, "NumClasses:%d\n", data->classes);
+  fprintf(f, "Class,Mu,Sigma\n");
+  for(int i = 0; i < data->classes; ++i)
+  {
+    fprintf(f, "%d,%f,%f\n", i,  data->m[i] , data->v[i] );
+  }
+
+  fclose(f);
 
   std::cout << "EM/MPM Ending" << std::endl;
 
