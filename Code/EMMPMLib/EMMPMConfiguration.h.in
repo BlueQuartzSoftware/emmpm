@@ -25,7 +25,7 @@
 #include "@PROJECT_NAME@/@CMP_TYPES_FILE_NAME@"
 
 /* Include the DLL export preprocessor defines */
-#include "EMMPMLib/common/EMMPMLibDLLExport.h"
+#include "EMMPMLib/Common/EMMPMLibDLLExport.h"
 
 /* We are going to disable some warnings just to get a grip on all the warnings that get produced
 * during an MSVC build */

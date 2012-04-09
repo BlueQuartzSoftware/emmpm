@@ -43,12 +43,17 @@
 #include <string.h>
 #endif
 
+#ifdef CMP_HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 
 //-- TIFF Headers
 // We define _TIFF_DATA_TYPEDEFS_ here because EMMPMTypes.h has the exact type of typedefs
 #define _TIFF_DATA_TYPEDEFS_ 1
 #include <tiffio.h>
 
+#include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/EMMPMLibVersion.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMTime.h"

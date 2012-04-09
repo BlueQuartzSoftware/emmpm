@@ -47,7 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "EMMPMLib/Common/InitializationFunctions.h"
 
 #include "EMMPMLib/Common/EMMPMUtilities.h"
-#include "EMMPMLib/Curvature/morphFilt.h"
+#include "EMMPMLib/Curvature/MorphFilt.h"
 #include "EMMPMLib/Curvature/CurvatureMPM.h"
 
 // -----------------------------------------------------------------------------
