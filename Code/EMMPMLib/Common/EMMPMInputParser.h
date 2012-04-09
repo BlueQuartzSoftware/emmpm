@@ -79,7 +79,7 @@ class EMMPM_EXPORT EMMPMInputParser
      * @param inputs The EMMPM_Data structure to store the results
      * @return
      */
-    int parseMeanVarianceValues(const std::string &values, EMMPM_Data* inputs);
+    int parseMuSigmaValues(const std::string &values, EMMPM_Data* inputs);
 
     /**
      * @brief Copys the std::string contents into a newly malloc'ed char array which

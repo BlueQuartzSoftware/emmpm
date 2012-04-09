@@ -270,9 +270,10 @@ int main(int argc,char *argv[])
   fprintf(f, "SegmentedFile:%s\n" , data->output_file_name);
   fprintf(f, "NumClasses:%d\n", data->classes);
   fprintf(f, "Class,Mu,Sigma\n");
+  // Remember the Sigma is the Square Root of the variance
   for(int i = 0; i < data->classes; ++i)
   {
-    fprintf(f, "%d,%f,%f\n", i,  data->m[i] , data->v[i] );
+    fprintf(f, "%d,%f,%f\n", i,  data->m[i] , sqrtf(data->v[i]) );
   }
 
   fclose(f);

@@ -126,7 +126,7 @@ int EMMPMInputParser::parseInitCoords(const std::string &coords, EMMPM_Data* inp
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_Data* inputs)
+int EMMPMInputParser::parseMuSigmaValues(const std::string &values, EMMPM_Data* inputs)
 {
   std::string::size_type pos = values.find(":", 0);
 
@@ -155,6 +155,13 @@ int EMMPMInputParser::parseMeanVarianceValues(const std::string &values, EMMPM_D
     pos = values.find(":", pos+1);
     ++index;
   }
+
+  // Take the square of the sigma to get the variance (v = sigma^2);
+  for(size_t i = 0; i < index; ++i)
+  {
+    inputs->v[i] = (inputs->v[i]) * (inputs->v[i]);
+  }
+
 
   if (index != static_cast<size_t>(inputs->classes) )
   {
@@ -234,7 +241,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
   cmd.add(em_loop_delay);
 
 
-  TCLAP::ValueArg<std::string> mv("", "mv", "Pairs of Mean,Variance initial values for each class where each set is separated by a ':'. Example for 2 classes is: 121.3,22.8:205.2,45.0", false, "", "");
+  TCLAP::ValueArg<std::string> mv("", "mv", "Pairs of Mean,Sigma initial values for each class where each set is separated by a ':'. Example for 2 classes is: 121.3,22.8:205.2,45.0", false, "", "");
   cmd.add(mv);
 
 
@@ -287,7 +294,7 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
     }
     if (inputs->initType == EMMPM_ManualInit)
     {
-      error = parseMeanVarianceValues(mv.getValue(), inputs);
+      error = parseMuSigmaValues(mv.getValue(), inputs);
       if (error < 0)
       {
         std::cout << "There was an error parsing the command line arguments for the mean and variance values" << std::endl;
