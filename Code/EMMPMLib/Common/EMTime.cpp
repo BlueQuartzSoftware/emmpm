@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <string>
+
+
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 
@@ -19,7 +22,7 @@ static char em_tif_time[128];
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-char* formattedTime(char* formatting, char* output)
+char* formattedTime(const char* formatting, char* output)
 {
   struct tm* t;
 #ifdef _MSC_VER
@@ -54,7 +57,8 @@ char* formattedTime(char* formatting, char* output)
 // -----------------------------------------------------------------------------
 char* EMMPM_LogTime()
 {
-  return formattedTime("[%04d:%02d:%02d:%02d:%02d:%02d]", em_log_time);
+  std::string formatString("[%04d:%02d:%02d:%02d:%02d:%02d]");
+  return formattedTime(formatString.c_str(), em_log_time);
 }
 
 // -----------------------------------------------------------------------------
@@ -62,7 +66,9 @@ char* EMMPM_LogTime()
 // -----------------------------------------------------------------------------
 char* EMMPM_TiffDateTime()
 {
-  return formattedTime("%04d:%02d:%02d %02d:%02d:%02d", em_tif_time);
+  std::string formatString("%04d:%02d:%02d %02d:%02d:%02d");
+
+  return formattedTime(formatString.c_str(), em_tif_time);
 }
 
 // -----------------------------------------------------------------------------
