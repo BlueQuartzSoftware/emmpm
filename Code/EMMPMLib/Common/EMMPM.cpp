@@ -35,7 +35,7 @@
 #include "EMMPM.h"
 
 #include "EMMPMLib/Common/MSVCDefines.h"
-#include "EMMPMLib/Common/entropy.h"
+#include "EMMPMLib/Common/Entropy.h"
 
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/EMTime.h"
