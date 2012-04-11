@@ -51,8 +51,8 @@ building the MXADatModel DLL on windows.
 #endif
 
 /* If EMMPMLib_EXPORT was never defined, define it here */
-#ifndef EMMPM_EXPORT
-  #define EMMPM_EXPORT
+#ifndef EMMPMLib_EXPORT
+  #define EMMPMLib_EXPORT
 #endif
 
 #if 0

@@ -85,18 +85,18 @@ inline void CMP_gettimeofday(struct timeval* p, void* tz /* IGNORED */)
 * purpose.
 * @return A string of the current date/time
 */
-EMMPM_EXPORT char* EMMPM_LogTime();
+EMMPMLib_EXPORT char* EMMPM_LogTime();
 
 /**
  * Returns a date/time string suitable for tiff tags.
  * @return
  */
-EMMPM_EXPORT char* EMMPM_TiffDateTime() ;
+EMMPMLib_EXPORT char* EMMPM_TiffDateTime() ;
 
 /**
  * @brief returns the number of milliseconds from a platform specified time.
  */
-EMMPM_EXPORT unsigned long long int EMMPM_getMilliSeconds();
+EMMPMLib_EXPORT unsigned long long int EMMPM_getMilliSeconds();
 
 
 #ifdef __cplusplus
