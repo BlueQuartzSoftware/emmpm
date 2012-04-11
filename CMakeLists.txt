@@ -43,7 +43,7 @@ SET (PROJECT_INSTALL_HEADERS "0")
 SET (PROJECT_INSTALL_EXECUTABLES "1")
 
 if (NOT DEFINED CMP_SOURCE_DIR)
-set(CMP_SOURCE_DIR ${EMMPMProj_SOURCE_DIR}/Support/cmp)
+set(CMP_SOURCE_DIR ${EMMPMProj_SOURCE_DIR}/../CMP)
 endif()
 INCLUDE (${CMP_SOURCE_DIR}/cmpCMakeMacros.cmake )
 set (CMP_ENABLE_PLUGINS "0")
@@ -191,15 +191,13 @@ if(EMMPMLib_BUILD_API_DOCS)
           COMPONENT Applications)
 endif()
 
-
-
-
-if (NOT DEFINED MXA_SOURCE_DIR)
-    set(MXA_SOURCE_DIR ${EMMPMProj_SOURCE_DIR}/Support/MXA)
+if (NOT TARGET MXADataModel)
+    add_subdirectory(${EMMPMProj_SOURCE_DIR}/../MXADataModel ${EMMPMProj_BINARY_DIR}/MXADataModel)
 endif()
-add_subdirectory(${MXA_SOURCE_DIR} ${EMMPMProj_BINARY_DIR}/MXA)
+include_directories(${MXADataModel_SOURCE_DIR}/Code)
+include_directories(${MXADataModel_BINARY_DIR})
 
-include_directories(${MXA_SOURCE_DIR}/..)
+
 include_directories(${EMMPMProj_BINARY_DIR}/)
 
 add_subdirectory(${PROJECT_CODE_DIR}/EMMPMLib ${EMMPMProj_BINARY_DIR}/EMMPMLib)

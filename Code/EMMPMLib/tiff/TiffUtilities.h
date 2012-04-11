@@ -38,7 +38,7 @@
 #include "EMMPMLib/Common/EMMPM_Data.h"
 #include "EMMPMLib/Common/EMMPM.h"
 
-class EMMPM_EXPORT TiffUtilities : public Observable
+class EMMPMLib_EXPORT TiffUtilities : public Observable
 {
   public:
     TiffUtilities();

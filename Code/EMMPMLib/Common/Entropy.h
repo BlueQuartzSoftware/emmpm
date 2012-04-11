@@ -35,7 +35,7 @@
 #include "EMMPMLib/Common/EMMPM_Data.h"
 
 
-class EMMPM_EXPORT EMMPMEntropy
+class EMMPMLib_EXPORT EMMPMEntropy
 {
   public:
     static void entropy(real_t ***probs, unsigned char **output, unsigned int rows, unsigned int cols, unsigned int classes);

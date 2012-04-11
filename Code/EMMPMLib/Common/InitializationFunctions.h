@@ -45,7 +45,7 @@
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT InitializationFunction
+class EMMPMLib_EXPORT InitializationFunction
 {
   public:
     MXA_SHARED_POINTERS(InitializationFunction);
@@ -69,7 +69,7 @@ class EMMPM_EXPORT InitializationFunction
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT BasicInitialization : public InitializationFunction
+class EMMPMLib_EXPORT BasicInitialization : public InitializationFunction
 {
 
   public:
@@ -95,7 +95,7 @@ class EMMPM_EXPORT BasicInitialization : public InitializationFunction
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT UserDefinedAreasInitialization : public InitializationFunction
+class EMMPMLib_EXPORT UserDefinedAreasInitialization : public InitializationFunction
 {
 
   public:
@@ -122,7 +122,7 @@ class EMMPM_EXPORT UserDefinedAreasInitialization : public InitializationFunctio
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT XtArrayInitialization : public InitializationFunction
+class EMMPMLib_EXPORT XtArrayInitialization : public InitializationFunction
 {
 
   public:
@@ -147,7 +147,7 @@ class EMMPM_EXPORT XtArrayInitialization : public InitializationFunction
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT GradientVariablesInitialization : public InitializationFunction
+class EMMPMLib_EXPORT GradientVariablesInitialization : public InitializationFunction
 {
 
   public:
@@ -172,7 +172,7 @@ class EMMPM_EXPORT GradientVariablesInitialization : public InitializationFuncti
  * @author Michael A. Jackson (BlueQuartz Software)
  *
  */
-class EMMPM_EXPORT CurvatureInitialization : public InitializationFunction
+class EMMPMLib_EXPORT CurvatureInitialization : public InitializationFunction
 {
 
   public:

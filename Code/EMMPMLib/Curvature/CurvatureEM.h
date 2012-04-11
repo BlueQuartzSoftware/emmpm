@@ -40,7 +40,7 @@
 
 
 
-class EMMPM_EXPORT CurvatureEM : public Observable
+class EMMPMLib_EXPORT CurvatureEM : public Observable
 {
   public:
     MXA_SHARED_POINTERS(CurvatureEM)

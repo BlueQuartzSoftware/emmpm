@@ -51,7 +51,7 @@ typedef float real_t;
  * the EM/MPM algorithm. Packing them into a struct allows them to be easily
  * passed between functions.
  */
-class EMMPM_EXPORT EMMPM_Data
+class EMMPMLib_EXPORT EMMPM_Data
 {
   public:
     MXA_SHARED_POINTERS(EMMPM_Data);

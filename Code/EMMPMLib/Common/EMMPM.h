@@ -44,7 +44,7 @@
 
 
 
-class EMMPM_EXPORT EMMPM : public Observable
+class EMMPMLib_EXPORT EMMPM : public Observable
 {
   public:
     MXA_SHARED_POINTERS(EMMPM);

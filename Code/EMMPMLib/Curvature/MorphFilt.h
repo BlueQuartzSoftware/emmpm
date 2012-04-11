@@ -38,7 +38,7 @@
 #include "EMMPMLib/Common/EMMPM_Data.h"
 #include "EMMPMLib/Common/Observable.h"
 
-class EMMPM_EXPORT MorphFilter : public Observable
+class EMMPMLib_EXPORT MorphFilter : public Observable
 {
 
   public:

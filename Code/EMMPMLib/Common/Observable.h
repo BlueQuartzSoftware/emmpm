@@ -56,7 +56,7 @@ class Observer;
  * @date Sep 22, 2011
  * @version 1.0
  */
-class EMMPM_EXPORT Observable
+class EMMPMLib_EXPORT Observable
 {
   public:
     Observable();

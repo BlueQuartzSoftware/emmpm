@@ -48,7 +48,7 @@
  * @date Sep 22, 2011
  * @version 1.0
  */
-class EMMPM_EXPORT Observer
+class EMMPMLib_EXPORT Observer
 {
   public:
     Observer();

@@ -32,15 +32,25 @@ set (CMP_HEADER_DIR ${EMMPMLib_BINARY_DIR})
 set (CMP_CONFIGURATION_FILE_NAME "EMMPMLibConfiguration.h")
 set (CMP_TYPES_FILE_NAME "EMMPMLibTypes.h")
 set (CMP_VERSION_HEADER_FILE_NAME "EMMPMLibVersion.h")
+set (CMP_VERSION_SOURCE_FILE_NAME "EMMPMLibVersion.cpp")
 set (CMP_TOP_HEADER_FILE "EMMPMLib.h")
 set (CMP_PROJECT_NAMESPACE "${PROJECT_NAME}")
 set (CMP_PROJECT_NAME "${PROJECT_NAME}")
 set (CMP_ENABLE_PLUGINS "0")
 set (CMP_LIB_SEARCH_DIRS "")
-set (CMP_GENERATE_VERSION_STRING 1)
-
+set (CMP_GENERATE_VERSION_STRING 0)
 
 INCLUDE (${CMP_SOURCE_DIR}/cmpProject.cmake)
+
+# --------------------------------------------------------------------
+# Generate a Header file with Compile Version variables
+# --------------------------------------------------------------------
+cmpVersionStringsFromGit(GENERATED_HEADER_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME} 
+                         GENERATED_SOURCE_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_SOURCE_FILE_NAME}
+                         NAMESPACE "${PROJECT_NAME}"
+                         cmpProjectName "${PROJECT_NAME}" 
+                         WORKING_DIRECTORY ${EMMPMProj_SOURCE_DIR} 
+                         EXPORTS_DEFINE  EMMPMLib_EXPORT  )
 configure_file(${EMMPMLib_SOURCE_DIR}/EMMPMConfiguration.h.in
                ${EMMPMProj_BINARY_DIR}/EMMPMLib/${CMP_TOP_HEADER_FILE})
 
@@ -65,17 +75,20 @@ Add_EMMPMLib_Dir(Curvature Curvature)
 set (EMMPMLib_CONFIGURED_HDRS
     "${CMP_HEADER_DIR}/${CMP_CONFIGURATION_FILE_NAME}" 
     "${CMP_HEADER_DIR}/${CMP_TYPES_FILE_NAME}" 
-    "${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME}"
+    "${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME}"  
     "${CMP_HEADER_DIR}/${CMP_EXTRA_CONFIGURATION_FILE}"
 )
 set (EMMPMLib_CONFIGURED_SRCS
+    "${CMP_HEADER_DIR}/${CMP_VERSION_SOURCE_FILE_NAME}"
 )
-cmp_IDE_SOURCE_PROPERTIES("emmpm/common" "${EMMPMLib_CONFIGURED_HDRS}" "${EMMPMLib_CONFIGURED_SRCS}" "${PROJECT_INSTALL_HEADERS}")
+cmp_IDE_GENERATED_PROPERTIES("Generated" 
+                             "${CMP_HEADER_DIR}/${CMP_TOP_HEADER_FILE};${CMP_HEADER_DIR}/${CMP_TYPES_FILE_NAME};${CMP_HEADER_DIR}/${CMP_CONFIGURATION_FILE_NAME};${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME}"
+                             "${CMP_HEADER_DIR}/${CMP_VERSION_SOURCE_FILE_NAME}")
 
-set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} )
+set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} ${EMMPMLib_CONFIGURED_SRCS})
 
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
-target_link_libraries(EMMPMLib MXA ${TIFF_LIBRARY} ${MATH_LIBRARY} ${TBB_LIBRARIES})
+target_link_libraries(EMMPMLib MXADataModel ${MATH_LIBRARY} ${TBB_LIBRARIES})
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
 
 set(install_dir "tools")

@@ -32,6 +32,7 @@
 
 #include <string>
 
+#include "EMMPMLib/EMMPMLib.h"
 #include "EMMPM.h"
 
 /**
@@ -42,7 +43,7 @@
  * @date Mar 31, 2011
  * @version 1.0
  */
-class EMMPM_EXPORT EMMPMInputParser
+class EMMPMLib_EXPORT EMMPMInputParser
 {
   public:
     EMMPMInputParser();

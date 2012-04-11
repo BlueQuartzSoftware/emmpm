@@ -38,7 +38,7 @@
 /*
  *
  */
-class EMMPM_EXPORT StatsDelegate
+class EMMPMLib_EXPORT StatsDelegate
 {
   public:
     MXA_SHARED_POINTERS(StatsDelegate)

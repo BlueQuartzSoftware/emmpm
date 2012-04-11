@@ -40,7 +40,7 @@
 #include "EMMPMLib/Common/StatsDelegate.h"
 
 
-class EMMPM_EXPORT CurvatureMPM : public Observable
+class EMMPMLib_EXPORT CurvatureMPM : public Observable
 {
 
   public:

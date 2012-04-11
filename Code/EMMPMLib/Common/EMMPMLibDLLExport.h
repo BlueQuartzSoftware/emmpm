@@ -37,20 +37,20 @@ building the MXADatModel DLL on windows.
 
   #if defined (EMMPMLib_EXPORTS)  /* Compiling the MXA DLL/Dylib */
     #if defined (_MSC_VER)  /* MSVC Compiler Case */
-      #define  EMMPM_EXPORT __declspec(dllexport)
+      #define  EMMPMLib_EXPORT __declspec(dllexport)
     #elif (__GNUC__ >= 4)  /* GCC 4.x has support for visibility options */
-      #define EMMPM_EXPORT __attribute__ ((visibility("default")))
+      #define EMMPMLib_EXPORT __attribute__ ((visibility("default")))
     #endif
   #else  /* Importing the DLL into another project */
     #if defined (_MSC_VER)  /* MSVC Compiler Case */
-      #define  EMMPM_EXPORT __declspec(dllimport)
+      #define  EMMPMLib_EXPORT __declspec(dllimport)
     #elif (__GNUC__ >= 4)  /* GCC 4.x has support for visibility options */
-      #define EMMPM_EXPORT __attribute__ ((visibility("default")))
+      #define EMMPMLib_EXPORT __attribute__ ((visibility("default")))
     #endif
   #endif
 #endif
 
-/* If EMMPM_EXPORT was never defined, define it here */
+/* If EMMPMLib_EXPORT was never defined, define it here */
 #ifndef EMMPM_EXPORT
   #define EMMPM_EXPORT
 #endif
@@ -60,9 +60,9 @@ building the MXADatModel DLL on windows.
 
   #if defined (EMMPMLib_BUILT_AS_DYNAMIC_LIB)
     #if defined(EMMPMLib_EXPORTS)
-      #define  EMMPM_EXPORT __declspec(dllexport)
+      #define  EMMPMLib_EXPORT __declspec(dllexport)
     #else
-      #define  EMMPM_EXPORT __declspec(dllimport)
+      #define  EMMPMLib_EXPORT __declspec(dllimport)
     #endif /* EMMPMLib_EXPORTS */
   #else
     #define EMMPM_EXPORT

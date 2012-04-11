@@ -293,7 +293,7 @@ int TiffUtilities::writeGrayScaleImage(const char* filename, int rows, int colum
 
 
    memset(software, 0, 1024);
-   snprintf(software, 1024, "%s using libTif", EMMPMLib_PACKAGE_COMPLETE);
+   snprintf(software, 1024, "%s using libTif", EMMPMLib::Version::PackageComplete().c_str());
 
    err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
 
@@ -413,7 +413,7 @@ int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
 
 
   memset(software, 0, 1024);
-  snprintf(software, 1024, "%s using libTIFF", EMMPMLib_PACKAGE_COMPLETE);
+  snprintf(software, 1024, "%s using libTIFF", EMMPMLib::Version::PackageComplete().c_str());
 
   err = TIFFSetField(out, TIFFTAG_SOFTWARE, software);
 
