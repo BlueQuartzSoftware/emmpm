@@ -64,7 +64,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tbb/task_scheduler_init.h>
 #endif
 
-
+/**
+ * @class ParallelCalcLoop ParallelCalcLoop.h EMMPM/Curvature/ParallelCalcLoop.h
+ * @brief This class can calculate the parts of the MPM loop in parallel
+ * @author Michael A. Jackson for BlueQuartz Software
+ * @date March 11, 2012
+ * @version 1.0
+ */
 class ParallelCalcLoop
 {
   public:

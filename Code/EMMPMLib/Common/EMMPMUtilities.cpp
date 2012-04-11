@@ -189,23 +189,18 @@ void EMMPMUtilities::ResetModelParameters(EMMPM_Data::Pointer dt)
   }
 }
 
-
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-#include <tbb/parallel_for.h>
-#include <tbb/blocked_range2d.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
-#endif
-
-class ParallelEstimateMeans
+/* This class can not be easily parallelized due to the summation of the
+ * data->v[ld] variable.
+ */
+class EstimateMeans
 {
   public:
-    ParallelEstimateMeans(EMMPM_Data* dPtr, size_t l)
+    EstimateMeans(EMMPM_Data* dPtr, size_t l)
     {
       this->l = l;
       this->data = dPtr;
     }
-    virtual ~ParallelEstimateMeans(){};
+    virtual ~EstimateMeans(){};
 
     void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
     {
@@ -245,27 +240,24 @@ class ParallelEstimateMeans
         }
       }
     }
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-    void operator()(const tbb::blocked_range2d<int> &r) const
-    {
-      calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
-    }
-#endif
+
   private:
     size_t l;
     EMMPM_Data* data;
 };
 
-
-class ParallelEstimateVariance
+/* This class can not be easily parallelized due to the summation of the
+ * data->v[ld] variable.
+ */
+class EstimateVariance
 {
   public:
-    ParallelEstimateVariance(EMMPM_Data* dPtr, size_t l)
+    EstimateVariance(EMMPM_Data* dPtr, size_t l)
     {
       this->l = l;
       this->data = dPtr;
     }
-    virtual ~ParallelEstimateVariance(){};
+    virtual ~EstimateVariance(){};
 
     void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
     {
@@ -308,12 +300,7 @@ class ParallelEstimateVariance
         }
       }
     }
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-    void operator()(const tbb::blocked_range2d<int> &r) const
-    {
-      calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
-    }
-#endif
+
   private:
     size_t l;
     EMMPM_Data* data;
@@ -333,33 +320,21 @@ void EMMPMUtilities::UpdateMeansAndVariances(EMMPM_Data::Pointer dt)
   size_t cols = data->columns;
   size_t classes = data->classes;
 
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-    tbb::task_scheduler_init init;
-    int threads = init.default_num_threads();
-#endif
 
   /*** Some efficiency was sacrificed for readability below ***/
   /* Update estimates for mean of each class - (Maximization) */
   for (l = 0; l < classes; l++)
   {
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-//    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelEstimateMeans(data, l), tbb::simple_partitioner());
-//#else
-    ParallelEstimateMeans pcl(data, l);
+    EstimateMeans pcl(data, l);
     pcl.calc(0, rows, 0, cols);
-#endif
   }
 
   // Eq. (20)}
   /* Update estimates of variance of each class */
   for (l = 0; l < classes; l++)
   {
-#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
-//    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelEstimateVariance(data, l), tbb::simple_partitioner());
-//#else
-    ParallelEstimateVariance pcl(data, l);
+    EstimateVariance pcl(data, l);
     pcl.calc(0, rows, 0, cols);
-#endif
   }
 
   for (l = 0; l < classes; l++)
@@ -385,7 +360,7 @@ void EMMPMUtilities::MonitorMeansAndVariances(EMMPM_Data::Pointer dt)
   char msgbuff[256];
   memset(msgbuff, 0, 256);
 
-  printf("Class\tDim\tMu\tVariance\n");
+  printf("Class\tDim\tMu\tVariance(StdDev^2)\n");
 
   for (l = 0; l < classes; l++)
   {
