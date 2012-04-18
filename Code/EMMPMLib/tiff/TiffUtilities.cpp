@@ -143,10 +143,10 @@ int TiffUtilities::readInputImage(EMMPM_Data::Pointer data)
 // -----------------------------------------------------------------------------
 unsigned char* TiffUtilities::readTiffAsGrayScale(EMMPM_Data::Pointer data)
 {
-  TIFF* in;
+  TIFF* in = NULL;
   unsigned char* raster; /* retrieve RGBA image */
   int32_t pixel_count;
-  unsigned char *src, *dst;
+  unsigned char *src=NULL, *dst=NULL;
   size_t totalBytes;
   unsigned short samplesperpixel;
   unsigned short bitspersample;
@@ -172,8 +172,6 @@ unsigned char* TiffUtilities::readTiffAsGrayScale(EMMPM_Data::Pointer data)
     printf("Error Opening Tiff file with Absolute Path:\n %s\n", data->input_file_name);
     return NULL;
   }
-//  FILE* tempFile = fopen("/tmp/out_copy.txt", "wb");
-//  TIFFPrintDirectory(in, tempFile, TIFFPRINT_COLORMAP);
 
   err = TIFFGetField(in, TIFFTAG_IMAGEWIDTH, &width);
   data->columns = width;
@@ -186,6 +184,7 @@ unsigned char* TiffUtilities::readTiffAsGrayScale(EMMPM_Data::Pointer data)
   err = TIFFGetField(in, TIFFTAG_XRESOLUTION, &xRes);
   err = TIFFGetField(in, TIFFTAG_YRESOLUTION, &yRes);
   err = TIFFGetField(in, TIFFTAG_RESOLUTIONUNIT, &resUnits);
+  int32_t scanLineBytes = TIFFScanlineSize(in);
 
   if (resUnits == 1 && xRes > 0 && yRes > 0)
   {

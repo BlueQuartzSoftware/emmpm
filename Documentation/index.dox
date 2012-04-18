@@ -1,5 +1,5 @@
 /**
- @mainpage EM/MPM Library
+@mainpage EM/MPM Library
 
 @section geninfor General Equations and Information
  x = pixel grey level \n
@@ -18,15 +18,15 @@
  @section quicklinks Quick Links to important files
 
  @n This file defines the structure used in the EM/MPM Library.
- @see emmpm/public/EMMPM_Structures.h
+ @see EMMPMLib/Common/EMMPM_Data.h
 
  @n This file has the public functions that can be called from outside the librar
  in order to run the EM/MPM algorithm on an input image
- @see emmpm/public/EMMPM.h
+ @see EMMPMLib/Common/EMMPM.h
 
  @n These are the various initialization functions that can be used or supply
  your own through the assignment of a "C" style call back function
- @see emmpm/public/InitializationFunctions.h
+ @see EMMPMLib/Common/InitializationFunctions.h
 
 
 @section intro EM/MPM Introduction
@@ -43,6 +43,10 @@ unique instances and so should not clobber each other. This library has been
 tested on a 16 processor machine without any crashes or corrupted memory issues.
 It is however up to the programmer to fully review the code within to make sure
 it meets their requirements.
+
+  The programmer can choose to compile the parallel version of EM/MPM if they
+have the "Intel Threading Building Blocks" library available on their system.
+
 
 @section info General Observations about EM/MPM
 

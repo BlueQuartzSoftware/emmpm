@@ -35,8 +35,8 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 
 
 
-SET (PROJECT_CODE_DIR ${PROJECT_SOURCE_DIR}/Code)
-SET (PROJECT_RESOURCES_DIR ${PROJECT_SOURCE_DIR}/Resources)
+SET (PROJECT_CODE_DIR ${EMMPMProj_SOURCE_DIR}/Code)
+SET (PROJECT_RESOURCES_DIR ${EMMPMProj_SOURCE_DIR}/Resources)
 #SET (PROJECT_PREFIX "EMMPM" CACHE STRING "The 3 Letter Prefix to be used for Preprocessor definitions")
 SET (EXE_DEBUG_EXTENSION "_debug")
 SET (PROJECT_INSTALL_HEADERS "0")
@@ -47,11 +47,11 @@ set(CMP_SOURCE_DIR ${EMMPMProj_SOURCE_DIR}/../CMP)
 endif()
 INCLUDE (${CMP_SOURCE_DIR}/cmpCMakeMacros.cmake )
 set (CMP_ENABLE_PLUGINS "0")
-set (CMP_PLUGIN_LIST_FILE ${PROJECT_BINARY_DIR}/EMMPM_PluginList.txt)
+set (CMP_PLUGIN_LIST_FILE ${EMMPMProj_BINARY_DIR}/EMMPM_PluginList.txt)
 file(WRITE ${CMP_PLUGIN_LIST_FILE} "")
-set (CMP_PLUGIN_SEARCHDIR_FILE ${PROJECT_BINARY_DIR}/libsearchdirs.txt)
-file(WRITE ${CMP_PLUGIN_SEARCHDIR_FILE} "${PROJECT_BINARY_DIR}/Bin/plugins;")
-file(APPEND ${CMP_PLUGIN_SEARCHDIR_FILE} "${PROJECT_BINARY_DIR}/Bin;")
+set (CMP_PLUGIN_SEARCHDIR_FILE ${EMMPMProj_BINARY_DIR}/libsearchdirs.txt)
+file(WRITE ${CMP_PLUGIN_SEARCHDIR_FILE} "${EMMPMProj_BINARY_DIR}/Bin/plugins;")
+file(APPEND ${CMP_PLUGIN_SEARCHDIR_FILE} "${EMMPMProj_BINARY_DIR}/Bin;")
 set (CMP_LIB_SEARCH_DIRS "")
 set(CMP_MODULES_SOURCE_DIR ${CMP_SOURCE_DIR}/Modules CACHE INTERNAL "")
 
@@ -184,9 +184,9 @@ if(EMMPMLib_BUILD_API_DOCS)
     message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
   endif()
   configure_file(${PROJECT_RESOURCES_DIR}/emmpm.doxyfile.in 
-                 ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
-  add_custom_target(docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile)
-  install(DIRECTORY ${PROJECT_BINARY_DIR}/Documentation/html/
+                 ${EMMPMProj_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
+  add_custom_target(emmpm_docs COMMAND ${DOXYGEN_EXECUTABLE} ${EMMPMProj_BINARY_DIR}/Doxyfile)
+  install(DIRECTORY ${EMMPMProj_BINARY_DIR}/Documentation/html/
           DESTINATION Documentation 
           COMPONENT Applications)
 endif()
