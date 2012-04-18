@@ -45,12 +45,25 @@ INCLUDE (${CMP_SOURCE_DIR}/cmpProject.cmake)
 # --------------------------------------------------------------------
 # Generate a Header file with Compile Version variables
 # --------------------------------------------------------------------
+if (EXISTS ${EMMPMProj_SOURCE_DIR}/.git)
 cmpVersionStringsFromGit(GENERATED_HEADER_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME} 
                          GENERATED_SOURCE_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_SOURCE_FILE_NAME}
                          NAMESPACE "${PROJECT_NAME}"
                          cmpProjectName "${PROJECT_NAME}" 
                          WORKING_DIRECTORY ${EMMPMProj_SOURCE_DIR} 
                          EXPORTS_DEFINE  EMMPMLib_EXPORT  )
+else()
+cmpGenerateVersionString(GENERATED_HEADER_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_HEADER_FILE_NAME} 
+                         GENERATED_SOURCE_FILE_PATH ${CMP_HEADER_DIR}/${CMP_VERSION_SOURCE_FILE_NAME}
+                         NAMESPACE "${PROJECT_NAME}"
+                         cmpProjectName "${PROJECT_NAME}" 
+                         WORKING_DIRECTORY ${EMMPMProj_SOURCE_DIR} 
+                         EXPORTS_DEFINE  EMMPMLib_EXPORT  
+                         MAJOR 0 MINOR 0 PATCH 0)
+endif()
+
+                         
+                         
 configure_file(${EMMPMLib_SOURCE_DIR}/EMMPMConfiguration.h.in
                ${EMMPMProj_BINARY_DIR}/EMMPMLib/${CMP_TOP_HEADER_FILE})
 
