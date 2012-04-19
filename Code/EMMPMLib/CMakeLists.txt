@@ -5,7 +5,7 @@
 #-- This code was partly written under US Air Force Contract FA8650-07-D-5800
 #--////////////////////////////////////////////////////////////////////////////
 project (EMMPMLib)
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.6)
 
 SET (EMMPMLib_BUILT_AS_DYNAMIC_LIB)
 IF (BUILD_SHARED_LIBS)

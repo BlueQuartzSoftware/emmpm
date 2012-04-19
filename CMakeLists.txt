@@ -7,7 +7,7 @@
 #///////////////////////////////////////////////////////////////////////////////
 
 project(EMMPMProj)
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.6)
 
 include (CMakeParseArguments)
 
