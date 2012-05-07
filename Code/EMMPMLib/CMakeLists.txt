@@ -101,7 +101,7 @@ cmp_IDE_GENERATED_PROPERTIES("Generated"
 set (EMMPMLib_PROJECT_FILES ${EMMPMLib_PROJECT_FILES} ${EMMPMLib_CONFIGURED_HDRS} ${EMMPMLib_CONFIGURED_SRCS})
 
 add_library(EMMPMLib ${LIB_TYPE} ${EMMPMLib_PROJECT_FILES})
-target_link_libraries(EMMPMLib MXADataModel ${MATH_LIBRARY} ${TBB_LIBRARIES})
+target_link_libraries(EMMPMLib MXADataModel ${MATH_LIBRARY} ${TBB_LIBRARIES} ${TIFF_LIBRARIES})
 LibraryProperties(EMMPMLib ${EXE_DEBUG_EXTENSION} )
 
 set(install_dir "tools")
