@@ -144,7 +144,8 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
   // Now we have the counts for the number of pixels of each class.
   // The "classes" loop could be its own threaded Task at this point
   //printf("=============================\n");
-  for (d = 0; d < data->dims; d++){
+  for (d = 0; d < data->dims; d++)
+  {
     for (l = 0; l < data->classes; ++l)
     {
       pixelWeight = (float)(classCounts[l])/(float)(totalPixels);
