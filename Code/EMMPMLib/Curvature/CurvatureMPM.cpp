@@ -56,12 +56,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPMUtilities.h"
 
-
+#define USE_TBB_TASK_GROUP 0
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/task_group.h>
+
 #endif
 
 /**
@@ -74,7 +76,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ParallelCalcLoop
 {
   public:
+#if USE_TBB_TASK_GROUP
+    ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr, real_t* rnd, int rowStart, int rowEnd,
+                     int colStart, int colEnd) :
+    m_RowStart(rowStart),
+    m_RowEnd(rowEnd),
+    m_ColStart(colStart),
+    m_ColEnd(colEnd),
+#else
     ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr, real_t* rnd) :
+#endif
+
     data(dPtr),
     yk(ykPtr),
     rnd(rnd)
@@ -85,6 +97,7 @@ class ParallelCalcLoop
     void calc(int rowStart, int rowEnd,
                   int colStart, int colEnd) const
     {
+      //uint64_t millis = EMMPM_getMilliSeconds();
       int l, prior;
 
       int32_t ij, lij, i1j1;
@@ -235,22 +248,36 @@ class ParallelCalcLoop
            }
          }
        }
-
+    //  std::cout << "     --" << EMMPM_getMilliSeconds() - millis << "--" << std::endl;
      }
 
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#if USE_TBB_TASK_GROUP
+    void operator()() const
+    {
+      calc(m_RowStart, m_RowEnd, m_ColStart, m_ColEnd);
+    }
+#else
     void operator()(const tbb::blocked_range2d<int> &r) const
     {
       calc(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
     }
 #endif
+#endif
 
 
 private:
+#if USE_TBB_TASK_GROUP
+    int m_RowStart;
+    int m_RowEnd;
+    int m_ColStart;
+    int m_ColEnd;
+#endif
     const EMMPM_Data* data;
     const real_t* yk;
     const real_t* rnd;
+
 };
 
 // -----------------------------------------------------------------------------
@@ -355,29 +382,53 @@ void CurvatureMPM::execute()
   // Generate all the numbers up front
   size_t total = rows * cols;
   std::vector<real_t> rndNumbers(total);
+  real_t* rndNumbersPtr = &(rndNumbers.front());
   for(size_t i = 0; i < total; ++i)
   {
-    rndNumbers[i] = numberGenerator();
+    rndNumbersPtr[i] = numberGenerator(); // Work directly with the pointer for speed.
   }
 
-  unsigned long long int millis = EMMPM_getMilliSeconds();
+  //unsigned long long int millis = EMMPM_getMilliSeconds();
+  //std::cout << "------------------------------------------------" << std::endl;
   /* Perform the MPM loops */
   for (int32_t k = 0; k < data->mpmIterations; k++)
   {
-    millis = EMMPM_getMilliSeconds();
+
     data->currentMPMLoop = k;
     if (data->cancel) { data->progress = 100.0; break; }
     data->inside_mpm_loop = 1;
-  //  hit = 0;
+
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     tbb::task_scheduler_init init;
     int threads = init.default_num_threads();
+#if USE_TBB_TASK_GROUP
+    tbb::task_group* g = new tbb::task_group;
+    unsigned int rowIncrement = rows/threads;
+    unsigned int rowStop = 0 + rowIncrement;
+    unsigned int rowStart = 0;
+    for (int t = 0; t < threads; ++t)
+    {
+      g->run(ParallelCalcLoop(data, yk, &(rndNumbers.front()), rowStart, rowStop, 0, cols) );
+      rowStart = rowStop;
+      rowStop = rowStop + rowIncrement;
+      if (rowStop >= rows)
+      {
+        rowStop == rows;
+      }
+    }
+    g->wait();
+    delete g;
+#else
+    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols),
+                      ParallelCalcLoop(data, yk, &(rndNumbers.front())),
+                      tbb::simple_partitioner());
+#endif
 
-    tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols), ParallelCalcLoop(data, yk, &(rndNumbers.front())), tbb::simple_partitioner());
 #else
     ParallelCalcLoop pcl(data, yk, &(rndNumbers.front()));
     pcl.calc(0, rows, 0, cols);
 #endif
+
 
     //std::cout << "Counter: " << counter << std::endl;
     EMMPMUtilities::ConvertXtToOutputImage(getData());
@@ -394,6 +445,7 @@ void CurvatureMPM::execute()
     {
       m_StatsDelegate->reportProgress(m_Data);
     }
+  }
 #if 0
   #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     std::cout << "Parrallel MPM Loop Time to Complete:";
@@ -402,7 +454,8 @@ void CurvatureMPM::execute()
 #endif
     std::cout << (EMMPM_getMilliSeconds() - millis) << std::endl;
 #endif
-  }
+
+
   data->inside_mpm_loop = 0;
 
   if (!data->cancel)

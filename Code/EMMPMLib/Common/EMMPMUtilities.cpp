@@ -132,13 +132,19 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
   raster = data->outputImage;
   index = 0;
   totalPixels = data->rows * data->columns;
-  for (i = 0; i < data->rows; i++)
+  unsigned int rows = data->rows;
+  unsigned int columns = data->columns;
+  unsigned int ixCol = 0;
+  unsigned int* grayTable = data->grayTable;
+
+  for (i = 0; i < rows; i++)
   {
-    for (j = 0; j < data->columns; j++)
+    ixCol = i * columns;
+    for (j = 0; j < columns; j++)
     {
-      gtindex = data->xt[ i*data->columns + j ];
+      gtindex = data->xt[ ixCol + j ];
       classCounts[gtindex]++;
-      raster[index++] = data->grayTable[gtindex];
+      raster[index++] = grayTable[gtindex];
     }
   }
   // Now we have the counts for the number of pixels of each class.
@@ -208,22 +214,22 @@ class EstimateMeans
       int dims = data->dims;
       int rows = data->rows;
       int cols = data->columns;
-      int32_t k_, k2_, lij, ld, ijd;
+      int32_t k_, k2_, lij, ld, ijd, k_temp, k2_temp;
       real_t* m = data->m;
       unsigned char* y = data->y;
       real_t* probs = data->probs;
       real_t* N = data->N;
 
-
-      for (int i = rowStart; i < rowEnd; i++)
+      k_temp = (cols * rows * l);
+      for (int r = rowStart; r < rowEnd; r++)
       {
-        k_ = (cols * rows * l) + (cols * i);
-
-        for (int j = colStart; j < colEnd; j++)
+        k_ = k_temp + (cols * r);
+        k2_temp = (dims * cols * r);
+        for (int c = colStart; c < colEnd; c++)
         {
-          k2_ = (dims * cols * i) + ( dims * j);
-          lij = k_ + j;
-          data->N[l] += data->probs[lij]; // denominator of (20)
+          k2_ = k2_temp + ( dims * c);
+          lij = k_ + c;
+          N[l] += probs[lij]; // denominator of (20)
           for (int d = 0; d < dims; d++)
           {
             ld = dims * l + d;
@@ -265,29 +271,32 @@ class EstimateVariance
       int dims = data->dims;
       int rows = data->rows;
       int cols = data->columns;
-      int32_t k_, k2_, lij, ld, ijd;
+      int32_t k_, k2_, lij, ld, ijd, k_temp, k2_temp;
       real_t* m = data->m;
       unsigned char* y = data->y;
       real_t* probs = data->probs;
       real_t* N = data->N;
       real_t res = 0.0f;
+      real_t* v = data->v;
+      int32_t dimsXl = dims * l;
 
-      for (int i = rowStart; i < rowEnd; i++)
+      k_temp = (cols * rows * l);
+      for (int r = rowStart; r < rowEnd; r++)
       {
-        k_ = (cols * rows * l) + (cols * i);
-
-        for (int j = colStart; j < colEnd; j++)
+        k_ = k_temp + (cols * r);
+        k2_temp = (dims * cols * r);
+        for (int c = colStart; c < colEnd; c++)
         {
-          k2_ = (dims * cols * i) + ( dims * j);
+          k2_ = k2_temp + ( dims * c);
           // numerator of (21)
-          lij = k_ + j;
+          lij = k_ + c;
           for (int d = 0; d < dims; d++)
           {
-            ld = dims * l + d;
+            ld = dimsXl + d;
             ijd = k2_ + d;
             res = y[ijd] - m[ld];
             res = res * res;
-            data->v[ld] += (res) * probs[lij];
+            v[ld] += (res) * probs[lij];
           }
         }
       }
@@ -297,7 +306,7 @@ class EstimateVariance
         for (int d = 0; d < dims; d++)
         {
           ld = dims * l + d;
-          data->v[ld] = data->v[ld] / data->N[l];
+          v[ld] = v[ld] / N[l];
         }
       }
     }
@@ -326,16 +335,16 @@ void EMMPMUtilities::UpdateMeansAndVariances(EMMPM_Data::Pointer dt)
   /* Update estimates for mean of each class - (Maximization) */
   for (l = 0; l < classes; l++)
   {
-    EstimateMeans pcl(data, l);
-    pcl.calc(0, rows, 0, cols);
+    EstimateMeans estimateMeans(data, l);
+    estimateMeans.calc(0, rows, 0, cols);
   }
 
   // Eq. (20)}
   /* Update estimates of variance of each class */
   for (l = 0; l < classes; l++)
   {
-    EstimateVariance pcl(data, l);
-    pcl.calc(0, rows, 0, cols);
+    EstimateVariance estimateVariance(data, l);
+    estimateVariance.calc(0, rows, 0, cols);
   }
 
   for (l = 0; l < classes; l++)

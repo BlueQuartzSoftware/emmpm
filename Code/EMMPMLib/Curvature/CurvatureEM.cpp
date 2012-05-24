@@ -50,6 +50,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "EMMPMLib/Curvature/MorphFilt.h"
 #include "EMMPMLib/Curvature/CurvatureMPM.h"
 
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+#include <tbb/task_scheduler_init.h>
+#endif
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -72,6 +76,11 @@ CurvatureEM::~CurvatureEM()
 // -----------------------------------------------------------------------------
 void CurvatureEM::execute()
 {
+#if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
+    tbb::task_scheduler_init init;
+    int threads = init.default_num_threads();
+ //   std::cout << "TBB Thread Count: " << threads << std::endl;
+#endif
   EMMPM_Data* data = m_Data.get();
   size_t k;
   int emiter = data->emIterations;
