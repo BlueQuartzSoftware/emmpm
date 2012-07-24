@@ -66,6 +66,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
+#define COMPUTE_C_CLIQUE( C, x, y, ci, cj)\
+if((x) < 0 || (x) >= colEnd || (y) < 0 || (y) >= rowEnd) {\
+  C[ci][cj] = classes;\
+}\
+else\
+{\
+  ij = (cols * (y)) + (x);\
+  C[ci][cj] = xt[ij];\
+}
+
+
+
+
 /**
  * @class ParallelCalcLoop ParallelCalcLoop.h EMMPM/Curvature/ParallelCalcLoop.h
  * @brief This class can calculate the parts of the MPM loop in parallel
@@ -98,14 +111,14 @@ class ParallelCalcLoop
                   int colStart, int colEnd) const
     {
       //uint64_t millis = EMMPM_getMilliSeconds();
-      int l, prior;
-
+      int l;
+      real_t prior;
       int32_t ij, lij, i1j1;
       int rows = data->rows;
       int cols = data->columns;
       int classes = data->classes;
 
-      real_t x, current;
+      real_t xrnd, current;
       real_t post[EMMPM_MAX_CLASSES], sum, edge;
 
       size_t nsCols = data->columns - 1;
@@ -122,108 +135,165 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
+      unsigned int C[3][3]; // This is the Clique for the current Pixel
+      unsigned int idx = 0;
+      unsigned int ci, cj;
+      unsigned int cSize = classes + 1;
+      size_t couplingElements = cSize * cSize;
+      real_t* coupling = static_cast<real_t*>(malloc(sizeof(real_t) * couplingElements));
+      for (int i = 0; i < (classes+1); ++i)
+      {
+        for (int j = 0; j < (classes+1); ++j)
+        {
+          ij = ((classes+1)*i) + j;
+          if (j==classes) coupling[ij] = 0.0;
+          else if (i == j) coupling[ij] = 0.0;
+          else if (i==classes) coupling[ij] = 0.0;
+          else coupling[ij] = data->workingBeta;
+        }
+      }
 
-      for (int32_t i = rowStart; i < rowEnd; i++)
+
+      for (int32_t y = rowStart; y < rowEnd; y++)
        {
-         for (int32_t j = colStart; j < colEnd; j++)
+         for (int32_t x = colStart; x < colEnd; x++)
          {
-           ij = (cols * i) + j;
+           /* -------------  */
+          COMPUTE_C_CLIQUE(C, x-1, y-1, 0, 0);
+          COMPUTE_C_CLIQUE(C,   x, y-1, 1, 0);
+          COMPUTE_C_CLIQUE(C, x+1, y-1, 2, 0);
+          COMPUTE_C_CLIQUE(C, x-1,   y, 0, 1);
+          COMPUTE_C_CLIQUE(C, x+1,   y, 2, 1);
+          COMPUTE_C_CLIQUE(C, x-1, y+1, 0, 2);
+          COMPUTE_C_CLIQUE(C,   x, y+1, 1, 2);
+          COMPUTE_C_CLIQUE(C, x+1, y+1, 2, 2);
+
+          ij = (cols*y)+x;
+          sum = 0;
+          for (int l = 0; l < classes; ++l)
+          {
+            prior = 0;
+            edge = 0;
+
+            prior += coupling[(cSize*l)+ C[0][0]];
+            prior += coupling[(cSize*l)+ C[1][0]];
+            prior += coupling[(cSize*l)+ C[2][0]];
+            prior += coupling[(cSize*l)+ C[0][1]];
+            prior += coupling[(cSize*l)+ C[2][1]];
+            prior += coupling[(cSize*l)+ C[0][2]];
+            prior += coupling[(cSize*l)+ C[1][2]];
+            prior += coupling[(cSize*l)+ C[2][2]];
+
+            lij = (cols * rows * l) + (cols * y) + x;
+            curvature_value = 0.0;
+            if (data->useCurvaturePenalty)
+            {
+              curvature_value = data->beta_c * ccost[lij];
+            }
+            real_t arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
+            post[l] = expf(arg);
+            sum += post[l];
+          }
+
+           /* -------------  */
+#if 0
+           ij = (cols * y) + x;
            sum = 0;
            for (l = 0; l < classes; l++)
            {
              /* edge penalties (in both x and y) */
              prior = 0;
              edge = 0;
-             if (i - 1 >= 0)
+             if (y - 1 >= 0)
              {
-               if (j - 1 >= 0)
+               if (x - 1 >= 0)
                {
-                 i1j1 = (cols*(i-1))+j-1;
+                 i1j1 = (cols*(y-1))+x-1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols*(i-1))+j-1;
+                   i1j1 = (swCols*(y-1))+x-1;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
 
                //Mark1
-               i1j1 = (cols*(i-1))+j;
+               i1j1 = (cols*(y-1))+x;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols*(i-1))+j;
+                 i1j1 = (ewCols*(y-1))+x;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark2
-               if (j + 1 < cols)
+               if (x + 1 < cols)
                {
-                 i1j1 = (cols*(i-1))+j+1;
+                 i1j1 = (cols*(y-1))+x+1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols*(i-1))+j;
+                   i1j1 = (nwCols*(y-1))+x;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
              }
 
              //mark3
-             if (i + 1 < rows)
+             if (y + 1 < rows)
              {
-               if (j - 1 >= 0)
+               if (x - 1 >= 0)
                {
-                 i1j1 = (cols*(i+1))+j-1;
+                 i1j1 = (cols*(y+1))+x-1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (nwCols*(i))+j-1;
+                   i1j1 = (nwCols*(y))+x-1;
                    if (data->useGradientPenalty) edge += nw[i1j1];
                  }
                }
                //mark4
-               i1j1 = (cols*(i+1))+j;
+               i1j1 = (cols*(y+1))+x;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (ewCols*(i))+j;
+                 i1j1 = (ewCols*(y))+x;
                  if (data->useGradientPenalty) edge += ew[i1j1];
                }
                //mark5
-               if (j + 1 < cols)
+               if (x + 1 < cols)
                {
-                 i1j1 = (cols*(i+1))+j+1;
+                 i1j1 = (cols*(y+1))+x+1;
                  if (xt[i1j1] != l)
                  {
                    prior++;
-                   i1j1 = (swCols*(i))+j;
+                   i1j1 = (swCols*(y))+x;
                    if (data->useGradientPenalty) edge += sw[i1j1];
                  }
                }
              }
              //mark6
-             if (j - 1 >= 0)
+             if (x - 1 >= 0)
              {
-               i1j1 = (cols*(i))+j-1;
+               i1j1 = (cols*(y))+x-1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols*(i))+j-1;
+                 i1j1 = (nsCols*(y))+x-1;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
              //mark7
-             if (j + 1 < cols)
+             if (x + 1 < cols)
              {
-               i1j1 = (cols*(i))+j+1;
+               i1j1 = (cols*(y))+x+1;
                if (xt[i1j1] != l)
                {
                  prior++;
-                 i1j1 = (nsCols*(i))+j;
+                 i1j1 = (nsCols*(y))+x;
                  if (data->useGradientPenalty) edge += ns[i1j1];
                }
              }
-             lij = (cols * rows * l) + (cols * i) + j;
+             lij = (cols * rows * l) + (cols * y) + x;
              curvature_value = 0.0;
              if (data->useCurvaturePenalty)
              {
@@ -233,13 +303,14 @@ class ParallelCalcLoop
              post[l] = expf(arg);
              sum += post[l];
            }
-           x = rnd[ij];
+#endif
+           xrnd = rnd[ij];
            current = 0.0;
            for (l = 0; l < classes; l++)
            {
              lij = (cols * rows * l) + ij;
              real_t arg = post[l] / sum;
-             if ((x >= current) && (x <= (current + arg)))
+             if ((xrnd >= current) && (xrnd <= (current + arg)))
              {
                xt[ij] = l;
                probs[lij] += 1.0;
@@ -413,7 +484,7 @@ void CurvatureMPM::execute()
       rowStop = rowStop + rowIncrement;
       if (rowStop >= rows)
       {
-        rowStop == rows;
+        rowStop = rows;
       }
     }
     g->wait();
