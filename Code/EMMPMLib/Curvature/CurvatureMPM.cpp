@@ -37,6 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* acvmpm.c */
 
 /* Modified by Joel Dumke on 1/30/09 */
+
+/* Heavily modified from the original by Michael A. Jackson for BlueQuartz Software
+ * and funded by the Air Force Research Laboratory, Wright-Patterson AFB.
+ */
 #include "CurvatureMPM.h"
 
 
@@ -111,7 +115,7 @@ class ParallelCalcLoop
                   int colStart, int colEnd) const
     {
       //uint64_t millis = EMMPM_getMilliSeconds();
-      int l;
+    //  int l;
       real_t prior;
       int32_t ij, lij, i1j1;
       int rows = data->rows;
@@ -135,24 +139,13 @@ class ParallelCalcLoop
       real_t* nw = data->nw;
       real_t curvature_value = (real_t)0.0;
 
-      unsigned int C[3][3]; // This is the Clique for the current Pixel
-      unsigned int idx = 0;
-      unsigned int ci, cj;
-      unsigned int cSize = classes + 1;
-      size_t couplingElements = cSize * cSize;
-      real_t* coupling = static_cast<real_t*>(malloc(sizeof(real_t) * couplingElements));
-      for (int i = 0; i < (classes+1); ++i)
-      {
-        for (int j = 0; j < (classes+1); ++j)
-        {
-          ij = ((classes+1)*i) + j;
-          if (j==classes) coupling[ij] = 0.0;
-          else if (i == j) coupling[ij] = 0.0;
-          else if (i==classes) coupling[ij] = 0.0;
-          else coupling[ij] = data->workingBeta;
-        }
-      }
 
+      unsigned int C[3][3]; // This is the Clique for the current Pixel
+   //   unsigned int idx = 0;
+   //   unsigned int ci, cj;
+      unsigned int cSize = classes + 1;
+   //   size_t couplingElements = cSize * cSize;
+      real_t* coupling = data->couplingBeta;
 
       for (int32_t y = rowStart; y < rowEnd; y++)
        {
@@ -184,6 +177,20 @@ class ParallelCalcLoop
             prior += coupling[(cSize*l)+ C[1][2]];
             prior += coupling[(cSize*l)+ C[2][2]];
 
+            if (data->useGradientPenalty)
+            {
+              if (C[0][0] != l && C[0][0] != classes) edge += sw[(swCols*(y-1))+x-1];
+              if (C[1][0] != l && C[0][0] != classes) edge += ew[(ewCols*(y-1))+x];
+              if (C[2][0] != l && C[0][0] != classes) edge += nw[(nwCols*(y-1))+x];
+              if (C[0][1] != l && C[0][0] != classes) edge += ns[(nsCols*(y))+x-1];
+              if (C[2][1] != l && C[0][0] != classes) edge += ns[(nsCols*(y))+x];
+              if (C[0][2] != l && C[0][0] != classes) edge += nw[(nwCols*(y))+x-1];
+              if (C[1][2] != l && C[0][0] != classes) edge += ew[(ewCols*(y))+x];
+              if (C[2][2] != l && C[0][0] != classes) edge += sw[(swCols*(y))+x];
+
+            }
+
+
             lij = (cols * rows * l) + (cols * y) + x;
             curvature_value = 0.0;
             if (data->useCurvaturePenalty)
@@ -199,7 +206,7 @@ class ParallelCalcLoop
 #if 0
            ij = (cols * y) + x;
            sum = 0;
-           for (l = 0; l < classes; l++)
+           for (int l = 0; l < classes; l++)
            {
              /* edge penalties (in both x and y) */
              prior = 0;
@@ -306,7 +313,7 @@ class ParallelCalcLoop
 #endif
            xrnd = rnd[ij];
            current = 0.0;
-           for (l = 0; l < classes; l++)
+           for (int l = 0; l < classes; l++)
            {
              lij = (cols * rows * l) + ij;
              real_t arg = post[l] / sum;

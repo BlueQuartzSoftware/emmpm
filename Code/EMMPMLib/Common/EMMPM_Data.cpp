@@ -81,6 +81,7 @@ EMMPM_Data::~EMMPM_Data()
   EMMPM_FREE_POINTER(this->sw)
   EMMPM_FREE_POINTER(this->nw)
   EMMPM_FREE_POINTER(this->histograms);
+  EMMPM_FREE_POINTER(this->couplingBeta);
 //  EMMPM_FREE_POINTER(this->rngVars);
 
 }
@@ -126,6 +127,14 @@ int EMMPM_Data::allocateDataStructureMemory()
   }
   if(NULL == this->histograms) return -1;
 
+  if (NULL == this->couplingBeta)
+  {
+    unsigned int cSize = this->classes + 1;
+    size_t couplingElements = cSize * cSize;
+    this->couplingBeta = static_cast<real_t*>(malloc(sizeof(real_t) * couplingElements));
+  }
+  if (NULL == this->couplingBeta) return -1;
+
   return 0;
 }
 
@@ -145,6 +154,7 @@ void EMMPM_Data::initVariables()
   this->columns = 0;
   this->dims = 1;
   this->initType = EMMPM_Basic;
+  this->couplingBeta = NULL;
   for (c = 0; c < EMMPM_MAX_CLASSES; c++)
   {
     this->initCoords[c][0] = 0;
@@ -202,3 +212,35 @@ void EMMPM_Data::initVariables()
   this->resolutionUnits = 1;
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPM_Data::calculateBetaMatrix()
+{
+  if (NULL == couplingBeta)
+  {
+    return;
+  }
+
+  // Recalculate the Class Coupling Matrix
+  int ij = 0;
+  for (int i = 0; i < (classes + 1); ++i)
+  {
+    for (int j = 0; j < (classes + 1); ++j)
+    {
+      ij = ((classes + 1) * i) + j;
+      if(j == classes) couplingBeta[ij] = 0.0;
+      else if(i == j) couplingBeta[ij] = 0.0;
+      else if(i == classes) couplingBeta[ij] = 0.0;
+      else couplingBeta[ij] = workingBeta;
+    }
+  }
+  // Update the Coupling Matrix with user defined entries
+  for (std::vector<CoupleType>::iterator iter = coupleEntries.begin(); iter != coupleEntries.end(); ++iter)
+  {
+    ij = ((classes + 1) * ((*iter).label_1)) + (*iter).label_2;
+    couplingBeta[ij] = (*iter).beta;
+    ij = ((classes + 1) * ((*iter).label_2)) + (*iter).label_1;
+    couplingBeta[ij] = (*iter).beta;
+  }
+}

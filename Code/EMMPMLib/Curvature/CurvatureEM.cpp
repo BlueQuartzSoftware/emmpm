@@ -120,6 +120,8 @@ void CurvatureEM::execute()
     data->workingBeta = simAnnealBetas[k];
   }
 
+  data->calculateBetaMatrix();
+
 
   MorphFilter::Pointer morphFilt = MorphFilter::New();
 
@@ -189,8 +191,10 @@ void CurvatureEM::execute()
     // Possibly update the beta value due to simulated Annealing
     if (data->simulatedAnnealing != 0 && data->emIterations > 1)
     {
-     data->workingBeta = simAnnealBetas[k];
+      data->workingBeta = simAnnealBetas[k];
+      data->calculateBetaMatrix();
     }
+
 
     /* After curveLoopDelay iterations, begin calculating curvature costs */
     if (k >= ccostLoopDelay && data->useCurvaturePenalty)

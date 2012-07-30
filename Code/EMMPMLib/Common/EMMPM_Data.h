@@ -34,6 +34,9 @@
 // C Includes
 #include <stddef.h>
 
+// C++ Includes
+#include <vector>
+
 #include "MXA/MXA.h"
 #include "MXA/Common/MXASetGetMacros.h"
 
@@ -44,6 +47,12 @@
 
 typedef float real_t;
 
+
+typedef struct {
+    int label_1;
+    int label_2;
+    real_t beta;
+} CoupleType;
 
 /**
  * @struct EMMPM_Data emmpm/public/EMMPM_Structures.h EMMPM_Structures.h
@@ -63,6 +72,8 @@ class EMMPMLib_EXPORT EMMPM_Data
     int allocateDataStructureMemory();
 
     void initVariables();
+
+    void calculateBetaMatrix();
 
     // -----------------------------------------------------------------------------
     //  Inputs from Command line or GUI program
@@ -104,6 +115,8 @@ class EMMPMLib_EXPORT EMMPM_Data
     real_t N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
     real_t* probs; /**< classes * rows * cols (slowest to fastest)*/
     real_t workingBeta; /**<  */
+    real_t*     couplingBeta; /**< Beta Matrix for Coupling */
+    std::vector<CoupleType> coupleEntries; /**< The entries that map the 2 classes that will be coupled along with their value  */
 
     // -----------------------------------------------------------------------------
     //  Curvature Penalty Function Related variables
