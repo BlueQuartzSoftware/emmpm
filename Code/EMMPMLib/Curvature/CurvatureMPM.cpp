@@ -140,11 +140,19 @@ class ParallelCalcLoop
       real_t curvature_value = (real_t)0.0;
 
 
-      unsigned int C[3][3]; // This is the Clique for the current Pixel
-   //   unsigned int idx = 0;
-   //   unsigned int ci, cj;
+      int C[3][3]; // This is the Clique for the current Pixel
+//      --------- X -----
+//      |   | 0 | 1 | 2 |
+//      -----------------
+//   Y  | 0 |   |   |   |
+//      -----------------
+//      | 1 |   | P |   |
+//      -----------------
+//      | 2 |   |   |   |
+
+
+
       unsigned int cSize = classes + 1;
-   //   size_t couplingElements = cSize * cSize;
       real_t* coupling = data->couplingBeta;
 
       for (int32_t y = rowStart; y < rowEnd; y++)
@@ -182,11 +190,11 @@ class ParallelCalcLoop
               if (C[0][0] != l && C[0][0] != classes) edge += sw[(swCols*(y-1))+x-1];
               if (C[1][0] != l && C[0][0] != classes) edge += ew[(ewCols*(y-1))+x];
               if (C[2][0] != l && C[0][0] != classes) edge += nw[(nwCols*(y-1))+x];
-              if (C[0][1] != l && C[0][0] != classes) edge += ns[(nsCols*(y))+x-1];
-              if (C[2][1] != l && C[0][0] != classes) edge += ns[(nsCols*(y))+x];
-              if (C[0][2] != l && C[0][0] != classes) edge += nw[(nwCols*(y))+x-1];
-              if (C[1][2] != l && C[0][0] != classes) edge += ew[(ewCols*(y))+x];
-              if (C[2][2] != l && C[0][0] != classes) edge += sw[(swCols*(y))+x];
+              if (C[0][1] != l && C[0][0] != classes) edge += ns[(nsCols*y)+x-1];
+              if (C[2][1] != l && C[0][0] != classes) edge += ns[(nsCols*y)+x];
+              if (C[0][2] != l && C[0][0] != classes) edge += nw[(nwCols*y)+x-1];
+              if (C[1][2] != l && C[0][0] != classes) edge += ew[(ewCols*y)+x];
+              if (C[2][2] != l && C[0][0] != classes) edge += sw[(swCols*y)+x];
 
             }
 
