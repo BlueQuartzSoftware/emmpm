@@ -195,7 +195,6 @@ class ParallelCalcLoop
               if (C[0][2] != l && C[0][0] != classes) edge += nw[(nwCols*y)+x-1];
               if (C[1][2] != l && C[0][0] != classes) edge += ew[(ewCols*y)+x];
               if (C[2][2] != l && C[0][0] != classes) edge += sw[(swCols*y)+x];
-
             }
 
 
@@ -205,7 +204,7 @@ class ParallelCalcLoop
             {
               curvature_value = data->beta_c * ccost[lij];
             }
-            real_t arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
+            real_t arg = yk[lij] - (prior) - (edge) - (curvature_value) - data->w_gamma[l];
             post[l] = expf(arg);
             sum += post[l];
           }
