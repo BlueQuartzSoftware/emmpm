@@ -149,7 +149,10 @@ class ParallelCalcLoop
 //      | 1 |   | P |   |
 //      -----------------
 //      | 2 |   |   |   |
-
+//
+// When we calculate the "C" matrix if the pixel value for the specific index of
+// the clique would be off the image then a value = number of classes is
+// used for the C[i][j]. That way we can figure out if we are off the image
 
 
       unsigned int cSize = classes + 1;
@@ -185,6 +188,9 @@ class ParallelCalcLoop
             prior += coupling[(cSize*l)+ C[1][2]];
             prior += coupling[(cSize*l)+ C[2][2]];
 
+            // now check for the gradient penalty. If our current class is NOT equal
+            // to the class at index[i][j] AND the value of C[i][j] does NOT equal
+            // to the Number of Classes then add in the gradient penalty.
             if (data->useGradientPenalty)
             {
               if (C[0][0] != l && C[0][0] != classes) edge += sw[(swCols*(y-1))+x-1];
