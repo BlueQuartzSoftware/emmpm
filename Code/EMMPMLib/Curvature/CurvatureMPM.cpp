@@ -188,13 +188,13 @@ class ParallelCalcLoop
             if (data->useGradientPenalty)
             {
               if (C[0][0] != l && C[0][0] != classes) edge += sw[(swCols*(y-1))+x-1];
-              if (C[1][0] != l && C[0][0] != classes) edge += ew[(ewCols*(y-1))+x];
-              if (C[2][0] != l && C[0][0] != classes) edge += nw[(nwCols*(y-1))+x];
-              if (C[0][1] != l && C[0][0] != classes) edge += ns[(nsCols*y)+x-1];
-              if (C[2][1] != l && C[0][0] != classes) edge += ns[(nsCols*y)+x];
-              if (C[0][2] != l && C[0][0] != classes) edge += nw[(nwCols*y)+x-1];
-              if (C[1][2] != l && C[0][0] != classes) edge += ew[(ewCols*y)+x];
-              if (C[2][2] != l && C[0][0] != classes) edge += sw[(swCols*y)+x];
+              if (C[1][0] != l && C[1][0] != classes) edge += ew[(ewCols*(y-1))+x];
+              if (C[2][0] != l && C[2][0] != classes) edge += nw[(nwCols*(y-1))+x];
+              if (C[0][1] != l && C[0][1] != classes) edge += ns[(nsCols*y)+x-1];
+              if (C[2][1] != l && C[2][1] != classes) edge += ns[(nsCols*y)+x];
+              if (C[0][2] != l && C[0][2] != classes) edge += nw[(nwCols*y)+x-1];
+              if (C[1][2] != l && C[1][2] != classes) edge += ew[(ewCols*y)+x];
+              if (C[2][2] != l && C[2][2] != classes) edge += sw[(swCols*y)+x];
             }
 
 
