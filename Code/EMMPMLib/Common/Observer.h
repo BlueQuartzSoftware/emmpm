@@ -37,7 +37,7 @@
 
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 
 /**
  * @class Observer Observer.h DREAM3D/Common/Observer.h

@@ -28,31 +28,59 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#ifndef _EMMPM_H_
+#define _EMMPM_H_
 
-#include <stdio.h>
 
-#include "Entropy.h"
-#include "EMMPMLib/Common/EMMPM_Math.h"
 
-void EMMPMEntropy::entropy(real_t ***probs, unsigned char **output,
-                           unsigned int rows, unsigned int cols, unsigned int classes)
+#include "MXA/MXA.h"
+#include "MXA/Common/MXASetGetMacros.h"
+
+#include "EMMPMLib/EMMPMLib.h"
+#include "EMMPMLib/Common/Observable.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
+#include "EMMPMLib/Core/InitializationFunctions.h"
+#include "EMMPMLib/Common/StatsDelegate.h"
+
+
+
+class EMMPMLib_EXPORT EMMPM : public Observable
 {
-	unsigned int l, i, j;
-	real_t entr;
+  public:
+    MXA_SHARED_POINTERS(EMMPM);
+    MXA_STATIC_NEW_MACRO(EMMPM);
+    MXA_TYPE_MACRO(EMMPM);
 
-	for(i = 0; i < rows; i++)
-	{
-		for(j = 0; j < cols; j++)
-		{
-			entr = 0;
-			/* Compute entropy of each pixel */
-			for(l = 0; l < classes; l++)
-			{
-				if(probs[l][i][j] > 0)
-					entr -= probs[l][i][j] * (log10(probs[l][i][j]) / log10(2.0f));
-			}
-			output[i][j] = (unsigned char)(entr + 0.5);
-		}
-	}
+    virtual ~EMMPM();
 
-}
+
+    MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data);
+    MXA_INSTANCE_PROPERTY(InitializationFunction::Pointer, InitializationFunction)
+    MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
+
+
+    /**
+     * @brief Main entry point for running the EMMPM algorithm. The Inputs and
+     * Files parameters mush be non NULL and properly initialized with input
+     * values and input images. A new output Image will be allocated for you if one
+     * is NOT provided. YOU are responsible for cleaning up the memory that is allocated
+     * by that process.
+     * @param data The Structure to use
+     * @param callbacks The list of callback functions
+     */
+     void execute();
+
+     void printData(EMMPM_Data::Pointer data);
+
+  protected:
+    EMMPM();
+
+  private:
+    EMMPM(const EMMPM&); // Copy Constructor Not Implemented
+    void operator=(const EMMPM&); // Operator '=' Not Implemented
+};
+
+
+
+
+#endif /* _EMMPM_H_ */

@@ -42,7 +42,7 @@
 
 // emmpm includes
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/Common/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
 
 
 typedef float real_t;
@@ -87,21 +87,20 @@ class EMMPMLib_EXPORT EMMPM_Data
     unsigned int dims; /**< The number of vector elements in the image.*/
     enum EMMPM_InitializationType initType;  /**< The type of initialization algorithm to use  */
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
-    char simulatedAnnealing; /**<  */
     unsigned int grayTable[EMMPM_MAX_CLASSES];
     real_t min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
+    char simulatedAnnealing; /**<  */
     char verbose; /**<  */
-    char inside_em_loop;
-    char inside_mpm_loop;
+
 
     // -----------------------------------------------------------------------------
     //  Input/output File names and raw storage
     // -----------------------------------------------------------------------------
     char* input_file_name;/**< The input file name */
     unsigned char* inputImage; /**< The raw image data that is used as input to the algorithm */
-    unsigned char inputImageChannels; /**< The number of color channels in the input image */
     char* output_file_name; /**< The name of the output file */
     unsigned char* outputImage; /**< The raw output image data which can be allocated by the library or the calling function. */
+    unsigned char inputImageChannels; /**< The number of color channels in the input image */
 
     // -----------------------------------------------------------------------------
     //  Working Vars section - Internal Variables to the algorithm
@@ -110,10 +109,10 @@ class EMMPMLib_EXPORT EMMPM_Data
     unsigned char* xt; /**< width*height array of bytes */
 
     real_t w_gamma[EMMPM_MAX_CLASSES]; /**<  Gamma */
-    real_t* m; /**< Mu or Mean   { classes * dims array (classes is slowest moving dimension) }*/
-    real_t* v; /**< Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
-    real_t* prev_mu;
-    real_t* prev_variance;
+    real_t* mean; /**< Mu or Mean   { classes * dims array (classes is slowest moving dimension) }*/
+    real_t* variance; /**< Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
+    real_t* prev_mu; /**< Previous EM Loop Value of Mu or Mean   { classes * dims array (classes is slowest moving dimension) }*/
+    real_t* prev_variance; /**< Previous EM Loop Value of Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
     real_t N[EMMPM_MAX_CLASSES]; /**< Dimensions { classes * dims array (classes is slowest moving dimension )}*/
     real_t* probs; /**< Probabilities for each pixel  classes * rows * cols (slowest to fastest)*/
     real_t workingBeta; /**< Current Beta Value being used  */
@@ -139,6 +138,7 @@ class EMMPMLib_EXPORT EMMPM_Data
     // Variables to hold the tolerance for the stopping condition
     // -----------------------------------------------------------------------------
     real_t stoppingThreshold;
+    real_t currentMSE; /**< Current Mean Squared Error value */
 
     // -----------------------------------------------------------------------------
     //  Variables that Functions may need to present progress information to the user
@@ -146,6 +146,8 @@ class EMMPMLib_EXPORT EMMPM_Data
     int    currentEMLoop; /**< The current EM Loop  */
     int    currentMPMLoop; /**< The current MPM Loop  */
     float  progress; /**< A Percentage to indicate how far along the algorthm is.*/
+    char inside_em_loop;
+    char inside_mpm_loop;
 
 
     // -----------------------------------------------------------------------------

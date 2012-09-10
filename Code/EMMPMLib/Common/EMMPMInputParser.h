@@ -33,7 +33,7 @@
 #include <string>
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPM.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 
 /**
  * @class EMMPMInputParser EMMPMInputParser.h emmpm/public/EMMPMInputParser.h

@@ -38,7 +38,7 @@
 
 //-- EM/MPM Lib Includes
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 
 /**
  * @brief

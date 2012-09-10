@@ -27,46 +27,52 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#ifndef CURVATURE_MPM_H_
+#define CURVATURE_MPM_H_
 
-#ifndef CURVATUREEM_H_
-#define CURVATUREEM_H_
+#include "MXA/MXA.h"
+#include "MXA/Common/MXASetGetMacros.h"
 
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/Observable.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
-#include "EMMPMLib/Common/EMMPM_Constants.h"
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 #include "EMMPMLib/Common/StatsDelegate.h"
 
 
-
-class EMMPMLib_EXPORT CurvatureEM : public Observable
+class EMMPMLib_EXPORT MPMCalculation : public Observable
 {
+
   public:
-    MXA_SHARED_POINTERS(CurvatureEM)
-    MXA_STATIC_NEW_MACRO(CurvatureEM)
-    MXA_TYPE_MACRO(CurvatureEM)
+    MXA_SHARED_POINTERS(MPMCalculation)
+    MXA_STATIC_NEW_MACRO(MPMCalculation)
+    MXA_TYPE_MACRO(MPMCalculation)
 
-    virtual ~CurvatureEM();
+    virtual ~MPMCalculation();
 
-    MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data);
+    MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data)
     MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
 
     /**
-     * @fn void EMMPM_CurvatureEMLoops(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks)
-     * @brief Runs the EM portion of the EM/MPM Algorithm
+     * @fn void acvmpm(EMMPM_Data* data, EMMPM_CallbackFunctions* callbacks);
+     * @brief Runs the MPM portion of the EM/MPM algorithm
      * @param data a non NULL EMMPM_Data pointer
      * @param callbacks a non NULL EMMPM_CallbackFunctions
      */
     void execute();
 
   protected:
-    CurvatureEM();
+    MPMCalculation();
 
   private:
-    CurvatureEM(const CurvatureEM&); // Copy Constructor Not Implemented
-    void operator=(const CurvatureEM&); // Operator '=' Not Implemented
+
+    void calcLoop(int rowStart, int rowEnd,
+                  int colStart, int colEnd,
+                  real_t* yk);
+
+    MPMCalculation(const MPMCalculation&); // Copy Constructor Not Implemented
+    void operator=(const MPMCalculation&); // Operator '=' Not Implemented
 
 };
 
-#endif /* CURVATUREEM_H_ */
+#endif /* CURVATURE_MPM_H_ */

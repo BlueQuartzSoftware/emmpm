@@ -43,7 +43,7 @@
 
 
 //-- EMMMPM Lib Includes
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/EMTime.h"
@@ -133,23 +133,23 @@ void BasicInitialization::initialize(EMMPM_Data::Pointer data)
   {
     for (k = 0; k < classes / 2; k++)
     {
-        data->m[classes / 2 + k] = mu + (k + 1) * sigma / 2;
-        data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
+        data->mean[classes / 2 + k] = mu + (k + 1) * sigma / 2;
+        data->mean[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
     }
   }
   else
   {
-    data->m[classes / 2] = mu;
+    data->mean[classes / 2] = mu;
     for (k = 0; k < classes / 2; k++)
     {
-      data->m[classes / 2 + 1 + k] = mu + (k + 1) * sigma / 2;
-      data->m[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
+      data->mean[classes / 2 + 1 + k] = mu + (k + 1) * sigma / 2;
+      data->mean[classes / 2 - 1 - k] = mu - (k + 1) * sigma / 2;
     }
   }
 
   for (l = 0; l < classes; l++)
   {
-    data->v[l] = 20.0;
+    data->variance[l] = 20.0;
   }
 }
 
@@ -218,13 +218,13 @@ void UserDefinedAreasInitialization::initialize(EMMPM_Data::Pointer data)
     }
 
     mu /= (y2 - y1) * (x2 - x1);
-    data->m[c] = mu;
+    data->mean[c] = mu;
     snprintf(msgbuff, 256, "m[%d]=%f", c, mu);
   }
 
   for (l = 0; l < data->classes; l++)
   {
-    data->v[l] = 20.0;
+    data->variance[l] = 20.0;
   }
 
 }

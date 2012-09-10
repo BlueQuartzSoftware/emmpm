@@ -35,8 +35,8 @@
 
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/Observable.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
+#include "EMMPMLib/Core/EMMPM.h"
 
 class EMMPMLib_EXPORT TiffUtilities : public Observable
 {
@@ -84,7 +84,7 @@ class EMMPMLib_EXPORT TiffUtilities : public Observable
      * @param imageDescription Some descriptive text to store in the tiff image
      * @return Zero Value or Negative on Error. Anything else is considered a success;
      */
-    int writePalettedImage(EMMPM_Data::Pointer data, char* imageDescription);
+    int writePalettedImage(EMMPM_Data::Pointer data, const std::string imageDescription);
     /**
      * @brief Deallocates memory that is used to store image data. Typically allocated
      * with the _TIFFmalloc() function from libTif.

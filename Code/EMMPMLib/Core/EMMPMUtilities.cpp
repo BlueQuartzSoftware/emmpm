@@ -39,11 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "EMMPMLib/EMMPMLibTypes.h"
-#include "EMMPMLib/Common/EMMPM_Constants.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
-#include "EMMPMLib/Common/InitializationFunctions.h"
-#include "EMMPMLib/Common/EMMPMUtilities.h"
+#include "EMMPMLib/Core/InitializationFunctions.h"
+#include "EMMPMLib/Core/EMMPMUtilities.h"
 #include "EMMPMLib/tiff/TiffUtilities.h"
 
 
@@ -156,9 +156,9 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
     {
       pixelWeight = (float)(classCounts[l])/(float)(totalPixels);
       ld = data->dims * l + d;
-      mu = data->m[ld];
-      variance = data->v[ld];
-      stdDev = sqrt( data->v[ld] ); // Standard Deviation is the Square Root of the Variance
+      mu = data->mean[ld];
+      variance = data->variance[ld];
+      stdDev = sqrt( data->variance[ld] ); // Standard Deviation is the Square Root of the Variance
       twoSigSqrd = variance * 2.0f; // variance is StdDev Squared, so just use the Variance value
       constant = 1.0f / (stdDev * sqrt2pi);
       //printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
@@ -202,9 +202,9 @@ bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer da
     real_t muDeltaSum = 0.0;
     real_t varDeltaSum = 0.0;
 
-    real_t* mu = data->m;
+    real_t* mu = data->mean;
     real_t* prevMu = data->prev_mu;
-    real_t* var = data->v;
+    real_t* var = data->variance;
     real_t* prevVar = data->prev_variance;
 
     int nClasses = data->classes;
@@ -221,9 +221,9 @@ bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer da
         varDeltaSum += (var[ld] - prevVar[ld]) * (var[ld] - prevVar[ld]);
       }
     }
-    real_t errorValue = muDeltaSum + varDeltaSum;
-    std::cout << "ErrorValue: " << errorValue << std::endl;
-    if (errorValue < data->stoppingThreshold)
+    data->currentMSE = muDeltaSum + varDeltaSum;
+    //std::cout << "ErrorValue: " << errorValue << std::endl;
+    if (data->currentMSE < data->stoppingThreshold)
     {
         return true;
     }
@@ -235,13 +235,13 @@ bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer da
 // -----------------------------------------------------------------------------
 void EMMPMUtilities::copyCurrentMeanVarianceValues(EMMPM_Data::Pointer data)
 {
-    ::memcpy(data->prev_mu, data->m, data->classes * data->dims * sizeof(real_t));
-    ::memcpy(data->prev_variance, data->v, data->classes * data->dims * sizeof(real_t));
+    ::memcpy(data->prev_mu, data->mean, data->classes * data->dims * sizeof(real_t));
+    ::memcpy(data->prev_variance, data->variance, data->classes * data->dims * sizeof(real_t));
 }
 
 // -----------------------------------------------------------------------------
 // This class can not be easily parallelized due to the summation of the
-// data->v[ld] variable.
+// data->variance[ld] variable.
 // -----------------------------------------------------------------------------
 class EstimateMeans
 {
@@ -259,7 +259,7 @@ class EstimateMeans
       int rows = data->rows;
       int cols = data->columns;
       int32_t k_, k2_, lij, ld, ijd, k_temp, k2_temp;
-      real_t* m = data->m;
+      real_t* m = data->mean;
       unsigned char* y = data->y;
       real_t* probs = data->probs;
       real_t* N = data->N;
@@ -298,7 +298,7 @@ class EstimateMeans
 };
 
 /* This class can not be easily parallelized due to the summation of the
- * data->v[ld] variable.
+ * data->variance[ld] variable.
  */
 class EstimateVariance
 {
@@ -316,12 +316,12 @@ class EstimateVariance
       int rows = data->rows;
       int cols = data->columns;
       int32_t k_, k2_, lij, ld, ijd, k_temp, k2_temp;
-      real_t* m = data->m;
+      real_t* m = data->mean;
       unsigned char* y = data->y;
       real_t* probs = data->probs;
       real_t* N = data->N;
       real_t res = 0.0f;
-      real_t* v = data->v;
+      real_t* v = data->variance;
       int32_t dimsXl = dims * l;
 
       k_temp = (cols * rows * l);
@@ -394,9 +394,9 @@ void EMMPMUtilities::UpdateMeansAndVariances(EMMPM_Data::Pointer dt)
   // Make sure we don't fall below some minimum variance.
   for (l = 0; l < classes; l++)
   {
-    if(data->v[l] < data->min_variance[l])
+    if(data->variance[l] < data->min_variance[l])
     {
-      data->v[l] = data->min_variance[l];
+      data->variance[l] = data->min_variance[l];
     }
   }
 
@@ -422,7 +422,7 @@ void EMMPMUtilities::MonitorMeansAndVariances(EMMPM_Data::Pointer dt)
     for (d = 0; d < dims; d++)
     {
       ld = dims * l + d;
-      printf("%d\t%d\t%3.3f\t%3.3f\n", (int)l, (int)d, data->m[l], data->v[l]);
+      printf("%d\t%d\t%3.3f\t%3.3f\n", (int)l, (int)d, data->mean[l], data->variance[l]);
     }
   }
 }
@@ -451,8 +451,8 @@ void EMMPMUtilities::RemoveZeroProbClasses(EMMPM_Data::Pointer dt)
         {
           ld = dims * l + dd;
           l1d = (dims * (l+1)) + dd;
-          data->m[ld] = data->m[l1d];
-          data->v[ld] = data->v[l1d];
+          data->mean[ld] = data->mean[l1d];
+          data->variance[ld] = data->variance[l1d];
         }
       }
       for (i = 0; i < rows; i++)
@@ -468,4 +468,28 @@ void EMMPMUtilities::RemoveZeroProbClasses(EMMPM_Data::Pointer dt)
   }
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPMUtilities::ComputeEntropy(real_t ***probs, unsigned char **output,
+                       unsigned int rows, unsigned int cols, unsigned int classes)
+{
+  unsigned int l, i, j;
+  real_t entr;
 
+  for(i = 0; i < rows; i++)
+  {
+    for(j = 0; j < cols; j++)
+    {
+      entr = 0;
+      /* Compute entropy of each pixel */
+      for(l = 0; l < classes; l++)
+      {
+        if(probs[l][i][j] > 0)
+          entr -= probs[l][i][j] * (log10(probs[l][i][j]) / log10(2.0f));
+      }
+      output[i][j] = (unsigned char)(entr + 0.5);
+    }
+  }
+
+}

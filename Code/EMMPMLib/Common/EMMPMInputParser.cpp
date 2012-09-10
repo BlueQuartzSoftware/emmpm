@@ -131,12 +131,12 @@ int EMMPMInputParser::parseMuSigmaValues(const std::string &values, EMMPM_Data* 
   std::string::size_type pos = values.find(":", 0);
 
   inputs->dims = 1; // FORCING A GRAY SCALE IMAGE TO BE USED
-  inputs->m = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
-  inputs->v = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
+  inputs->mean = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
+  inputs->variance = (real_t*)malloc(inputs->classes * inputs->dims * sizeof(real_t));
 
   size_t index = 0;
-  real_t* mPtr = inputs->m;
-  real_t* vPtr = inputs->v;
+  real_t* mPtr = inputs->mean;
+  real_t* vPtr = inputs->variance;
 
   int n = sscanf(values.substr(0, pos).c_str(), "%f,%f", mPtr, vPtr );
   if (n != 2)
@@ -159,7 +159,7 @@ int EMMPMInputParser::parseMuSigmaValues(const std::string &values, EMMPM_Data* 
   // Take the square of the sigma to get the variance (v = sigma^2);
   for(size_t i = 0; i < index; ++i)
   {
-    inputs->v[i] = (inputs->v[i]) * (inputs->v[i]);
+    inputs->variance[i] = (inputs->variance[i]) * (inputs->variance[i]);
   }
 
 

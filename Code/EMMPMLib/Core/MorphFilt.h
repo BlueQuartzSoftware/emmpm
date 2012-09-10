@@ -28,59 +28,51 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#ifndef _EMMPM_H_
-#define _EMMPM_H_
-
-
+#ifndef _MORPHFILT_H_
+#define _MORPHFILT_H_
 
 #include "MXA/MXA.h"
 #include "MXA/Common/MXASetGetMacros.h"
 
-#include "EMMPMLib/EMMPMLib.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
 #include "EMMPMLib/Common/Observable.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
-#include "EMMPMLib/Common/InitializationFunctions.h"
-#include "EMMPMLib/Common/StatsDelegate.h"
 
-
-
-class EMMPMLib_EXPORT EMMPM : public Observable
+class EMMPMLib_EXPORT MorphFilter : public Observable
 {
+
   public:
-    MXA_SHARED_POINTERS(EMMPM);
-    MXA_STATIC_NEW_MACRO(EMMPM);
-    MXA_TYPE_MACRO(EMMPM);
+    MXA_SHARED_POINTERS(MorphFilter);
+    MXA_STATIC_NEW_MACRO(MorphFilter);
+    MXA_TYPE_MACRO(MorphFilter);
+    virtual ~MorphFilter();
 
-    virtual ~EMMPM();
+    unsigned int maxi(int a, int b);
 
-
-    MXA_INSTANCE_PROPERTY(EMMPM_Data::Pointer, Data);
-    MXA_INSTANCE_PROPERTY(InitializationFunction::Pointer, InitializationFunction)
-    MXA_INSTANCE_PROPERTY(StatsDelegate*, StatsDelegate);
-
+    int mini(int a, int b);
 
     /**
-     * @brief Main entry point for running the EMMPM algorithm. The Inputs and
-     * Files parameters mush be non NULL and properly initialized with input
-     * values and input images. A new output Image will be allocated for you if one
-     * is NOT provided. YOU are responsible for cleaning up the memory that is allocated
-     * by that process.
-     * @param data The Structure to use
-     * @param callbacks The list of callback functions
+     * @brief Performs the Morphological filtering on the input image
+     * @param data Non NULL EMMPM_Data pointer
+     * @param curve
+     * @param se
+     * @param r
      */
-     void execute();
+    void morphFilt(EMMPM_Data* data, unsigned char* curve, unsigned char* se, int r);
 
-     void printData(EMMPM_Data::Pointer data);
+    /**
+     * @brief Main entry point for the morphological filter
+     * @param data Non NULL EMMPM_Data pointer
+     */
+    void multiSE(EMMPM_Data* data);
 
   protected:
-    EMMPM();
+    MorphFilter();
 
   private:
-    EMMPM(const EMMPM&); // Copy Constructor Not Implemented
-    void operator=(const EMMPM&); // Operator '=' Not Implemented
+    MorphFilter(const MorphFilter&); // Copy Constructor Not Implemented
+    void operator=(const MorphFilter&); // Operator '=' Not Implemented
+
 };
 
-
-
-
-#endif /* _EMMPM_H_ */
+#endif /* _MORPHFILT_H_ */

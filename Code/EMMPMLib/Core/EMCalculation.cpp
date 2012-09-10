@@ -37,18 +37,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
-#include "CurvatureEM.h"
+#include "EMCalculation.h"
 
 #include "EMMPMLib/EMMPMLib.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
-#include "EMMPMLib/Common/EMMPM_Constants.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
-#include "EMMPMLib/Common/InitializationFunctions.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
+#include "EMMPMLib/Core/InitializationFunctions.h"
 
-#include "EMMPMLib/Common/EMMPMUtilities.h"
-#include "EMMPMLib/Curvature/MorphFilt.h"
-#include "EMMPMLib/Curvature/CurvatureMPM.h"
+#include "EMMPMLib/Core/EMMPMUtilities.h"
+#include "EMMPMLib/Core/MorphFilt.h"
+#include "EMMPMLib/Core/MPMCalculation.h"
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
 #include <tbb/task_scheduler_init.h>
@@ -57,7 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureEM::CurvatureEM() :
+EMCalculation::EMCalculation() :
 m_StatsDelegate(NULL)
 {
 
@@ -66,7 +66,7 @@ m_StatsDelegate(NULL)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureEM::~CurvatureEM()
+EMCalculation::~EMCalculation()
 {
 
 }
@@ -74,7 +74,7 @@ CurvatureEM::~CurvatureEM()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void CurvatureEM::execute()
+void EMCalculation::execute()
 {
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     tbb::task_scheduler_init init;
@@ -140,7 +140,7 @@ void CurvatureEM::execute()
   notify("Performing Initial MPM Loop", 0, UpdateProgressMessage);
 
   /* Perform initial MPM - (Estimation) */
-  CurvatureMPM::Pointer acvmpm = CurvatureMPM::New();
+  MPMCalculation::Pointer acvmpm = MPMCalculation::New();
   acvmpm->setData(getData());
   acvmpm->setObservers(getObservers());
   acvmpm->setStatsDelegate(getStatsDelegate());
@@ -187,7 +187,7 @@ void CurvatureEM::execute()
     EMMPMUtilities::copyCurrentMeanVarianceValues(getData());
 
     /* Reset model parameters to zero */
-    EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->m, data->v, data->N);
+    EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->mean, data->variance, data->N);
 
     /* Update Means and Variances */
     EMMPMUtilities::UpdateMeansAndVariances(getData());

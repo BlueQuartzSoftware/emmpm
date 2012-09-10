@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Heavily modified from the original by Michael A. Jackson for BlueQuartz Software
  * and funded by the Air Force Research Laboratory, Wright-Patterson AFB.
  */
-#include "CurvatureMPM.h"
+#include "MPMCalculation.h"
 
 
 #include <stdlib.h>
@@ -54,11 +54,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/random/variate_generator.hpp>
 
 
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM.h"
 #include "EMMPMLib/Common/MSVCDefines.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/EMTime.h"
-#include "EMMPMLib/Common/EMMPMUtilities.h"
+#include "EMMPMLib/Core/EMMPMUtilities.h"
 
 #define USE_TBB_TASK_GROUP 0
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
@@ -265,7 +265,7 @@ private:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureMPM::CurvatureMPM() :
+MPMCalculation::MPMCalculation() :
 m_StatsDelegate(NULL)
 {
 }
@@ -273,14 +273,14 @@ m_StatsDelegate(NULL)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CurvatureMPM::~CurvatureMPM()
+MPMCalculation::~MPMCalculation()
 {
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void CurvatureMPM::execute()
+void MPMCalculation::execute()
 {
   EMMPM_Data* data = m_Data.get();
 
@@ -299,8 +299,8 @@ void CurvatureMPM::execute()
 //  int rowEnd = rows/2;
   unsigned char* y = data->y;
   real_t* probs = data->probs;
-  real_t* m = data->m;
-  real_t* v = data->v;
+  real_t* m = data->mean;
+  real_t* v = data->variance;
 
   char msgbuff[256];
   float totalLoops;

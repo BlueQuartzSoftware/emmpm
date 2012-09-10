@@ -48,12 +48,12 @@
 #include "EMMPMLib/Common/EMTime.h"
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/Observer.h"
-#include "EMMPMLib/Common/EMMPM_Data.h"
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM_Data.h"
+#include "EMMPMLib/Core/EMMPM.h"
 #include "EMMPMLib/Common/EMMPMInputParser.h"
 #include "EMMPMLib/Common/StatsDelegate.h"
-#include "EMMPMLib/Common/InitializationFunctions.h"
-#include "EMMPMLib/Common/EMMPMUtilities.h"
+#include "EMMPMLib/Core/InitializationFunctions.h"
+#include "EMMPMLib/Core/EMMPMUtilities.h"
 #include "EMMPMLib/tiff/TiffUtilities.h"
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
@@ -94,7 +94,7 @@ class CLIStatsDelegate : public StatsDelegate
         {
           //    snprintf(msgbuff, 256, "%d\t%.3f\t%.3f", l, data->m[l], data->v[l]);
           //    EMMPM_ShowProgress(msgbuff, data->progress);
-          std::cout << l << "\t" << data->m[l] << "\t" << data->v[l] << "\t" << std::endl;
+          std::cout << l << "\t" << data->mean[l] << "\t" << data->variance[l] << "\t" << std::endl;
         }
 #if 0
         real_t hist[EMMPM_MAX_CLASSES][256];
@@ -273,13 +273,13 @@ int main(int argc,char *argv[])
   // Remember the Sigma is the Square Root of the variance
   for(int i = 0; i < data->classes; ++i)
   {
-    fprintf(f, "%d,%f,%f\n", i,  data->m[i] , sqrtf(data->v[i]) );
+    fprintf(f, "%d,%f,%f\n", i,  data->mean[i] , sqrtf(data->variance[i]) );
   }
 
   fclose(f);
 
   std::cout << "EM/MPM Ending" << std::endl;
 
-	return 1;
+    return 1;
 }
 

@@ -72,8 +72,8 @@ EMMPM_Data::~EMMPM_Data()
 
   EMMPM_FREE_POINTER(this->y)
   EMMPM_FREE_POINTER(this->xt)
-  EMMPM_FREE_POINTER(this->m)
-  EMMPM_FREE_POINTER(this->v)
+  EMMPM_FREE_POINTER(this->mean)
+  EMMPM_FREE_POINTER(this->variance)
   EMMPM_FREE_POINTER(this->prev_mu)
   EMMPM_FREE_POINTER(this->prev_variance)
   EMMPM_FREE_POINTER(this->probs)
@@ -105,11 +105,11 @@ int EMMPM_Data::allocateDataStructureMemory()
   }
   if(NULL == this->xt) return -1;
 
-  if(NULL == this->m)
+  if(NULL == this->mean)
   {
-    this->m = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
+    this->mean = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
   }
-  if(NULL == this->m) return -1;
+  if(NULL == this->mean) return -1;
 
   if(NULL == this->prev_mu)
   {
@@ -118,11 +118,11 @@ int EMMPM_Data::allocateDataStructureMemory()
   if(NULL == this->prev_mu) return -1;
 
 
-  if(NULL == this->v)
+  if(NULL == this->variance)
   {
-    this->v = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
+    this->variance = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
   }
-  if(NULL == this->v) return -1;
+  if(NULL == this->variance) return -1;
 
   if(NULL == this->prev_variance)
   {
@@ -184,8 +184,8 @@ void EMMPM_Data::initVariables()
   this->verbose = 0;
   this->cancel = 0;
 
-  this->m = NULL;
-  this->v = NULL;
+  this->mean = NULL;
+  this->variance = NULL;
   this->prev_mu = NULL;
   this->prev_variance = NULL;
   this->probs = NULL;

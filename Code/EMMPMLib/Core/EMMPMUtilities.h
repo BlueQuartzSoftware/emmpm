@@ -32,8 +32,8 @@
 #define EM_H_
 
 #include "EMMPMLib/EMMPMLib.h"
-#include "EMMPMLib/Common/EMMPM_Constants.h"
-#include "EMMPMLib/Common/EMMPM.h"
+#include "EMMPMLib/Core/EMMPM_Constants.h"
+#include "EMMPMLib/Core/EMMPM.h"
 
 class EMMPMLib_EXPORT EMMPMUtilities
 {
@@ -66,7 +66,7 @@ class EMMPMLib_EXPORT EMMPMUtilities
     /**
      * @brief Resets the mean and variance to Zero in preparation for another round
      * of EM loops
-     * @param data nClasses
+     * @param nClasses
      * @param nDims
      * @param mu
      * @param var
@@ -109,6 +109,16 @@ class EMMPMLib_EXPORT EMMPMUtilities
      */
     static void RemoveZeroProbClasses(EMMPM_Data::Pointer data);
 
+    /**
+     * @brief
+     * @param probs
+     * @param output
+     * @param rows
+     * @param cols
+     * @param classes
+     */
+    static void ComputeEntropy(real_t ***probs, unsigned char **output,
+                           unsigned int rows, unsigned int cols, unsigned int classes);
   protected:
     EMMPMUtilities()
     {

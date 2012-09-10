@@ -104,7 +104,8 @@ int TiffUtilities::writeOutputImage(EMMPM_Data::Pointer data)
   }
 
  // err = EMMPM_WriteGrayScaleTiff(data, callbacks, "Segmented with EM/MPM");
-  err = writePalettedImage(data, "Image Segmented with EM/MPM");
+  std::string desc("Image Segmented with EM/MPM");
+  err = writePalettedImage(data, desc.c_str());
   if (err < 0)
   {
     printf("Error writing Tiff file %s\n", data->output_file_name);
@@ -184,7 +185,7 @@ unsigned char* TiffUtilities::readTiffAsGrayScale(EMMPM_Data::Pointer data)
   err = TIFFGetField(in, TIFFTAG_XRESOLUTION, &xRes);
   err = TIFFGetField(in, TIFFTAG_YRESOLUTION, &yRes);
   err = TIFFGetField(in, TIFFTAG_RESOLUTIONUNIT, &resUnits);
-  int32_t scanLineBytes = TIFFScanlineSize(in);
+//  int32_t scanLineBytes = TIFFScanlineSize(in);
 
   if (resUnits == 1 && xRes > 0 && yRes > 0)
   {
@@ -330,7 +331,7 @@ int TiffUtilities::writeGrayScaleTiff(EMMPM_Data::Pointer data,
 //
 // -----------------------------------------------------------------------------
 int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
-                             char* imageDescription)
+                                      const std::string imageDescription)
 {
   int err;
   unsigned char* raster;
@@ -375,9 +376,9 @@ int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
   {
     err = TIFFSetField(out, TIFFTAG_DOCUMENTNAME, data->output_file_name);
   }
-  if (NULL != imageDescription)
+  if (imageDescription.empty() == false)
   {
-    err = TIFFSetField(out, TIFFTAG_IMAGEDESCRIPTION, imageDescription);
+    err = TIFFSetField(out, TIFFTAG_IMAGEDESCRIPTION, imageDescription.c_str());
   }
 
   err = TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);

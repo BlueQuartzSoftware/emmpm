@@ -35,13 +35,13 @@
 #include "EMMPM.h"
 
 #include "EMMPMLib/Common/MSVCDefines.h"
-#include "EMMPMLib/Common/Entropy.h"
+
 
 #include "EMMPMLib/Common/EMMPM_Math.h"
 #include "EMMPMLib/Common/EMTime.h"
-#include "EMMPMLib/Common/InitializationFunctions.h"
-#include "EMMPMLib/Common/EMMPMUtilities.h"
-#include "EMMPMLib/Curvature/CurvatureEM.h"
+#include "EMMPMLib/Core/InitializationFunctions.h"
+#include "EMMPMLib/Core/EMMPMUtilities.h"
+#include "EMMPMLib/Core/EMCalculation.h"
 #include "EMMPMLib/tiff/TiffUtilities.h"
 
 
@@ -238,7 +238,7 @@ void EMMPM::execute()
   printData(m_Data);
 
   // Now actually run the EM/MPM algorithm
-  CurvatureEM::Pointer em = CurvatureEM::New();
+  EMCalculation::Pointer em = EMCalculation::New();
   em->setData(getData());
   em->setObservers(getObservers());
   em->setStatsDelegate(getStatsDelegate());
