@@ -117,7 +117,7 @@ class ParallelCalcLoop
       //uint64_t millis = EMMPM_getMilliSeconds();
     //  int l;
       real_t prior;
-      int32_t ij, lij, i1j1;
+      int32_t ij, lij;
       int rows = data->rows;
       int cols = data->columns;
       int classes = data->classes;
@@ -215,115 +215,6 @@ class ParallelCalcLoop
             sum += post[l];
           }
 
-           /* -------------  */
-#if 0
-           ij = (cols * y) + x;
-           sum = 0;
-           for (int l = 0; l < classes; l++)
-           {
-             /* edge penalties (in both x and y) */
-             prior = 0;
-             edge = 0;
-             if (y - 1 >= 0)
-             {
-               if (x - 1 >= 0)
-               {
-                 i1j1 = (cols*(y-1))+x-1;
-                 if (xt[i1j1] != l)
-                 {
-                   prior++;
-                   i1j1 = (swCols*(y-1))+x-1;
-                   if (data->useGradientPenalty) edge += sw[i1j1];
-                 }
-               }
-
-               //Mark1
-               i1j1 = (cols*(y-1))+x;
-               if (xt[i1j1] != l)
-               {
-                 prior++;
-                 i1j1 = (ewCols*(y-1))+x;
-                 if (data->useGradientPenalty) edge += ew[i1j1];
-               }
-               //mark2
-               if (x + 1 < cols)
-               {
-                 i1j1 = (cols*(y-1))+x+1;
-                 if (xt[i1j1] != l)
-                 {
-                   prior++;
-                   i1j1 = (nwCols*(y-1))+x;
-                   if (data->useGradientPenalty) edge += nw[i1j1];
-                 }
-               }
-             }
-
-             //mark3
-             if (y + 1 < rows)
-             {
-               if (x - 1 >= 0)
-               {
-                 i1j1 = (cols*(y+1))+x-1;
-                 if (xt[i1j1] != l)
-                 {
-                   prior++;
-                   i1j1 = (nwCols*(y))+x-1;
-                   if (data->useGradientPenalty) edge += nw[i1j1];
-                 }
-               }
-               //mark4
-               i1j1 = (cols*(y+1))+x;
-               if (xt[i1j1] != l)
-               {
-                 prior++;
-                 i1j1 = (ewCols*(y))+x;
-                 if (data->useGradientPenalty) edge += ew[i1j1];
-               }
-               //mark5
-               if (x + 1 < cols)
-               {
-                 i1j1 = (cols*(y+1))+x+1;
-                 if (xt[i1j1] != l)
-                 {
-                   prior++;
-                   i1j1 = (swCols*(y))+x;
-                   if (data->useGradientPenalty) edge += sw[i1j1];
-                 }
-               }
-             }
-             //mark6
-             if (x - 1 >= 0)
-             {
-               i1j1 = (cols*(y))+x-1;
-               if (xt[i1j1] != l)
-               {
-                 prior++;
-                 i1j1 = (nsCols*(y))+x-1;
-                 if (data->useGradientPenalty) edge += ns[i1j1];
-               }
-             }
-             //mark7
-             if (x + 1 < cols)
-             {
-               i1j1 = (cols*(y))+x+1;
-               if (xt[i1j1] != l)
-               {
-                 prior++;
-                 i1j1 = (nsCols*(y))+x;
-                 if (data->useGradientPenalty) edge += ns[i1j1];
-               }
-             }
-             lij = (cols * rows * l) + (cols * y) + x;
-             curvature_value = 0.0;
-             if (data->useCurvaturePenalty)
-             {
-               curvature_value = data->beta_c * ccost[lij];
-             }
-             real_t arg = yk[lij] - (data->workingBeta * (real_t)prior) - (edge) - (curvature_value) - data->w_gamma[l];
-             post[l] = expf(arg);
-             sum += post[l];
-           }
-#endif
            xrnd = rnd[ij];
            current = 0.0;
            for (int l = 0; l < classes; l++)

@@ -109,13 +109,15 @@ class EMMPMLib_EXPORT EMMPM_Data
     unsigned char* y; /**< height*width*dims array of bytes */
     unsigned char* xt; /**< width*height array of bytes */
 
-    real_t w_gamma[EMMPM_MAX_CLASSES]; /**<  */
-    real_t* m; /**< classes * dims array (classes is slowest moving dimension)*/
-    real_t* v; /**< classes * dims array */
-    real_t N[EMMPM_MAX_CLASSES]; /**< classes * dims array */
-    real_t* probs; /**< classes * rows * cols (slowest to fastest)*/
-    real_t workingBeta; /**<  */
-    real_t*     couplingBeta; /**< Beta Matrix for Coupling */
+    real_t w_gamma[EMMPM_MAX_CLASSES]; /**<  Gamma */
+    real_t* m; /**< Mu or Mean   { classes * dims array (classes is slowest moving dimension) }*/
+    real_t* v; /**< Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
+    real_t* prev_mu;
+    real_t* prev_variance;
+    real_t N[EMMPM_MAX_CLASSES]; /**< Dimensions { classes * dims array (classes is slowest moving dimension )}*/
+    real_t* probs; /**< Probabilities for each pixel  classes * rows * cols (slowest to fastest)*/
+    real_t workingBeta; /**< Current Beta Value being used  */
+    real_t* couplingBeta; /**< Beta Matrix for Coupling */
     std::vector<CoupleType> coupleEntries; /**< The entries that map the 2 classes that will be coupled along with their value  */
 
     // -----------------------------------------------------------------------------
@@ -133,6 +135,10 @@ class EMMPMLib_EXPORT EMMPM_Data
     real_t* sw; /**<  */
     real_t* nw; /**<  */
 
+    // -----------------------------------------------------------------------------
+    // Variables to hold the tolerance for the stopping condition
+    // -----------------------------------------------------------------------------
+    real_t stoppingThreshold;
 
     // -----------------------------------------------------------------------------
     //  Variables that Functions may need to present progress information to the user
@@ -152,12 +158,6 @@ class EMMPMLib_EXPORT EMMPM_Data
     // -----------------------------------------------------------------------------
     void*    userData; /**< User defined Pointer that can point to anything */
     char     cancel;
-
-    // -----------------------------------------------------------------------------
-    //  These are for a per-thread storage for once-global variables that are now held
-    //  in this structure
-    // -----------------------------------------------------------------------------
-    //RNGVars*    rngVars;
 
     // -----------------------------------------------------------------------------
     // Some Critical TIFF related fields which are taken directly from the tifftags

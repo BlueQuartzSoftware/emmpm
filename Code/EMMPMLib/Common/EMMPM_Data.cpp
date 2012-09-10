@@ -74,6 +74,8 @@ EMMPM_Data::~EMMPM_Data()
   EMMPM_FREE_POINTER(this->xt)
   EMMPM_FREE_POINTER(this->m)
   EMMPM_FREE_POINTER(this->v)
+  EMMPM_FREE_POINTER(this->prev_mu)
+  EMMPM_FREE_POINTER(this->prev_variance)
   EMMPM_FREE_POINTER(this->probs)
   EMMPM_FREE_POINTER(this->ccost)
   EMMPM_FREE_POINTER(this->ns)
@@ -109,11 +111,24 @@ int EMMPM_Data::allocateDataStructureMemory()
   }
   if(NULL == this->m) return -1;
 
+  if(NULL == this->prev_mu)
+  {
+    this->prev_mu = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
+  }
+  if(NULL == this->prev_mu) return -1;
+
+
   if(NULL == this->v)
   {
     this->v = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
   }
   if(NULL == this->v) return -1;
+
+  if(NULL == this->prev_variance)
+  {
+    this->prev_variance = (real_t*)malloc(this->classes * this->dims * sizeof(real_t));
+  }
+  if(NULL == this->prev_variance) return -1;
 
   if(NULL == this->probs)
   {
@@ -171,6 +186,8 @@ void EMMPM_Data::initVariables()
 
   this->m = NULL;
   this->v = NULL;
+  this->prev_mu = NULL;
+  this->prev_variance = NULL;
   this->probs = NULL;
   this->ccost = NULL;
 
@@ -201,6 +218,8 @@ void EMMPM_Data::initVariables()
   this->ew = NULL;
   this->sw = NULL;
   this->nw = NULL;
+
+  this->stoppingThreshold = 0.0;
 
   this->histograms = NULL;
 

@@ -78,13 +78,14 @@ void CurvatureEM::execute()
 {
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     tbb::task_scheduler_init init;
-    int threads = init.default_num_threads();
+  //  int threads = init.default_num_threads();
  //   std::cout << "TBB Thread Count: " << threads << std::endl;
 #endif
   EMMPM_Data* data = m_Data.get();
-  size_t k;
+  int k;
   int emiter = data->emIterations;
   real_t* simAnnealBetas = NULL;
+  bool stop = false;
 
   float totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
   float currentLoopCount = 0.0;
@@ -132,6 +133,10 @@ void CurvatureEM::execute()
     morphFilt->multiSE(data);
   }
 
+  // Zero out the Mean, Variance and N values for both the current and previous
+  EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->prev_mu, data->prev_variance, data->N);
+ // EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->m, data->v, data->N);
+
   notify("Performing Initial MPM Loop", 0, UpdateProgressMessage);
 
   /* Perform initial MPM - (Estimation) */
@@ -169,8 +174,20 @@ void CurvatureEM::execute()
 
     data->progress = currentLoopCount/totalLoops * 100.0;
 
+    /* Check if the "Error" is less than a user defined Tolerance and if it is then
+     * bail out of the loop now.
+     */
+    stop = EMMPMUtilities::isStoppingConditionLessThanTolerance(getData());
+    if (stop == true)
+    {
+        break;
+    }
+
+    /* Copy the current Mean and Variance Values to the "prev_*" variables */
+    EMMPMUtilities::copyCurrentMeanVarianceValues(getData());
+
     /* Reset model parameters to zero */
-    EMMPMUtilities::ResetModelParameters(getData());
+    EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->m, data->v, data->N);
 
     /* Update Means and Variances */
     EMMPMUtilities::UpdateMeansAndVariances(getData());

@@ -178,27 +178,71 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPMUtilities::ResetModelParameters(EMMPM_Data::Pointer dt)
+void EMMPMUtilities::ZeroMeanVariance(int nClasses, size_t nDims, real_t* mu, real_t* var, real_t* N)
 {
-  EMMPM_Data* data = dt.get();
-
-  size_t d, ld;
+  size_t ld = 0;
   /* Reset model parameters to zero */
-  for (int l = 0; l < data->classes; l++)
+  for (int l = 0; l < nClasses; l++)
   {
-    for (d = 0; d < data->dims; d++)
+    for (size_t d = 0; d < nDims; d++)
     {
-      ld = data->dims * l + d;
-      data->m[ld] = 0;
-      data->v[ld] = 0;
+      ld = nDims * l + d;
+      mu[ld] = 0;
+      var[ld] = 0;
     }
-    data->N[l] = 0;
+    N[l] = 0;
   }
 }
 
-/* This class can not be easily parallelized due to the summation of the
- * data->v[ld] variable.
- */
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer data)
+{
+    real_t muDeltaSum = 0.0;
+    real_t varDeltaSum = 0.0;
+
+    real_t* mu = data->m;
+    real_t* prevMu = data->prev_mu;
+    real_t* var = data->v;
+    real_t* prevVar = data->prev_variance;
+
+    int nClasses = data->classes;
+    size_t nDims = data->dims;
+
+    size_t ld = 0;
+    /* Reset model parameters to zero */
+    for (int l = 0; l < nClasses; l++)
+    {
+      for (size_t d = 0; d < nDims; d++)
+      {
+        ld = nDims * l + d;
+        muDeltaSum += (mu[ld] - prevMu[ld]) * (mu[ld] - prevMu[ld]);
+        varDeltaSum += (var[ld] - prevVar[ld]) * (var[ld] - prevVar[ld]);
+      }
+    }
+    real_t errorValue = muDeltaSum + varDeltaSum;
+    std::cout << "ErrorValue: " << errorValue << std::endl;
+    if (errorValue < data->stoppingThreshold)
+    {
+        return true;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void EMMPMUtilities::copyCurrentMeanVarianceValues(EMMPM_Data::Pointer data)
+{
+    ::memcpy(data->prev_mu, data->m, data->classes * data->dims * sizeof(real_t));
+    ::memcpy(data->prev_variance, data->v, data->classes * data->dims * sizeof(real_t));
+}
+
+// -----------------------------------------------------------------------------
+// This class can not be easily parallelized due to the summation of the
+// data->v[ld] variable.
+// -----------------------------------------------------------------------------
 class EstimateMeans
 {
   public:
@@ -207,7 +251,7 @@ class EstimateMeans
       this->l = l;
       this->data = dPtr;
     }
-    virtual ~EstimateMeans(){};
+    virtual ~EstimateMeans(){}
 
     void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
     {
@@ -264,7 +308,7 @@ class EstimateVariance
       this->l = l;
       this->data = dPtr;
     }
-    virtual ~EstimateVariance(){};
+    virtual ~EstimateVariance(){}
 
     void calc(int rowStart, int rowEnd, int colStart, int colEnd) const
     {
@@ -347,6 +391,7 @@ void EMMPMUtilities::UpdateMeansAndVariances(EMMPM_Data::Pointer dt)
     estimateVariance.calc(0, rows, 0, cols);
   }
 
+  // Make sure we don't fall below some minimum variance.
   for (l = 0; l < classes; l++)
   {
     if(data->v[l] < data->min_variance[l])

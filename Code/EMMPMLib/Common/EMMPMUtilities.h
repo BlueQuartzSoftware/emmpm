@@ -66,9 +66,27 @@ class EMMPMLib_EXPORT EMMPMUtilities
     /**
      * @brief Resets the mean and variance to Zero in preparation for another round
      * of EM loops
-     * @param data EMMPM_Data inputs
+     * @param data nClasses
+     * @param nDims
+     * @param mu
+     * @param var
+     * @param N
      */
-    static void ResetModelParameters(EMMPM_Data::Pointer data);
+    static void ZeroMeanVariance(int nClasses, size_t nDims, real_t *mu, real_t *var, real_t *N);
+
+    /**
+     * @brief Checks if the error value calculated is less that a tolerance (stopping condition)
+     * @param data The EMMPM Data class that holds all the data
+     * @return If the value of the error is less than the stopping tolerance then return true
+     *otherwise return false.
+     */
+    static bool isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer data);
+
+    /**
+     * @brief Copies the current Mean and Variance to the Previous Mean Variance variables
+     * @param data
+     */
+    static void copyCurrentMeanVarianceValues(EMMPM_Data::Pointer data);
 
     /**
      * @brief Updates the mean and variance for each class
