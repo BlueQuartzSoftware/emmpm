@@ -211,7 +211,7 @@ bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer da
     size_t nDims = data->dims;
 
     size_t ld = 0;
-    /* Reset model parameters to zero */
+
     for (int l = 0; l < nClasses; l++)
     {
       for (size_t d = 0; d < nDims; d++)
@@ -222,8 +222,12 @@ bool EMMPMUtilities::isStoppingConditionLessThanTolerance(EMMPM_Data::Pointer da
       }
     }
     data->currentMSE = muDeltaSum + varDeltaSum;
-    //std::cout << "ErrorValue: " << errorValue << std::endl;
-    if (data->currentMSE < data->stoppingThreshold)
+
+    if (data->useStoppingThreshold == 0)
+    {
+        return false;
+    }
+    else if (data->currentMSE < data->stoppingThreshold)
     {
         return true;
     }

@@ -15,7 +15,7 @@ set(emmpm_HDRS
 )
 
 set(emmpm_PROJECT_SRCS
-  ${emmpm_SRCS} ${emmpm_HDRS} 
+  ${emmpm_SRCS} ${emmpm_HDRS}
 )
 cmp_IDE_SOURCE_PROPERTIES("emmpm/apps" "${emmpm_HDRS}" "${emmpm_SRCS}"  "${PROJECT_INSTALL_HEADERS}")
 
@@ -34,8 +34,8 @@ BuildToolBundle(
     VERSION_MINOR ${EMMPM_VER_MINOR}
     VERSION_PATCH ${EMMPM_VER_PATCH}
     BINARY_DIR    ${${PROJECT_NAME}_BINARY_DIR}
-    LINK_LIBRARIES EMMPMLib ${TIFF_LIBRARIES}
+    LINK_LIBRARIES EMMPMLib
     LIB_SEARCH_DIRS ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMPONENT     Applications
     INSTALL_DEST  "${install_dir}"
-)  
+)

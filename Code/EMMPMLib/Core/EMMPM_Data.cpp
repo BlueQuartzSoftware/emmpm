@@ -219,8 +219,9 @@ void EMMPM_Data::initVariables()
   this->sw = NULL;
   this->nw = NULL;
 
+  this->useStoppingThreshold = 0;
   this->stoppingThreshold = 0.0;
-
+  this->currentMSE = 0.0;
   this->histograms = NULL;
 
   //this->rngVars = NULL;

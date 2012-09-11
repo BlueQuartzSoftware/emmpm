@@ -137,6 +137,7 @@ class EMMPMLib_EXPORT EMMPM_Data
     // -----------------------------------------------------------------------------
     // Variables to hold the tolerance for the stopping condition
     // -----------------------------------------------------------------------------
+    char   useStoppingThreshold;
     real_t stoppingThreshold;
     real_t currentMSE; /**< Current Mean Squared Error value */
 
