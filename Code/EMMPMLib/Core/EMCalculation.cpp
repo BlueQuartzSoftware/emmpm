@@ -135,7 +135,6 @@ void EMCalculation::execute()
 
   // Zero out the Mean, Variance and N values for both the current and previous
   EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->prev_mu, data->prev_variance, data->N);
- // EMMPMUtilities::ZeroMeanVariance(data->classes, data->dims, data->m, data->v, data->N);
 
   notify("Performing Initial MPM Loop", 0, UpdateProgressMessage);
 

@@ -90,7 +90,7 @@ else\
  * @date March 11, 2012
  * @version 1.0
  */
-class ParallelCalcLoop
+class ParallelMPMLoop
 {
   public:
 #if USE_TBB_TASK_GROUP
@@ -101,14 +101,14 @@ class ParallelCalcLoop
     m_ColStart(colStart),
     m_ColEnd(colEnd),
 #else
-    ParallelCalcLoop(EMMPM_Data* dPtr, real_t* ykPtr, real_t* rnd) :
+    ParallelMPMLoop(EMMPM_Data* dPtr, real_t* ykPtr, real_t* rnd) :
 #endif
 
     data(dPtr),
     yk(ykPtr),
     rnd(rnd)
     {}
-    virtual ~ParallelCalcLoop(){}
+    virtual ~ParallelMPMLoop(){}
 
 
     void calc(int rowStart, int rowEnd,
@@ -402,7 +402,7 @@ void MPMCalculation::execute()
     delete g;
 #else
     tbb::parallel_for(tbb::blocked_range2d<int>(0, rows, rows/threads, 0, cols, cols),
-                      ParallelCalcLoop(data, yk, &(rndNumbers.front())),
+                      ParallelMPMLoop(data, yk, &(rndNumbers.front())),
                       tbb::simple_partitioner());
 #endif
 

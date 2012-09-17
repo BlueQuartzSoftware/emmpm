@@ -110,7 +110,7 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
   size_t x = 0;
 
   real_t mu = 0.0;
-  real_t stdDev = 0.0;
+  real_t sigma = 0.0;
   real_t twoSigSqrd = 0.0f;
   real_t constant = 0.0;
   real_t variance = 0.0;
@@ -158,9 +158,9 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
       ld = data->dims * l + d;
       mu = data->mean[ld];
       variance = data->variance[ld];
-      stdDev = sqrt( data->variance[ld] ); // Standard Deviation is the Square Root of the Variance
+      sigma = sqrt( data->variance[ld] ); // Standard Deviation is the Square Root of the Variance
       twoSigSqrd = variance * 2.0f; // variance is StdDev Squared, so just use the Variance value
-      constant = 1.0f / (stdDev * sqrt2pi);
+      constant = 1.0f / (sigma * sqrt2pi);
       //printf("Class %d: Sigma %f  Peak Height: %f\n", l, sig, (constant * pixelWeight));
       for (x = 0; x < 256; ++x)
       {
@@ -343,7 +343,7 @@ class EstimateVariance
             ld = dimsXl + d;
             ijd = k2_ + d;
             res = y[ijd] - m[ld];
-            res = res * res;
+            res = res * res; // Square to get the Variance
             v[ld] += (res) * probs[lij];
           }
         }

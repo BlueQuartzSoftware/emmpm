@@ -237,30 +237,49 @@ void EMMPM_Data::initVariables()
 // -----------------------------------------------------------------------------
 void EMMPM_Data::calculateBetaMatrix()
 {
-  if (NULL == couplingBeta)
-  {
-    return;
-  }
-
-  // Recalculate the Class Coupling Matrix
-  int ij = 0;
-  for (int i = 0; i < (classes + 1); ++i)
-  {
-    for (int j = 0; j < (classes + 1); ++j)
+    if (NULL == couplingBeta)
     {
-      ij = ((classes + 1) * i) + j;
-      if(j == classes) couplingBeta[ij] = 0.0;
-      else if(i == j) couplingBeta[ij] = 0.0;
-      else if(i == classes) couplingBeta[ij] = 0.0;
-      else couplingBeta[ij] = workingBeta;
+        return;
     }
-  }
-  // Update the Coupling Matrix with user defined entries
-  for (std::vector<CoupleType>::iterator iter = coupleEntries.begin(); iter != coupleEntries.end(); ++iter)
-  {
-    ij = ((classes + 1) * ((*iter).label_1)) + (*iter).label_2;
-    couplingBeta[ij] = (*iter).beta;
-    ij = ((classes + 1) * ((*iter).label_2)) + (*iter).label_1;
-    couplingBeta[ij] = (*iter).beta;
-  }
+
+    // Recalculate the Class Coupling Matrix
+    int ij = 0;
+    for (int i = 0; i < (classes + 1); ++i)
+    {
+        for (int j = 0; j < (classes + 1); ++j)
+        {
+            ij = ((classes + 1) * i) + j;
+            if(j == classes) couplingBeta[ij] = 0.0;
+            else if(i == j) couplingBeta[ij] = 0.0;
+            else if(i == classes) couplingBeta[ij] = 0.0;
+            else couplingBeta[ij] = workingBeta;
+        }
+    }
+    // Update the Coupling Matrix with user defined entries
+    for (std::vector<CoupleType>::iterator iter = coupleEntries.begin(); iter != coupleEntries.end(); ++iter)
+    {
+        ij = ((classes + 1) * ((*iter).label_1)) + (*iter).label_2;
+        couplingBeta[ij] = (*iter).beta;
+        ij = ((classes + 1) * ((*iter).label_2)) + (*iter).label_1;
+        couplingBeta[ij] = (*iter).beta;
+    }
+#if 0
+    std::cout << "***\t";
+    for (int i = 0; i < (classes + 1); ++i)
+    {
+      std::cout   << i << "\t";
+    }
+    std::cout << std::endl;
+
+    for (int i = 0; i < (classes + 1); ++i)
+    {
+        std::cout << i << "\t";
+        for (int j = 0; j < (classes + 1); ++j)
+        {
+            ij = ((classes + 1) * i) + j;
+            std::cout << couplingBeta[ij] << "\t";
+        }
+        std::cout << std::endl;
+    }
+#endif
 }
