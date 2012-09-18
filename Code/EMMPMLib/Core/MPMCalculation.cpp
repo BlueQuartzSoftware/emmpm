@@ -154,7 +154,7 @@ class ParallelMPMLoop
 // the clique would be off the image then a value = number of classes is
 // used for the C[i][j]. That way we can figure out if we are off the image
 
-
+      std::stringstream ss;
       unsigned int cSize = classes + 1;
       real_t* coupling = data->couplingBeta;
 
@@ -172,6 +172,17 @@ class ParallelMPMLoop
           COMPUTE_C_CLIQUE(C,   x, y+1, 1, 2);
           COMPUTE_C_CLIQUE(C, x+1, y+1, 2, 2);
 
+          if (y == rowStart + 1 && x == colStart + 1)
+          {
+              ss << "------------------------------" << std::endl;
+              ss << "|" << C[0][0] << "\t" << C[1][0] << "\t" << C[2][0] << std::endl;
+              ss << "|" << C[0][1] << "\t" << C[1][1] << "\t" << C[2][1] << std::endl;
+              ss << "|" << C[0][2] << "\t" << C[1][2] << "\t" << C[2][2] << std::endl;
+              ss << "------------------------------" << std::endl;
+              std::cout << ss.str() << std::endl;
+          }
+
+
           ij = (cols*y)+x;
           sum = 0;
           for (int l = 0; l < classes; ++l)
@@ -187,6 +198,11 @@ class ParallelMPMLoop
             prior += coupling[(cSize*l)+ C[0][2]];
             prior += coupling[(cSize*l)+ C[1][2]];
             prior += coupling[(cSize*l)+ C[2][2]];
+
+            if (y == rowStart + 1 && x == colStart + 1)
+            {
+                std::cout << "Class: " << l << "\t prior: " << prior << std::endl;
+            }
 
             // now check for the gradient penalty. If our current class is NOT equal
             // to the class at index[i][j] AND the value of C[i][j] does NOT equal
@@ -382,7 +398,7 @@ void MPMCalculation::execute()
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     tbb::task_scheduler_init init;
-    int threads = init.default_num_threads();
+    int threads = 1;// init.default_num_threads();
 #if USE_TBB_TASK_GROUP
     tbb::task_group* g = new tbb::task_group;
     unsigned int rowIncrement = rows/threads;
