@@ -172,6 +172,7 @@ class ParallelMPMLoop
           COMPUTE_C_CLIQUE(C,   x, y+1, 1, 2);
           COMPUTE_C_CLIQUE(C, x+1, y+1, 2, 2);
 
+#if 0
           if (y == rowStart + 1 && x == colStart + 1)
           {
               ss << "------------------------------" << std::endl;
@@ -181,7 +182,7 @@ class ParallelMPMLoop
               ss << "------------------------------" << std::endl;
               std::cout << ss.str() << std::endl;
           }
-
+#endif
 
           ij = (cols*y)+x;
           sum = 0;
@@ -199,10 +200,12 @@ class ParallelMPMLoop
             prior += coupling[(cSize*l)+ C[1][2]];
             prior += coupling[(cSize*l)+ C[2][2]];
 
+#if 0
             if (y == rowStart + 1 && x == colStart + 1)
             {
                 std::cout << "Class: " << l << "\t prior: " << prior << std::endl;
             }
+#endif
 
             // now check for the gradient penalty. If our current class is NOT equal
             // to the class at index[i][j] AND the value of C[i][j] does NOT equal

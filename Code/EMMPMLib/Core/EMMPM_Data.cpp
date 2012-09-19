@@ -263,7 +263,7 @@ void EMMPM_Data::calculateBetaMatrix()
         ij = ((classes + 1) * ((*iter).label_2)) + (*iter).label_1;
         couplingBeta[ij] = (*iter).beta;
     }
-#if 1
+#if 0
     std::cout << "***\t";
     for (int i = 0; i < (classes + 1); ++i)
     {
