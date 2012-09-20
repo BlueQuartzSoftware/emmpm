@@ -62,17 +62,17 @@ int EMMPMInputParser::parseGrayTable(const std::string &values, EMMPM_Data* inpu
   size_t index = 0;
  // unsigned int* cPtr = &(inputs->grayTable[index]);
 
-  int n = sscanf(values.substr(0, pos).c_str(), "%d", &(inputs->grayTable[index]) );
+  int n = sscanf(values.substr(0, pos).c_str(), "%d", &(inputs->colorTable[index]) );
   if (n != 1)
   {
-    inputs->grayTable[index] = 0;
+    inputs->colorTable[index] = 0;
     return -1;
   }
 
   ++index;
   while(pos != std::string::npos && pos != values.size() - 1)
   {
-    n = sscanf(values.substr(pos+1).c_str(), "%d", &(inputs->grayTable[index]) );
+    n = sscanf(values.substr(pos+1).c_str(), "%d", &(inputs->colorTable[index]) );
     pos = values.find(",", pos+1);
     ++index;
   }
@@ -316,7 +316,11 @@ int EMMPMInputParser::parseCLIArguments(int argc, char *argv[], EMMPM_Data* inpu
       int n = inputs->classes - 1;
       for (int value = 0; value < inputs->classes; ++value)
       {
-       inputs->grayTable[value] = value * 255 / n;
+       unsigned int argb = 0xFF000000; // Black
+       (&argb)[1] = value * 255 / n;
+       (&argb)[2] = value * 255 / n;
+       (&argb)[3] = value * 255 / n;
+       inputs->colorTable[value] = argb;
       }
     }
 

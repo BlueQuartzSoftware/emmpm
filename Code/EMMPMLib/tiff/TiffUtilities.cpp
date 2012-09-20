@@ -395,9 +395,9 @@ int TiffUtilities::writePalettedImage(EMMPM_Data::Pointer data,
 
   // Copy in the Gray_Table for the segmentation
   for (int32_t i = 0; i < data->classes; i++) {
-    r[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
-    g[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
-    b[i] = UINT16_MAX * ( (float)data->grayTable[i]/(float)UINT8_MAX);
+    r[i] = UINT16_MAX * ( (float)data->colorTable[i]/(float)UINT8_MAX);
+    g[i] = UINT16_MAX * ( (float)data->colorTable[i]/(float)UINT8_MAX);
+    b[i] = UINT16_MAX * ( (float)data->colorTable[i]/(float)UINT8_MAX);
   }
 
   TIFFSetField(out, TIFFTAG_COLORMAP, r, g, b);

@@ -162,6 +162,7 @@ class ParallelMPMLoop
        {
          for (int32_t x = colStart; x < colEnd; x++)
          {
+
            /* -------------  */
           COMPUTE_C_CLIQUE(C, x-1, y-1, 0, 0);
           COMPUTE_C_CLIQUE(C,   x, y-1, 1, 0);
@@ -236,6 +237,7 @@ class ParallelMPMLoop
 
            xrnd = rnd[ij];
            current = 0.0;
+
            for (int l = 0; l < classes; l++)
            {
              lij = (cols * rows * l) + ij;
@@ -247,6 +249,25 @@ class ParallelMPMLoop
              }
              current += arg;
            }
+#if 0
+           Dont even THINK about using this code...
+                   This classifys the pixel based on the largest
+                   in magnitude  probability
+           real_t max = 0.0;
+           int maxClass = 0;
+           for (int l = 0; l < classes; l++)
+           {
+             lij = (cols * rows * l) + ij;
+             //real_t arg = post[l] / sum;
+             if (probs[lij] > max)
+             {
+                 max = probs[lij];
+                 maxClass = l;
+             }
+           }
+           //Assign class based on Maximum probability
+           xt[ij] = maxClass;
+#endif
          }
        }
     //  std::cout << "     --" << EMMPM_getMilliSeconds() - millis << "--" << std::endl;

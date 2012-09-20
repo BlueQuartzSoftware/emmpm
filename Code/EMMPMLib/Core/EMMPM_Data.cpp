@@ -176,7 +176,7 @@ void EMMPM_Data::initVariables()
     this->initCoords[c][1] = 1;
     this->initCoords[c][2] = 2;
     this->initCoords[c][3] = 3;
-    this->grayTable[c] = 0;
+    this->colorTable[c] = 0;
     this->N[c] = 0.0;
     this->w_gamma[c] = 1.0;
     this->min_variance[c] = 1.0;

@@ -87,7 +87,8 @@ class EMMPMLib_EXPORT EMMPM_Data
     unsigned int dims; /**< The number of vector elements in the image.*/
     enum EMMPM_InitializationType initType;  /**< The type of initialization algorithm to use  */
     unsigned int initCoords[EMMPM_MAX_CLASSES][4];  /**<  MAX_CLASSES rows x 4 Columns  */
-    unsigned int grayTable[EMMPM_MAX_CLASSES];
+    //unsigned int grayTable[EMMPM_MAX_CLASSES];
+    unsigned int colorTable[EMMPM_MAX_CLASSES];
     real_t min_variance[EMMPM_MAX_CLASSES]; /**< The minimum value that the variance can be for each class */
     char simulatedAnnealing; /**<  */
     char verbose; /**<  */

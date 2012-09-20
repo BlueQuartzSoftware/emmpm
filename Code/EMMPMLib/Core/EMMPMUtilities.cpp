@@ -135,7 +135,7 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
   unsigned int rows = data->rows;
   unsigned int columns = data->columns;
   unsigned int ixCol = 0;
-  unsigned int* grayTable = data->grayTable;
+  unsigned int* colorTable = data->colorTable;
 
   for (i = 0; i < rows; i++)
   {
@@ -144,7 +144,7 @@ void EMMPMUtilities::ConvertXtToOutputImage(EMMPM_Data::Pointer data)
     {
       gtindex = data->xt[ ixCol + j ];
       classCounts[gtindex]++;
-      raster[index++] = grayTable[gtindex];
+      raster[index++] = colorTable[gtindex];
     }
   }
   // Now we have the counts for the number of pixels of each class.
