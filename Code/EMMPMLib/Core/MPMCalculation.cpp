@@ -447,7 +447,7 @@ void MPMCalculation::execute()
 #endif
 
 #else
-    ParallelCalcLoop pcl(data, yk, &(rndNumbers.front()));
+    ParallelMPMLoop pcl(data, yk, &(rndNumbers.front()));
     pcl.calc(0, rows, 0, cols);
 #endif
 
