@@ -422,7 +422,7 @@ void MPMCalculation::execute()
 
 #if defined (EMMPMLib_USE_PARALLEL_ALGORITHMS)
     tbb::task_scheduler_init init;
-    int threads = 1;// init.default_num_threads();
+    int threads = init.default_num_threads();
 #if USE_TBB_TASK_GROUP
     tbb::task_group* g = new tbb::task_group;
     unsigned int rowIncrement = rows/threads;
