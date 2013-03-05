@@ -73,7 +73,7 @@ class EMMPMLib_EXPORT EMMPM_Data
 
     void initVariables();
 
-    void calculateBetaMatrix();
+    void calculateBetaMatrix(double default_beta);
 
     // -----------------------------------------------------------------------------
     //  Inputs from Command line or GUI program
@@ -114,9 +114,9 @@ class EMMPMLib_EXPORT EMMPM_Data
     real_t* variance; /**< Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
     real_t* prev_mu; /**< Previous EM Loop Value of Mu or Mean   { classes * dims array (classes is slowest moving dimension) }*/
     real_t* prev_variance; /**< Previous EM Loop Value of Variance or Sigma Squared  { classes * dims array (classes is slowest moving dimension) }*/
-    real_t N[EMMPM_MAX_CLASSES]; /**< Dimensions { classes * dims array (classes is slowest moving dimension )}*/
+    real_t  N[EMMPM_MAX_CLASSES]; /**< Dimensions { classes * dims array (classes is slowest moving dimension )}*/
     real_t* probs; /**< Probabilities for each pixel  classes * rows * cols (slowest to fastest)*/
-    real_t workingBeta; /**< Current Beta Value being used  */
+    real_t  workingKappa; /**< Current Kappa Value being used  */
     real_t* couplingBeta; /**< Beta Matrix for Coupling */
     std::vector<CoupleType> coupleEntries; /**< The entries that map the 2 classes that will be coupled along with their value  */
 

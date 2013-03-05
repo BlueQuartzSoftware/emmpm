@@ -199,7 +199,7 @@ void EMMPM_Data::initVariables()
 
   this->y = NULL;
   this->xt = NULL;
-  this->workingBeta = 0.0;
+  this->workingKappa = 0.0;
 
   this->currentEMLoop = 0;
   this->currentMPMLoop = 0;
@@ -235,7 +235,7 @@ void EMMPM_Data::initVariables()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EMMPM_Data::calculateBetaMatrix()
+void EMMPM_Data::calculateBetaMatrix(double default_beta)
 {
     if (NULL == couplingBeta)
     {
@@ -252,7 +252,7 @@ void EMMPM_Data::calculateBetaMatrix()
             if(j == classes) couplingBeta[ij] = 0.0;
             else if(i == j) couplingBeta[ij] = 0.0;
             else if(i == classes) couplingBeta[ij] = 0.0;
-            else couplingBeta[ij] = workingBeta;
+            else couplingBeta[ij] = default_beta;
         }
     }
     // Update the Coupling Matrix with user defined entries

@@ -84,7 +84,7 @@ void EMCalculation::execute()
   EMMPM_Data* data = m_Data.get();
   int k;
   int emiter = data->emIterations;
-  real_t* simAnnealBetas = NULL;
+  real_t* simAnnealKappas = NULL;
   bool stop = false;
 
   float totalLoops = (float)(data->emIterations * data->mpmIterations + data->mpmIterations);
@@ -98,17 +98,17 @@ void EMCalculation::execute()
   data->currentMPMLoop = 0;
 
   //Copy in the users Beta Value
-  data->workingBeta = data->in_beta;
+  data->workingKappa = 1.0;
 
   // If we are using Sim Anneal then create a ramped beta
   if (data->simulatedAnnealing != 0 && data->emIterations > 1)
   {
-    simAnnealBetas=(real_t*)(malloc(sizeof(real_t)*data->emIterations));
+    simAnnealKappas=(real_t*)(malloc(sizeof(real_t)*data->emIterations));
     for (int i = 0; i < data->emIterations; ++i)
     {
-      simAnnealBetas[i] = data->in_beta + pow(i/(data->emIterations-1.0), 8) * (10.0*data->in_beta - data->in_beta);
+      simAnnealKappas[i] = data->workingKappa + pow(i/(data->emIterations-1.0), 8) * (10.0*data->workingKappa - data->workingKappa);
     }
-    data->workingBeta = simAnnealBetas[0];
+    data->workingKappa = simAnnealKappas[0];
   }
 
 
@@ -118,10 +118,10 @@ void EMCalculation::execute()
   // Possibly update the beta value due to simulated Annealing
   if (data->simulatedAnnealing != 0 && data->emIterations > 1)
   {
-    data->workingBeta = simAnnealBetas[k];
+    data->workingKappa = simAnnealKappas[k];
   }
 
-  data->calculateBetaMatrix();
+  data->calculateBetaMatrix(data->in_beta);
 
 
   MorphFilter::Pointer morphFilt = MorphFilter::New();
@@ -207,8 +207,8 @@ void EMCalculation::execute()
     // Possibly update the beta value due to simulated Annealing
     if (data->simulatedAnnealing != 0 && data->emIterations > 1)
     {
-      data->workingBeta = simAnnealBetas[k];
-      data->calculateBetaMatrix();
+      data->workingKappa = simAnnealKappas[k];
+      data->calculateBetaMatrix(data->in_beta);
     }
 
 
@@ -225,5 +225,5 @@ void EMCalculation::execute()
   EMMPMUtilities::ConvertXtToOutputImage(getData());
 
   data->inside_em_loop = 0;
-  free(simAnnealBetas);
+  free(simAnnealKappas);
 }

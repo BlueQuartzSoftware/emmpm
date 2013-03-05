@@ -230,7 +230,7 @@ class ParallelMPMLoop
             {
               curvature_value = data->beta_c * ccost[lij];
             }
-            real_t arg = yk[lij] - (prior) - (edge) - (curvature_value) - data->w_gamma[l];
+            real_t arg = data->workingKappa * (yk[lij] - (prior) - (edge) - (curvature_value) - data->w_gamma[l]);
             post[l] = expf(arg);
             sum += post[l];
           }
